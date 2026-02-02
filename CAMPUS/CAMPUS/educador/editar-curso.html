@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Curso - Campus Virtual</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .modulo-editor {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 2px solid var(--color-gray-200);
+            margin-bottom: 1.5rem;
+        }
+
+        .modulo-editor.editing {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pregunta-item {
+            background: var(--color-gray-50);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .opcion-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-container">
+                        <img src="../assets/logo-entidad.png" alt="Logo" class="logo">
+                        <h1 class="site-title">Campus Virtual - Educador</h1>
+                    </div>
+                    <nav class="nav">
+                        <a href="./dashboard.html" class="nav-link">Dashboard</a>
+                        <a href="#" id="btn-cerrar-sesion" class="btn btn-outline"
+                            style="color: white; border-color: white;">Cerrar Sesión</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container" style="max-width: 1000px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div>
+                        <h2 id="curso-titulo">Editar Curso</h2>
+                        <p class="text-secondary">Configura los módulos y contenidos del curso</p>
+                    </div>
+                    <a href="./dashboard.html" class="btn btn-outline">← Volver al Dashboard</a>
+                </div>
+
+                <!-- Información del Curso -->
+                <div id="curso-info"
+                    style="background: white; padding: 2rem; border-radius: 1rem; box-shadow: var(--shadow-md); margin-bottom: 2rem;">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+
+                <!-- Módulos -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Módulos del Curso</h3>
+                    <button class="btn btn-primary" onclick="agregarModulo()">+ Añadir Módulo</button>
+                </div>
+
+                <div id="modulos-container"></div>
+
+                <div id="empty-modules" class="empty-state hidden">
+                    <div class="empty-state-icon">📚</div>
+                    <h3 class="empty-state-title">No hay módulos aún</h3>
+                    <p class="empty-state-description mb-xl">
+                        Añade módulos para estructurar tu curso
+                    </p>
+                    <button class="btn btn-primary btn-large" onclick="agregarModulo()">
+                        Añadir Primer Módulo
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-bottom">
+                    <p>&copy; <span id="year"></span> Entidad Pública. Campus Virtual</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/courses.js"></script>
+
+    <script>
+        inicializarSupabase();
+        verificarRol(ROLES.EDUCADOR, '../catalogo.html');
+
+        const cursoId = obtenerParametroURL('id');
+        if (!cursoId) {
+            mostrarNotificacion('Curso no encontrado', 'error');
+            setTimeout(() => window.location.href = './dashboard.html', 1500);
+        }
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+        document.getElementById('btn-cerrar-sesion').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await cerrarSesion();
+        });
+
+        let cursoData = null;
+        let modulosData = [];
+
+        async function cargarCurso() {
+            const resultado = await obtenerCursoPorId(cursoId);
+
+            if (!resultado.success) {
+                mostrarNotificacion('Error al cargar curso', 'error');
+                return;
+            }
+
+            cursoData = resultado.curso;
+            modulosData = cursoData.modulos || [];
+
+            document.getElementById('curso-titulo').textContent = `Editar: ${cursoData.titulo}`;
+
+            document.getElementById('curso-info').innerHTML = `
+        <h3>${escaparHTML(cursoData.titulo)}</h3>
+        <p class="text-secondary">${escaparHTML(cursoData.descripcion || 'Sin descripción')}</p>
+        ${cursoData.oficina_tema ? `<p class="mt-sm"><strong>Oficina/Tema:</strong> ${escaparHTML(cursoData.oficina_tema)}</p>` : ''}
+      `;
+
+            mostrarModulos();
+        }
+
+        function mostrarModulos() {
+            if (modulosData.length === 0) {
+                document.getElementById('modulos-container').innerHTML = '';
+                document.getElementById('empty-modules').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('empty-modules').classList.add('hidden');
+
+            const html = modulosData.map((modulo, index) => `
+        <div class="modulo-editor" id="modulo-${modulo.id || 'nuevo'}">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4>Módulo ${index + 1}: ${escaparHTML(modulo.titulo || 'Sin título')}</h4>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-small btn-outline" onclick="editarModulo(${index})">✏️ Editar</button>
+              <button class="btn btn-small btn-outline" onclick="eliminarModulo(${index})" style="color: var(--color-error); border-color: var(--color-error);">🗑️</button>
+            </div>
+          </div>
+          
+          <div id="modulo-content-${index}">
+            <p class="text-secondary">${escaparHTML(modulo.descripcion || 'Sin descripción')}</p>
+            ${modulo.actividades && modulo.actividades.length > 0 ?
+                    `<span class="badge badge-success mt-sm">✓ Tiene ${modulo.actividades[0].preguntas?.length || 0} preguntas</span>` :
+                    '<span class="badge badge-warning mt-sm">⚠ Sin actividad</span>'}
+          </div>
+          
+          <div id="modulo-form-${index}" class="hidden"></div>
+        </div>
+      `).join('');
+
+            document.getElementById('modulos-container').innerHTML = html;
+        }
+
+        function agregarModulo() {
+            const nuevoModulo = {
+                curso_id: cursoId,
+                titulo: '',
+                descripcion: '',
+                orden: modulosData.length + 1,
+                contenido_texto: '',
+                url_pdf: null,
+                url_video: '',
+                links: []
+            };
+
+            modulosData.push(nuevoModulo);
+            mostrarModulos();
+            editarModulo(modulosData.length - 1);
+        }
+
+        function editarModulo(index) {
+            const modulo = modulosData[index];
+            const formContainer = document.getElementById(`modulo-form-${index}`);
+            const contentContainer = document.getElementById(`modulo-content-${index}`);
+
+            contentContainer.classList.add('hidden');
+            formContainer.classList.remove('hidden');
+
+            formContainer.innerHTML = `
+        <div class="form-group">
+          <label class="form-label">Título del Módulo *</label>
+          <input type="text" class="form-input" id="titulo-${index}" value="${escaparHTML(modulo.titulo || '')}" placeholder="Ej: Introducción al tema">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-textarea" id="descripcion-${index}" placeholder="Breve descripción del módulo">${escaparHTML(modulo.descripcion || '')}</textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Contenido de Texto</label>
+          <textarea class="form-textarea" id="contenido-${index}" rows="6" placeholder="Contenido principal del módulo...">${escaparHTML(modulo.contenido_texto || '')}</textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">URL de Video (YouTube/Vimeo)</label>
+          <input type="url" class="form-input" id="video-${index}" value="${escaparHTML(modulo.contenido_tipo === 'video' ? (modulo.contenido_url || '') : '')}" placeholder="https://youtube.com/watch?v=...">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Documento PDF</label>
+          <input type="file" class="form-input" id="pdf-file-${index}" accept=".pdf" onchange="subirPDFModulo(${index}, this.files[0])">
+          <input type="hidden" id="pdf-url-${index}" value="${escaparHTML(modulo.contenido_tipo === 'pdf' ? (modulo.contenido_url || '') : '')}">
+          ${modulo.contenido_tipo === 'pdf' && modulo.contenido_url ? `<p class="text-success mt-sm">✓ PDF cargado: <a href="${modulo.contenido_url}" target="_blank">Ver documento</a></p>` : ''}
+        </div>
+        
+        <div class="form-group" style="background: #f0f9ff; border: 2px dashed #0ea5e9; padding: 1rem; border-radius: 8px;">
+          <label class="form-label" style="color: #0369a1;">🔗 Código de Inserción (Video, HTML, Embed)</label>
+          <p class="text-secondary" style="font-size: 0.85rem; margin-bottom: 0.5rem;">Pega aquí el código HTML (iframe) para insertar videos de YouTube, Vimeo, rompecabezas, juegos o cualquier actividad externa.</p>
+          <textarea class="form-textarea" id="html-embed-${index}" rows="4" placeholder="Pega aquí el código <iframe ...></iframe>">${escaparHTML(modulo.html_embed || '')}</textarea>
+          ${modulo.html_embed ? '<p class="text-success mt-sm">✓ Código configurado correctamente</p>' : ''}
+        </div>
+        
+        <h4 class="mt-xl mb-md">Actividad de Evaluación</h4>
+        <div id="actividad-${index}">
+          ${renderizarActividad(index, modulo)}
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+          <button class="btn btn-primary" onclick="guardarModulo(${index})">💾 Guardar Módulo</button>
+          <button class="btn btn-outline" onclick="cancelarEdicion(${index})">Cancelar</button>
+        </div>
+      `;
+        }
+
+        function renderizarActividad(index, modulo) {
+            const actividad = modulo.actividades?.[0];
+            const preguntas = actividad?.preguntas || [];
+
+            let html = `
+        <div class="form-group">
+          <label class="form-label">Título de la Actividad</label>
+          <input type="text" class="form-input" id="actividad-titulo-${index}" value="${escaparHTML(actividad?.titulo || 'Quiz del Módulo')}" placeholder="Quiz del Módulo">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Porcentaje Mínimo de Aprobación</label>
+          <input type="number" class="form-input" id="actividad-requisito-${index}" value="${actividad?.requisito_aprobacion || 70}" min="0" max="100">
+        </div>
+        
+        <h5 class="mt-lg mb-md">Preguntas</h5>
+        <div id="preguntas-${index}">
+      `;
+
+            preguntas.forEach((pregunta, pIndex) => {
+                html += renderizarPregunta(index, pIndex, pregunta);
+            });
+
+            html += `
+        </div>
+        <button type="button" class="btn btn-outline btn-small mt-md" onclick="agregarPregunta(${index})">+ Añadir Pregunta</button>
+      `;
+
+            return html;
+        }
+
+        function renderizarPregunta(moduloIndex, preguntaIndex, pregunta = null) {
+            const opciones = pregunta?.opciones || [{ texto: '', correcta: true }, { texto: '', correcta: false }, { texto: '', correcta: false }];
+
+            let html = `
+        <div class="pregunta-item">
+          <div class="form-group">
+            <label class="form-label">Pregunta ${preguntaIndex + 1}</label>
+            <input type="text" class="form-input" id="pregunta-${moduloIndex}-${preguntaIndex}" value="${escaparHTML(pregunta?.pregunta || '')}" placeholder="¿Escribe tu pregunta aquí?">
+          </div>
+          
+          <label class="form-label">Opciones (marca la correcta)</label>
+      `;
+
+            opciones.forEach((opcion, oIndex) => {
+                html += `
+          <div class="opcion-container">
+            <input type="radio" name="correcta-${moduloIndex}-${preguntaIndex}" value="${oIndex}" ${opcion.correcta ? 'checked' : ''}>
+            <input type="text" class="form-input" id="opcion-${moduloIndex}-${preguntaIndex}-${oIndex}" value="${escaparHTML(opcion.texto || '')}" placeholder="Opción ${oIndex + 1}">
+          </div>
+        `;
+            });
+
+            html += `
+          <button type="button" class="btn btn-small btn-outline mt-sm" style="color: var(--color-error);" onclick="eliminarPregunta(${moduloIndex}, ${preguntaIndex})">🗑️ Eliminar Pregunta</button>
+        </div>
+      `;
+
+            return html;
+        }
+
+        function agregarPregunta(moduloIndex) {
+            const container = document.getElementById(`preguntas-${moduloIndex}`);
+            const preguntaIndex = container.children.length;
+            container.innerHTML += renderizarPregunta(moduloIndex, preguntaIndex);
+        }
+
+        function eliminarPregunta(moduloIndex, preguntaIndex) {
+            const container = document.getElementById(`preguntas-${moduloIndex}`);
+            if (container.children.length > 1) {
+                container.children[preguntaIndex].remove();
+            } else {
+                mostrarNotificacion('Debe haber al menos una pregunta', 'warning');
+            }
+        }
+
+        async function guardarModulo(index) {
+            const modulo = modulosData[index];
+
+            const urlVideo = document.getElementById(`video-${index}`).value.trim();
+            const urlPdf = document.getElementById(`pdf-url-${index}`).value.trim();
+            const htmlEmbed = document.getElementById(`html-embed-${index}`).value.trim();
+
+            // Determinar tipo de contenido
+            let contenidoTipo = 'texto';
+            let contenidoUrl = null;
+
+            if (urlVideo) {
+                contenidoTipo = 'video';
+                contenidoUrl = urlVideo;
+            } else if (urlPdf) {
+                contenidoTipo = 'pdf';
+                contenidoUrl = urlPdf;
+            }
+
+            const datos = {
+                curso_id: cursoId,
+                titulo: document.getElementById(`titulo-${index}`).value.trim(),
+                descripcion: document.getElementById(`descripcion-${index}`).value.trim(),
+                orden: index + 1,
+                contenido_texto: document.getElementById(`contenido-${index}`).value.trim(),
+                contenido_tipo: contenidoTipo,
+                contenido_url: contenidoUrl,
+                html_embed: htmlEmbed || null
+            };
+
+            if (!datos.titulo) {
+                mostrarNotificacion('El título del módulo es requerido', 'error');
+                return;
+            }
+
+            // Guardar módulo
+            let moduloId = modulo.id;
+            if (moduloId) {
+                const resultado = await actualizarModulo(moduloId, datos);
+                if (!resultado.success) {
+                    mostrarNotificacion('Error al actualizar módulo', 'error');
+                    return;
+                }
+            } else {
+                const resultado = await crearModulo(datos);
+                if (!resultado.success) {
+                    mostrarNotificacion('Error al crear módulo', 'error');
+                    return;
+                }
+                moduloId = resultado.modulo.id;
+                modulosData[index].id = moduloId;
+            }
+
+            // Guardar actividad y preguntas
+            await guardarActividad(index, moduloId);
+
+            mostrarNotificacion('Módulo guardado exitosamente', 'success');
+            await cargarCurso();
+        }
+
+        async function guardarActividad(moduloIndex, moduloId) {
+            const tituloActividad = document.getElementById(`actividad-titulo-${moduloIndex}`).value.trim();
+            const requisito = parseInt(document.getElementById(`actividad-requisito-${moduloIndex}`).value) || 70;
+
+            // Crear actividad
+            const actividadResultado = await crearActividad(moduloId, {
+                titulo: tituloActividad || 'Quiz del Módulo',
+                tipo: 'quiz',
+                requisito_aprobacion: requisito
+            });
+
+            if (!actividadResultado.success) return;
+
+            const actividadId = actividadResultado.actividad.id;
+
+            // Guardar preguntas
+            const preguntasContainer = document.getElementById(`preguntas-${moduloIndex}`);
+            const preguntasCount = preguntasContainer.children.length;
+
+            for (let i = 0; i < preguntasCount; i++) {
+                const preguntaTexto = document.getElementById(`pregunta-${moduloIndex}-${i}`)?.value.trim();
+                if (!preguntaTexto) continue;
+
+                const opciones = [];
+                const correctaIndex = parseInt(document.querySelector(`input[name="correcta-${moduloIndex}-${i}"]:checked`)?.value || '0');
+
+                for (let j = 0; j < 3; j++) {
+                    const opcionTexto = document.getElementById(`opcion-${moduloIndex}-${i}-${j}`)?.value.trim();
+                    if (opcionTexto) {
+                        opciones.push({
+                            texto: opcionTexto,
+                            correcta: j === correctaIndex
+                        });
+                    }
+                }
+
+                if (opciones.length > 0) {
+                    await crearPregunta(actividadId, {
+                        pregunta: preguntaTexto,
+                        opciones: opciones,
+                        orden: i + 1
+                    });
+                }
+            }
+        }
+
+        function cancelarEdicion(index) {
+            const formContainer = document.getElementById(`modulo-form-${index}`);
+            const contentContainer = document.getElementById(`modulo-content-${index}`);
+
+            formContainer.classList.add('hidden');
+            contentContainer.classList.remove('hidden');
+        }
+
+        function eliminarModulo(index) {
+            if (!confirm('¿Estás seguro de eliminar este módulo?')) return;
+
+            modulosData.splice(index, 1);
+            mostrarModulos();
+            mostrarNotificacion('Módulo eliminado. Recuerda que los cambios son permanentes en la base de datos.', 'info');
+        }
+
+        async function subirPDFModulo(index, file) {
+            if (!file) return;
+
+            if (file.type !== 'application/pdf') {
+                mostrarNotificacion('Solo se permiten archivos PDF', 'error');
+                return;
+            }
+
+            mostrarNotificacion('Subiendo PDF...', 'info');
+
+            try {
+                const urlPdf = await cargarPDF(file, 'modulos', `curso_${cursoId}`);
+
+                if (urlPdf) {
+                    document.getElementById(`pdf-url-${index}`).value = urlPdf;
+                    mostrarNotificacion('PDF subido correctamente. Guarda el módulo para aplicar los cambios.', 'success');
+                } else {
+                    mostrarNotificacion('Error al subir el PDF', 'error');
+                }
+            } catch (error) {
+                console.error('Error al subir PDF:', error);
+                mostrarNotificacion('Error al subir el PDF: ' + error.message, 'error');
+            }
+        }
+
+        cargarCurso();
+    </script>
+</body>
+
+</html>

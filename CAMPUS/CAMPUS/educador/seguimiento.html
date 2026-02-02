@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Estudiantes - Campus INFIBAGUE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
+    <link rel="icon" href="../assets/favicon.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/courses.js"></script>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-link {
+            color: var(--primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.3s ease;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-progress {
+            background: #fbbf24;
+            color: #92400e;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="./dashboard.html" class="back-link">← Volver al Dashboard</a>
+
+        <div id="curso-info" class="mb-xl">
+            <!-- Se llena dinámicamente -->
+            <div class="loader"></div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="tabla-estudiantes">
+                <thead>
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Cédula</th>
+                        <th>Oficina / Cargo</th>
+                        <th>Fecha Inscripción</th>
+                        <th>Progreso</th>
+                        <th>Estado</th>
+                        <th>Certificado</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-estudiantes">
+                    <tr>
+                        <td colspan="7" class="text-center py-xl">Cargando estudiantes...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticación
+        const usuario = obtenerUsuarioActual();
+        if (!usuario || usuario.rol !== ROLES.EDUCADOR) {
+            window.location.href = '../login.html';
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const cursoId = urlParams.get('id');
+
+        if (!cursoId) {
+            mostrarNotificacion('Curso no especificado', 'error');
+            setTimeout(() => window.location.href = './dashboard.html', 1500);
+        }
+
+        async function cargarDatos() {
+            try {
+                // 1. Cargar info del curso
+                const resultadoCurso = await obtenerCursoPorId(cursoId);
+                if (!resultadoCurso.success) throw new Error('Error al cargar curso');
+
+                const curso = resultadoCurso.curso;
+                document.getElementById('curso-info').innerHTML = `
+                    <h1>${escaparHTML(curso.titulo)}</h1>
+                    <p class="text-secondary">Seguimiento de estudiantes inscritos</p>
+                `;
+
+                // 2. Cargar estudiantes
+                const resultadoEstudiantes = await obtenerEstudiantesCurso(cursoId);
+                const listaContainer = document.getElementById('lista-estudiantes');
+
+                if (!resultadoEstudiantes.success || resultadoEstudiantes.inscripciones.length === 0) {
+                    listaContainer.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-xl text-secondary">
+                                No hay estudiantes inscritos en este curso aún.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                listaContainer.innerHTML = resultadoEstudiantes.inscripciones.map(ins => {
+                    const estudiante = ins.funcionario || {};
+                    const progreso = ins.porcentaje_avance || 0;
+                    const completado = ins.aprobado;
+
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${escaparHTML(estudiante.nombre_completo || 'N/A')}</strong>
+                            </td>
+                            <td>${escaparHTML(estudiante.cedula || 'N/A')}</td>
+                            <td>
+                                ${escaparHTML(estudiante.oficina_cargo || 'N/A')}
+                            </td>
+                            <td>${formatearFecha(ins.fecha_inscripcion)}</td>
+                            <td style="min-width: 150px;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${progreso}%"></div>
+                                    </div>
+                                    <span style="font-size: 0.8rem; min-width: 35px;">${progreso}%</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-badge ${completado ? 'status-completed' : 'status-progress'}">
+                                    ${completado ? 'Aprobado' : 'En Curso'}
+                                </span>
+                            </td>
+                            <td>
+                                ${completado ?
+                            `<span title="Certificado generado">🎓 Sí</span>` :
+                            `<span class="text-secondary">-</span>`
+                        }
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error(error);
+                mostrarNotificacion('Error al cargar datos', 'error');
+            }
+        }
+
+        cargarDatos();
+    </script>
+</body>
+
+</html>

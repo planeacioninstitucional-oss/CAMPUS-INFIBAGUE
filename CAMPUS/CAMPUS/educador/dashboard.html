@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Educador - Campus Virtual</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="main-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-container">
+                        <img src="../assets/logo-entidad.png" alt="Logo" class="logo">
+                        <h1 class="site-title">Campus Virtual - Educador</h1>
+                    </div>
+                    <nav class="nav">
+                        <a href="../catalogo.html" class="nav-link">Catálogo</a>
+                        <a href="./dashboard.html" class="nav-link active">Mi Dashboard</a>
+                        <a href="#" id="btn-cerrar-sesion" class="btn btn-outline"
+                            style="color: white; border-color: white;">Cerrar Sesión</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div>
+                        <h2>Bienvenido, <span id="user-nombre"></span></h2>
+                        <p class="text-secondary">Panel de control del educador</p>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="cambiarVistaAFuncionario()" class="btn btn-outline"
+                            title="Ver el catálogo como lo ven los funcionarios">
+                            👁️ Ver como Funcionario
+                        </button>
+                        <a href="./crear-curso.html" class="btn btn-primary btn-large">
+                            + Crear Nuevo Curso
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-value" id="total-cursos">0</div>
+                        <div class="stat-card-label">Cursos Creados</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: var(--color-secondary);">
+                        <div class="stat-card-value" style="color: var(--color-secondary);" id="total-estudiantes">0
+                        </div>
+                        <div class="stat-card-label">Estudiantes Inscritos</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: var(--color-success);">
+                        <div class="stat-card-value" style="color: var(--color-success);" id="total-aprobados">0</div>
+                        <div class="stat-card-label">Estudiantes Aprobados</div>
+                    </div>
+                </div>
+
+                <h3 class="mt-2xl mb-lg">Mis Cursos</h3>
+
+                <!-- Lista de Cursos -->
+                <div id="cursos-container"></div>
+
+                <!-- Estado vacío -->
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-state-icon">📚</div>
+                    <h3 class="empty-state-title">No has creado cursos aún</h3>
+                    <p class="empty-state-description mb-xl">
+                        Comienza creando tu primer curso para compartir conocimiento
+                    </p>
+                    <a href="./crear-curso.html" class="btn btn-primary btn-large">
+                        Crear Mi Primer Curso
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-bottom">
+                    <p>&copy; <span id="year"></span> Entidad Pública. Campus Virtual</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/courses.js"></script>
+
+    <script>
+        inicializarSupabase();
+        verificarRol(ROLES.EDUCADOR, '../catalogo.html');
+
+        const usuario = obtenerUsuarioActual();
+        document.getElementById('user-nombre').textContent = usuario.nombre_completo;
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        document.getElementById('btn-cerrar-sesion').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await cerrarSesion();
+        });
+
+        // Cargar datos
+        async function cargarDashboard() {
+            mostrarLoader('cursos-container');
+
+            const resultado = await obtenerCursosEducador();
+
+            if (resultado.success) {
+                const cursos = resultado.cursos;
+
+                if (cursos.length === 0) {
+                    document.getElementById('cursos-container').innerHTML = '';
+                    document.getElementById('empty-state').classList.remove('hidden');
+                    return;
+                }
+
+                document.getElementById('empty-state').classList.add('hidden');
+                document.getElementById('total-cursos').textContent = cursos.length;
+
+                // TODO: Calcular estadísticas reales de inscripciones
+                // Por ahora mostramos placeholders
+
+                mostrarCursos(cursos);
+            } else {
+                mostrarContenido('cursos-container', '<div class="alert alert-error">Error al cargar cursos</div>');
+            }
+        }
+
+        function mostrarCursos(cursos) {
+            const html = cursos.map(curso => `
+        <div class="card-curso" style="margin-bottom: 1.5rem;">
+          <div class="card-curso-imagen" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+            📚
+          </div>
+          <div class="card-curso-body">
+            <h3 class="card-curso-titulo">${escaparHTML(curso.titulo)}</h3>
+            <p class="card-curso-descripcion">${escaparHTML(curso.descripcion || 'Sin descripción')}</p>
+            <div class="card-curso-meta">
+              ${curso.oficina_tema ? `<span class="card-curso-meta-item">📋 ${escaparHTML(curso.oficina_tema)}</span>` : ''}
+              <span class="card-curso-meta-item">
+                ${curso.activo ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-error">Inactivo</span>'}
+              </span>
+            </div>
+          </div>
+          <div class="card-curso-footer">
+            <a href="./editar-curso.html?id=${curso.id}" class="btn btn-primary btn-small">
+              Editar Curso
+            </a>
+            <a href="./seguimiento.html?id=${curso.id}" class="btn btn-secondary btn-small">
+              Ver Seguimiento
+            </a>
+            <button class="btn btn-outline btn-small" onclick="toggleActivo('${curso.id}', ${!curso.activo})">
+              ${curso.activo ? 'Desactivar' : 'Activar'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+            document.getElementById('cursos-container').innerHTML = '<div class="cursos-grid">' + html + '</div>';
+        }
+
+        async function toggleActivo(cursoId, nuevoEstado) {
+            const resultado = await actualizarCurso(cursoId, { activo: nuevoEstado });
+
+            if (resultado.success) {
+                mostrarNotificacion(`Curso ${nuevoEstado ? 'activado' : 'desactivado'}`, 'success');
+                cargarDashboard();
+            } else {
+                mostrarNotificacion('Error al actualizar curso', 'error');
+            }
+        }
+
+        cargarDashboard();
+    </script>
+</body>
+
+</html>
