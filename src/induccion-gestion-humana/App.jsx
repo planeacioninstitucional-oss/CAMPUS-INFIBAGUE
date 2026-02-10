@@ -3,6 +3,7 @@ import { ModuleTheory } from './components/Theory';
 import { GameShareholders, GameProjects, GameStructure, GameValues, GameProcessPuzzle } from './components/Games';
 import { ModuleEvaluation } from './components/Evaluation';
 import { Button, Modal, UsersIcon, LayersIcon, ActivityIcon, StarIcon, PuzzleIcon, ClipboardCheckIcon, BookIcon, PlayIcon } from './components/ui';
+import { useProgresoStore } from '../store/useProgresoStore';
 
 // --- APP PRINCIPAL ---
 const App = () => {
@@ -12,6 +13,15 @@ const App = () => {
     const [completedModules, setCompletedModules] = useState(new Set());
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
+    // Zustand store para progreso persistente
+    const {
+        cargarProgreso,
+        guardarProgreso,
+        inscribirEnCurso,
+        inscripciones,
+        loading: storeLoading
+    } = useProgresoStore();
 
     const modules = [
         { id: 0, title: "Teoría Institucional", component: ModuleTheory, icon: BookIcon },
@@ -29,29 +39,30 @@ const App = () => {
             try {
                 console.log('🔄 Iniciando Gestión Humana...');
 
-                // 1. Validar Acceso
-                let accessible = true;
-                if (window.SupabaseProgress && window.SupabaseProgress.validateModuleAccess) {
-                    accessible = await window.SupabaseProgress.validateModuleAccess('gestion_humana');
-                } else if (typeof window.validateModuleAccess === 'function') {
-                    accessible = await window.validateModuleAccess('gestion_humana');
+                // 1. Cargar progreso desde Supabase
+                await cargarProgreso();
+
+                // 2. Buscar el curso de Gestión Humana en Supabase
+                const supabase = window.supabase?.createClient(
+                    'https://bsonmzabqkkeoqnlgthe.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzb25temFicWtrZW9xbmxndGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2OTA4OTEsImV4cCI6MjA4NTI2Njg5MX0.Utt46LUI20nuT3NZDnS_jgyhgBcr3llgFBRCVdJRIgs'
+                );
+
+                if (supabase) {
+                    const { data: curso } = await supabase
+                        .from('cursos')
+                        .select('id')
+                        .eq('titulo', 'Inducción - Gestión Humana')
+                        .single();
+
+                    if (curso) {
+                        // Inscribir automáticamente si no está inscrito
+                        await inscribirEnCurso(curso.id);
+                        console.log('✅ Usuario inscrito en Gestión Humana');
+                    }
                 }
 
-                if (!accessible) {
-                    console.warn('⛔ Acceso denegado, redirigiendo...');
-                    return; // validateModuleAccess maneja la redirección
-                }
-
-                // 2. Iniciar Módulo (Marcar como visto/en progreso)
-                if (window.SupabaseProgress && window.SupabaseProgress.startModule) {
-                    await window.SupabaseProgress.startModule('gestion_humana');
-                } else if (typeof window.startModule === 'function') {
-                    await window.startModule('gestion_humana');
-                }
-
-                console.log('✅ Módulo iniciado correctamente');
-
-                // 3. Cargar progreso guardado
+                // 3. Cargar progreso local como fallback
                 try {
                     const progressKey = `gestion_humana_progress`;
                     const savedProgress = JSON.parse(localStorage.getItem(progressKey) || '{}');
@@ -65,10 +76,12 @@ const App = () => {
                         }
                     });
                     setCompletedModules(completed);
-                    console.log('✅ Progreso cargado:', completed);
+                    console.log('✅ Progreso local cargado:', completed);
                 } catch (err) {
-                    console.error('Error cargando progreso:', err);
+                    console.error('Error cargando progreso local:', err);
                 }
+
+                console.log('✅ Módulo iniciado correctamente');
             } catch (error) {
                 console.error('❌ Error fatal inicializando módulo:', error);
             } finally {
@@ -77,7 +90,7 @@ const App = () => {
         };
 
         initModule();
-    }, []);
+    }, [cargarProgreso, inscribirEnCurso]);
 
     const handleModuleComplete = async (score) => {
         const newScores = [...scores];
@@ -96,19 +109,45 @@ const App = () => {
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem(progressKey, JSON.stringify(savedProgress));
-            console.log(`✅ Progreso guardado: ${currentModuleData.title}`);
+            console.log(`✅ Progreso local guardado: ${currentModuleData.title}`);
         } catch (err) {
             console.error('Error guardando en localStorage:', err);
         }
 
-        // Guardar paso actual en Supabase
-        if (typeof window.saveCurrentStep === 'function') {
-            try {
-                await window.saveCurrentStep('gestion_humana', currentModule, currentModuleData.title);
-                console.log(`✅ Paso guardado en Supabase: ${currentModuleData.title}`);
-            } catch (err) {
-                console.error('Error guardando en Supabase:', err);
+        // Guardar en Supabase usando Zustand store
+        try {
+            // Encontrar la inscripción del curso de Gestión Humana
+            const inscripcion = inscripciones.find(i =>
+                i.curso?.titulo === 'Inducción - Gestión Humana'
+            );
+
+            if (inscripcion) {
+                // Buscar el módulo correspondiente en Supabase
+                const supabase = window.supabase?.createClient(
+                    'https://bsonmzabqkkeoqnlgthe.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzb25temFicWtrZW9xbmxndGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2OTA4OTEsImV4cCI6MjA4NTI2Njg5MX0.Utt46LUI20nuT3NZDnS_jgyhgBcr3llgFBRCVdJRIgs'
+                );
+
+                if (supabase) {
+                    const { data: modulo } = await supabase
+                        .from('modulos')
+                        .select('id')
+                        .eq('curso_id', inscripcion.curso_id)
+                        .eq('orden', currentModule + 1)
+                        .single();
+
+                    if (modulo) {
+                        // Calcular porcentaje (cada módulo completado = 100/7 ≈ 14.28%)
+                        const porcentaje = Math.round(((currentModule + 1) / modules.length) * 100);
+
+                        // Guardar progreso en Supabase
+                        await guardarProgreso(inscripcion.id, modulo.id, porcentaje);
+                        console.log(`✅ Progreso guardado en Supabase: ${currentModuleData.title} (${porcentaje}%)`);
+                    }
+                }
             }
+        } catch (err) {
+            console.error('Error guardando en Supabase:', err);
         }
 
         // Actualizar estado de módulos completados
