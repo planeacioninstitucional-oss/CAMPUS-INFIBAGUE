@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Autenticación - Campus INFIBAGUÉ</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1e3a8a;
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            background: #f0f9ff;
+        }
+
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🧪 Test de Autenticación - Campus INFIBAGUÉ</h1>
+
+        <div class="test-section">
+            <h3>1. Verificar Conexión a Supabase</h3>
+            <button onclick="testConnection()">Probar Conexión</button>
+            <div id="connection-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Listar Usuarios en Base de Datos</h3>
+            <button onclick="listUsers()">Ver Usuarios</button>
+            <div id="users-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Probar Login</h3>
+            <p>Usuarios de prueba disponibles:</p>
+            <ul>
+                <li><strong>Educador:</strong> Cédula: 1106632796</li>
+                <li><strong>Funcionario:</strong> Cédula: 1110507603</li>
+                <li><strong>Funcionario:</strong> Cédula: 1104936336</li>
+            </ul>
+            <input type="text" id="test-cedula" placeholder="Cédula" value="1106632796">
+            <input type="password" id="test-password" placeholder="Contraseña" value="123456">
+            <button onclick="testLogin()">Probar Login</button>
+            <div id="login-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Estado de Sesión Actual</h3>
+            <button onclick="checkSession()">Verificar Sesión</button>
+            <div id="session-result"></div>
+        </div>
+    </div>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/auth.js"></script>
+    <script>
+        // Inicializar Supabase
+        inicializarSupabase();
+
+        async function testConnection() {
+            const result = document.getElementById('connection-result');
+            result.innerHTML = '<p>Probando conexión...</p>';
+
+            try {
+                const supabase = getSupabase();
+                if (!supabase) {
+                    result.innerHTML = '<p class="error">❌ Error: Cliente de Supabase no inicializado</p>';
+                    return;
+                }
+
+                // Probar una consulta simple
+                const { data, error } = await supabase
+                    .from('usuarios')
+                    .select('count');
+
+                if (error) {
+                    result.innerHTML = `<p class="error">❌ Error de conexión: ${error.message}</p>`;
+                } else {
+                    result.innerHTML = `
+                        <p class="success">✅ Conexión exitosa a Supabase</p>
+                        <p>URL: ${SUPABASE_URL}</p>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function listUsers() {
+            const result = document.getElementById('users-result');
+            result.innerHTML = '<p>Cargando usuarios...</p>';
+
+            try {
+                const supabase = getSupabase();
+                const { data, error } = await supabase
+                    .from('usuarios')
+                    .select('id, cedula, nombre_completo, rol')
+                    .limit(5);
+
+                if (error) {
+                    result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+                } else {
+                    result.innerHTML = `
+                        <p class="success">✅ ${data.length} usuarios encontrados</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testLogin() {
+            const result = document.getElementById('login-result');
+            const cedula = document.getElementById('test-cedula').value;
+            const password = document.getElementById('test-password').value;
+
+            result.innerHTML = '<p>Intentando login...</p>';
+
+            try {
+                const response = await iniciarSesion(cedula, password);
+
+                if (response.success) {
+                    result.innerHTML = `
+                        <p class="success">✅ Login exitoso!</p>
+                        <pre>${JSON.stringify(response.usuario, null, 2)}</pre>
+                    `;
+                } else {
+                    result.innerHTML = `<p class="error">❌ ${response.message}</p>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function checkSession() {
+            const result = document.getElementById('session-result');
+
+            try {
+                const usuario = obtenerUsuarioActual();
+
+                if (usuario) {
+                    result.innerHTML = `
+                        <p class="success">✅ Sesión activa</p>
+                        <pre>${JSON.stringify(usuario, null, 2)}</pre>
+                        <button onclick="cerrarSesion()">Cerrar Sesión</button>
+                    `;
+                } else {
+                    result.innerHTML = '<p class="error">❌ No hay sesión activa</p>';
+                }
+            } catch (error) {
+                result.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-test al cargar
+        window.addEventListener('load', () => {
+            console.log('🧪 Página de prueba cargada');
+            console.log('Supabase Client:', getSupabase());
+        });
+    </script>
+</body>
+
+</html>
