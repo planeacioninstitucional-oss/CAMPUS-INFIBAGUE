@@ -16,29 +16,32 @@ let supabaseClient = null;
  * Inicializa el cliente de Supabase
  * Requiere que la librería de Supabase esté cargada
  */
-function inicializarSupabase() {
+window.inicializarSupabase = function () {
   if (typeof supabase === 'undefined') {
-    console.error('La librería de Supabase no está cargada. Asegúrate de incluir el script en el HTML.');
+    console.error('Supabase no cargado');
     return null;
   }
 
-  if (!supabaseClient) {
-    try {
-      // Inicializar cliente de Supabase
-      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      
-      console.log('Supabase inicializado correctamente');
-      console.log('- URL:', SUPABASE_URL);
-      console.log('- Cliente:', supabaseClient ? '✓' : '✗');
+  console.log('Supabase inicializado correctamente');
+};
 
-    } catch (error) {
-      console.error('Error al inicializar Supabase:', error);
-      return null;
-    }
+if (!supabaseClient) {
+  try {
+    // Inicializar cliente de Supabase
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    console.log('Supabase inicializado correctamente');
+    console.log('- URL:', SUPABASE_URL);
+    console.log('- Cliente:', supabaseClient ? '✓' : '✗');
+
+  } catch (error) {
+    console.error('Error al inicializar Supabase:', error);
+    return null;
   }
-
-  return supabaseClient;
 }
+
+return supabaseClient;
+
 
 /**
  * Obtiene el cliente de Supabase
@@ -67,7 +70,7 @@ function getAuth() {
 async function getCurrentUser() {
   const client = getSupabase();
   if (!client) return null;
-  
+
   const { data: { user } } = await client.auth.getUser();
   return user;
 }
@@ -102,7 +105,7 @@ async function getCurrentUserProfile() {
 async function isAuthenticated() {
   const client = getSupabase();
   if (!client) return false;
-  
+
   const { data: { session } } = await client.auth.getSession();
   return !!session;
 }

@@ -1,27 +1,24 @@
 import { defineConfig } from 'vite'
+import { resolve } from 'path'
 
 export default defineConfig({
-    root: '.',
-    publicDir: 'public',
     build: {
-        outDir: 'dist',
-        emptyOutDir: true,
         rollupOptions: {
             input: {
-                main: 'index.html',
-                login: 'login.html',
-                registro: 'registro.html',
-                catalogo: 'catalogo.html',
-                'curso-detalle': 'curso-detalle.html',
-                'induccion-curso': 'induccion-curso.html',
-                'induccion-gestion-humana': 'cursos/induccion-gestion-humana.html',
+                main: resolve(__dirname, 'index.html'),
+                login: resolve(__dirname, 'login.html'),
+                registro: resolve(__dirname, 'registro.html'),
+                catalogo: resolve(__dirname, 'catalogo.html'),
+                'curso-detalle': resolve(__dirname, 'curso-detalle.html'),
+                'induccion-curso': resolve(__dirname, 'induccion-curso.html'),
+                'induccion-gestion-humana': resolve(__dirname, 'cursos/induccion-gestion-humana.html'),
                 // Dashboards
-                'funcionario-dashboard': 'funcionario/dashboard.html',
-                'funcionario-certificados': 'funcionario/certificados.html',
-                'educador-dashboard': 'educador/dashboard.html',
-                'educador-crear': 'educador/crear-curso.html',
-                'educador-editar': 'educador/editar-curso.html',
-                'educador-seguimiento': 'educador/seguimiento.html'
+                'funcionario-dashboard': resolve(__dirname, 'funcionario/dashboard.html'),
+                'funcionario-certificados': resolve(__dirname, 'funcionario/certificados.html'),
+                'educador-dashboard': resolve(__dirname, 'educador/dashboard.html'),
+                'educador-crear': resolve(__dirname, 'educador/crear-curso.html'),
+                'educador-editar': resolve(__dirname, 'educador/editar-curso.html'),
+                'educador-seguimiento': resolve(__dirname, 'educador/seguimiento.html')
             }
         }
     },
