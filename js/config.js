@@ -8,36 +8,31 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Cliente global
 let supabaseClient = null;
 
-/**
- * Inicializa el cliente de Supabase
- */
+// Inicializar Supabase
 window.inicializarSupabase = function () {
   if (supabaseClient) return supabaseClient;
 
-  if (typeof supabase === 'undefined') {
-    console.error('⚠️ Supabase no está cargado. Asegúrate de incluir el script CDN.');
+  if (!window.supabase) {
+    console.error('❌ Supabase CDN no cargó');
     return null;
   }
 
-  supabaseClient = supabase.createClient(
+  supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
   );
 
   console.log('✅ Supabase inicializado correctamente');
-  console.log('📍 URL:', SUPABASE_URL);
   return supabaseClient;
 };
 
-/**
- * Obtiene el cliente de Supabase
- */
-function getSupabase() {
+// Obtener cliente
+window.getSupabase = function () {
   if (!supabaseClient) {
-    inicializarSupabase();
+    window.inicializarSupabase();
   }
   return supabaseClient;
-}
+};
 
 /**
  * Auth helpers (para compatibilidad)

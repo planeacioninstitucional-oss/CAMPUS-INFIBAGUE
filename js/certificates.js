@@ -241,31 +241,30 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado.
 
         if (error) throw error;
 
-        // Usar jsPDF si está disponible
-        if (typeof jspdf !== 'undefined' && jspdf.jsPDF) {
+        // Verificar si jsPDF está disponible
+        const jsPDFLib = window.jspdf || window.jsPDF;
+
+        if (typeof jsPDFLib !== 'undefined' && jsPDFLib.jsPDF) {
+            console.log('✅ jsPDF detectado, generando certificado...');
+
             // Cargar la imagen del certificado
             const img = new Image();
+            img.crossOrigin = 'anonymous'; // Para evitar problemas de CORS
+
             // Usar base64 si está disponible, sino fallback a la ruta relativa
             img.src = (CERTIFICADO_BG && CERTIFICADO_BG !== "PLACEHOLDER")
                 ? CERTIFICADO_BG
                 : '../assets/plantilla-certificado.jpg';
 
             img.onload = function () {
-                const { jsPDF } = jspdf;
+                console.log('✅ Imagen cargada correctamente');
+                const { jsPDF } = jsPDFLib;
                 const doc = new jsPDF('landscape', 'mm', 'a4');
                 const width = doc.internal.pageSize.getWidth();
                 const height = doc.internal.pageSize.getHeight();
 
                 // Agregar fondo
                 doc.addImage(img, 'JPEG', 0, 0, width, height);
-
-                // Configurar tipografía
-                // doc.setFont('helvetica', 'bold');
-                // doc.setFontSize(32);
-                // doc.setTextColor(30, 58, 138); // Azul oscuro
-
-                // Título - Ajustar o comentar si la plantilla ya lo tiene
-                // doc.text('CERTIFICADO DE FINALIZACIÓN', width / 2, 60, { align: 'center' }); 
 
                 // Usar fecha actual siempre
                 const fechaEmision = new Date().toLocaleDateString('es-ES');
@@ -321,27 +320,95 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado.
                 doc.text(`Expedido el ${fechaEmision}`, width / 2, 178, { align: 'center' });
 
                 doc.save(nombreArchivo);
+                console.log('✅ Certificado descargado exitosamente');
                 mostrarNotificacion('Certificado descargado exitosamente', 'success');
             };
 
-            img.onerror = function () {
-                console.error('No se pudo cargar la imagen de plantilla');
-                mostrarNotificacion('Error al cargar la plantilla del certificado', 'error');
-                // Intentar fallback básico
-                const { jsPDF } = jspdf;
+            img.onerror = function (e) {
+                console.error('❌ Error al cargar la imagen de plantilla:', e);
+                console.log('Intentando generar certificado sin imagen de fondo...');
+
+                // Fallback: generar certificado sin imagen de fondo
+                const { jsPDF } = jsPDFLib;
                 const doc = new jsPDF('landscape', 'mm', 'a4');
-                doc.text(usuario.nombre_completo, 10, 10);
+                const width = doc.internal.pageSize.getWidth();
+                const height = doc.internal.pageSize.getHeight();
+
+                // Fondo blanco
+                doc.setFillColor(255, 255, 255);
+                doc.rect(0, 0, width, height, 'F');
+
+                // Borde decorativo
+                doc.setDrawColor(0, 102, 204);
+                doc.setLineWidth(2);
+                doc.rect(10, 10, width - 20, height - 20);
+
+                const fechaEmision = new Date().toLocaleDateString('es-ES');
+
+                // Título CERTIFICADO
+                doc.setFontSize(32);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(30, 58, 138);
+                doc.text('CERTIFICADO', width / 2, 60, { align: 'center' });
+
+                // Texto institucional
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(60, 60, 60);
+                doc.text('Instituto de Financiamiento, Promoción y Desarrollo de Ibagué - INFIBAGUÉ certifica que:', width / 2, 85, { align: 'center' });
+
+                // Nombre del funcionario
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(26);
+                doc.setTextColor(0, 102, 204);
+                doc.text(usuario.nombre_completo.toUpperCase(), width / 2, 107, { align: 'center' });
+
+                // Cédula
+                if (usuario.cedula) {
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(60, 60, 60);
+                    doc.text(`C.C. ${usuario.cedula}`, width / 2, 117, { align: 'center' });
+                }
+
+                // Texto de completado
+                doc.setFontSize(13);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(40, 40, 40);
+                doc.text('Ha completado y aprobado satisfactoriamente los requisitos del programa:', width / 2, 137, { align: 'center' });
+
+                // Nombre del programa
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(24);
+                doc.setTextColor(0, 0, 0);
+                doc.text('INTEGRA', width / 2, 157, { align: 'center' });
+
+                // Subtítulo
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'italic');
+                doc.setTextColor(80, 80, 80);
+                doc.text('Certifica en Inducción y Reinducción', width / 2, 169, { align: 'center' });
+
+                // Fecha
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Expedido el ${fechaEmision}`, width / 2, 178, { align: 'center' });
+
                 doc.save(nombreArchivo);
+                console.log('✅ Certificado descargado (sin imagen de fondo)');
+                mostrarNotificacion('Certificado descargado exitosamente', 'success');
             };
 
         } else {
+            console.warn('⚠️ jsPDF no está disponible, usando previsualización');
             // Fallback: mostrar en ventana nueva
             previsualizarCertificado(inscripcionId);
         }
 
     } catch (error) {
-        console.error('Error al descargar certificado:', error);
-        mostrarNotificacion('Error al descargar certificado', 'error');
+        console.error('❌ Error al descargar certificado:', error);
+        mostrarNotificacion('Error al descargar certificado: ' + error.message, 'error');
     }
 }
 
