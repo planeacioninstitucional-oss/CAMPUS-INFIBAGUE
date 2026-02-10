@@ -1,14 +1,6 @@
-# No ignorar archivos JS, CSS y assets
-!js/**
-!css/**
-!assets/**
-!cursos/**
-!funcionario/**
-!educador/**
-
-# Ignorar solo lo necesario
 node_modules
-.env.local
 .git
-.vite
+.env.local
 *.log
+.vite
+CAMPUS

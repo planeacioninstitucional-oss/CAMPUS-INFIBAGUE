@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "vercel-build": "vite build && node verify-build.js",
     "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
