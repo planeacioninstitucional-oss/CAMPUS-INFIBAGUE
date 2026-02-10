@@ -1,8 +1,40 @@
 import { defineConfig } from 'vite'
+import { copyFileSync, mkdirSync, readdirSync, statSync } from 'fs'
+import { join } from 'path'
+
+// Plugin para copiar archivos estáticos
+function copyStaticFiles() {
+    return {
+        name: 'copy-static-files',
+        closeBundle() {
+            const copyDir = (src, dest) => {
+                mkdirSync(dest, { recursive: true })
+                const entries = readdirSync(src, { withFileTypes: true })
+
+                for (const entry of entries) {
+                    const srcPath = join(src, entry.name)
+                    const destPath = join(dest, entry.name)
+
+                    if (entry.isDirectory()) {
+                        copyDir(srcPath, destPath)
+                    } else {
+                        copyFileSync(srcPath, destPath)
+                    }
+                }
+            }
+
+            // Copiar carpetas críticas
+            copyDir('js', 'dist/js')
+            copyDir('css', 'dist/css')
+            copyDir('assets', 'dist/assets')
+            console.log('✅ Archivos estáticos copiados a dist/')
+        }
+    }
+}
 
 export default defineConfig({
     root: '.',
-    publicDir: 'assets',
+    publicDir: false, // Desactivar publicDir porque lo manejamos manualmente
     build: {
         outDir: 'dist',
         emptyOutDir: true,
@@ -25,6 +57,7 @@ export default defineConfig({
             }
         }
     },
+    plugins: [copyStaticFiles()],
     server: {
         port: 3000,
         open: true
