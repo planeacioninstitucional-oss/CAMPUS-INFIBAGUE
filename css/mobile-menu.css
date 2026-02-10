@@ -1,0 +1,112 @@
+/* =========================================
+   MOBILE FLOATING MENU BUTTON
+   ========================================= */
+
+/* Mobile Header - Cleaner Look */
+.mobile-header {
+    display: flex;
+    justify-content: center;
+    /* Center logo */
+    align-items: center;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
+    z-index: 900;
+    /* Below sidebar/menu but above content */
+    position: relative;
+}
+
+.header-logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Floating Menu Button (FAB) */
+.mobile-menu-float {
+    display: none;
+    /* Hidden on desktop by default */
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    z-index: 2000;
+    /* SUPER HIGH Z-INDEX to be above everything */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    /* Bouncy pop */
+}
+
+.mobile-menu-float span {
+    font-size: 0.6rem;
+    font-weight: 700;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+.mobile-menu-float:active {
+    transform: scale(0.90);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+/* Pulse animation to draw attention */
+@keyframes pulse-attention {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+}
+
+.mobile-menu-float {
+    animation: pulse-attention 2s infinite;
+}
+
+/* Sidebar Overlay Fix */
+.sidebar-overlay {
+    z-index: 1001;
+    /* Above mobile header, below sidebar */
+}
+
+/* Mobile Specific Updates */
+@media (max-width: 768px) {
+
+    /* Show Floating Button on Mobile */
+    .mobile-menu-float {
+        display: flex;
+    }
+
+    /* Adjust main content padding for header */
+    .main-content {
+        padding-top: 0;
+        /* Let header verify handle height */
+    }
+
+    .sidebar {
+        z-index: 2001;
+        /* Higher than FAB so menu covers it when open */
+    }
+
+    /* Ensure no double scrollbars */
+    body,
+    html {
+        overflow-x: hidden;
+    }
+}

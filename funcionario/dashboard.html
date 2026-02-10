@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus INFIBAGUÉ - Inducción 2026</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+
+    <!-- Fonts & Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/dashboard-new.css">
+    <link rel="stylesheet" href="../css/mobile-improvements.css">
+    <link rel="stylesheet" href="../css/mobile-menu.css">
+    <link rel="stylesheet" href="../css/btn-back-home.css">
+
+    <!-- Supabase & PDF -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Certificate Generation -->
+    <script src="../js/certificates.js"></script>
+</head>
+
+<body>
+
+    <div class="dashboard-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Toggle Button -->
+            <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <img src="../assets/logo-entidad.png" alt="INFIBAGUÉ" class="logo-img"
+                        onerror="this.src='https://via.placeholder.com/40'">
+                    <span class="brand-name">INFIBAGUÉ</span>
+                </div>
+                <div class="course-badge"><i class="fas fa-graduation-cap"></i> Inducción 2026</div>
+            </div>
+
+            <div class="user-profile-mini">
+                <div class="avatar-circle" id="user-initials">U</div>
+                <div class="user-info">
+                    <h4 id="user-name">Usuario</h4>
+                    <span id="user-role">Funcionario</span>
+                </div>
+            </div>
+
+            <div class="nav-list">
+                <div class="nav-label">Módulos de Aprendizaje</div>
+                <div id="modules-container">
+                    <!-- Modules will be injected here -->
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="btn-back-educator"
+                    style="display: none; background-color: #4f46e5; margin-bottom: 10px; justify-content: center;">
+                    <span>👨‍🏫</span> Vista Educador
+                </button>
+                <button class="btn-logout" id="btn-logout">
+                    <span>🚪</span> Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- Mobile Header -->
+            <header class="mobile-header" style="justify-content: space-between; padding: 0 15px;">
+                <button id="btn-menu-header" class="btn-burger" onclick="toggleSidebar()"
+                    style="font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #1e3a8a;">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="header-logo-container" style="flex: 1; display: flex; justify-content: center;">
+                    <img src="../assets/logo-entidad.png" alt="Logo" style="height: 35px;">
+                </div>
+
+                <!-- Botón Volver a Inicio -->
+                <button class="btn-back-home-header" onclick="showWelcomeView()" title="Volver a Inicio">
+                    <i class="fas fa-home"></i>
+                </button>
+            </header>
+
+            <!-- 1. WELCOME HERO (Default View) -->
+            <section id="welcome-view" class="welcome-hero">
+                <!-- Background Slideshow -->
+                <div class="background-slideshow">
+                    <div class="bg-slide active" style="background-image: url('../assets/san-bernardo-bg-1.jpg');">
+                    </div>
+                    <div class="bg-slide" style="background-image: url('../assets/PAGINA-WEB-1.jpeg');"></div>
+                    <div class="bg-slide" style="background-image: url('../assets/PAGINA-WEB-11--scaled.jpeg');"></div>
+                    <div class="bg-slide" style="background-image: url('../assets/PAGINA-WEB-8.jpeg');"></div>
+                    <div class="bg-slide" style="background-image: url('../assets/7-scaled.jpg');"></div>
+                </div>
+                <div class="background-overlay"></div>
+
+                <div class="hero-content-wrapper">
+                    <div class="hero-header">
+                        <img src="../assets/logo-entidad.png" alt="INFIBAGUÉ Big Logo" class="hero-logo-large">
+                        <h1 class="hero-title">Bienvenido al Campus INFIBAGUÉ</h1>
+                        <p class="hero-subtitle">
+                            Plataforma oficial de formación, inducción y reinducción para el fortalecimiento del talento
+                            humano.
+                        </p>
+                    </div>
+
+                    <!-- VIDEO DE BIENVENIDA -->
+                    <div class="hero-video-container">
+                        <video class="hero-video" controls>
+                            <!-- Reemplaza 'video-bienvenida.mp4' con el nombre real de tu archivo -->
+                            <source src="../assets/Bienvenida.mp4" type="video/mp4">
+                            Tu navegador no soporta reproducción de video.
+                        </video>
+                    </div>
+
+                    <!-- GAMIFICATION DASHBOARD - REDESIGNED -->
+                    <div class="gamification-grid">
+
+                        <!-- Progress Area -->
+                        <div class="progress-card">
+                            <div class="progress-header">
+                                <svg class="progress-icon" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="url(#gradient1)"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <defs>
+                                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <h3 class="progress-label">Tu Progreso Global</h3>
+                            </div>
+                            <div class="circular-progress-wrapper">
+                                <div class="circular-progress" id="circular-progress">
+                                    <span class="progress-value" id="progress-text-percent">0%</span>
+                                </div>
+                                <div class="progress-sparkles" id="progress-sparkles"></div>
+                            </div>
+                            <div class="motivational-msg" id="motivational-msg">
+                                ¡Comencemos el viaje! 🚀
+                            </div>
+                        </div>
+
+                        <!-- Achievements Area -->
+                        <div class="achievements-card">
+                            <div class="section-title">
+                                <svg class="trophy-icon" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 15a6 6 0 006-6V6a6 6 0 00-12 0v3a6 6 0 006 6zm0 0v3m0 0v3m0-3h3m-3 0H9"
+                                        stroke="url(#gradient2)" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <defs>
+                                        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                                <span>Mi Historial de Logros</span>
+                            </div>
+                            <div class="badge-grid" id="badge-grid">
+                                <!-- Badges injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Footer - REDESIGNED -->
+                    <div class="hero-footer">
+                        <button class="btn-hero btn-hero-primary" id="btn-cert-final" onclick="continueInduction()">
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span id="action-btn-text">Iniciar Inducción</span>
+                        </button>
+
+                        <div class="certificate-actions" id="certificate-actions">
+                            <button class="btn-certificate btn-view" id="btn-view-cert" onclick="viewCertificate()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                                <span>Ver Certificado</span>
+                            </button>
+                            <button class="btn-certificate btn-download" id="btn-download-cert"
+                                onclick="handleCertificadoClick()">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                                <span>Descargar PDF</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. PLAYER VIEW (Module Content) -->
+            <div id="player-view" class="player-container">
+                <header class="player-header">
+                    <div class="player-title">
+                        <span id="current-module-icon">📚</span>
+                        <span id="current-module-title">Nombre del Módulo</span>
+                    </div>
+                    <button class="btn-close-player" onclick="closePlayer()">
+                        ✕ Volver al Inicio
+                    </button>
+                </header>
+                <iframe id="content-frame" class="content-frame" src="about:blank"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- CERTIFICATE PREVIEW MODAL -->
+    <div class="certificate-modal" id="certificate-modal">
+        <div class="certificate-modal-content">
+            <div class="certificate-modal-header">
+                <h2 class="certificate-modal-title">Vista Previa del Certificado</h2>
+                <button class="certificate-modal-close" onclick="closeCertificateModal()">×</button>
+            </div>
+            <div class="certificate-modal-body">
+                <div class="certificate-preview" id="certificate-preview-content">
+                    <!-- Certificate preview will be injected here -->
+                    <p style="color: #64748b; margin: 2rem 0;">Cargando vista previa...</p>
+                </div>
+            </div>
+            <div class="certificate-modal-footer">
+                <button class="btn-certificate btn-view" onclick="closeCertificateModal()"
+                    style="background: #f1f5f9; border-color: #cbd5e1; color: #64748b;">
+                    <span>Cerrar</span>
+                </button>
+                <button class="btn-certificate btn-download" onclick="downloadFromModal()">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Descargar Ahora</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/certificates.js"></script>
+    <!-- Sistema de Progreso Global (Nuevo) -->
+    <script src="../js/progress.js"></script>
+    <!-- Sistema de Progreso Legado -->
+    <script src="../js/supabase-progress.js"></script>
+
+    <script>
+        // ==========================================
+        // SIDEBAR TOGGLE FUNCTIONALITY
+        // ==========================================
+
+        // ... (toggle functionality remains same)
+        // Check saved state on load & Add Mobile Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Desktop State
+            const savedState = localStorage.getItem('sidebarCollapsed');
+            if (savedState === 'true') {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.querySelector('.sidebar-toggle i').style.transform = 'rotate(180deg)';
+            }
+
+            // Mobile Listener
+            const btnMenu = document.getElementById('btn-menu');
+            if (btnMenu) {
+                btnMenu.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent immediate closing if we add document click listener
+                    toggleMobileSidebar();
+                });
+            }
+
+            // Close sidebar when clicking main content on mobile
+            document.querySelector('.main-content').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+
+        // ==========================================
+        // CONFIGURACIÓN DE MÓDULOS 
+        // ==========================================
+        const INDUCTION_MODULES = [
+            {
+                id: 'atencion',
+                title: 'Atención al Ciudadano',
+                icon: '🤝',
+                path: '../cursos/induccion-atencion-ciudadano.html',
+                badgeTitle: 'Experto en Atención',
+                supabaseKey: 'atencion_ciudadano'
+            },
+            {
+                id: 'humana',
+                title: 'Gestión Humana',
+                icon: '👥',
+                path: '../cursos/induccion-gestion-humana.html',
+                badgeTitle: 'Talento Humano',
+                supabaseKey: 'gestion_humana'
+            },
+            {
+                id: 'ambiental',
+                title: 'Gestión Ambiental',
+                icon: '🌿',
+                path: '../cursos/induccion-gestion-ambiental.html',
+                badgeTitle: 'Gestor Ambiental',
+                supabaseKey: 'gestion_ambiental'
+            },
+            {
+                id: 'sst',
+                title: 'Seguridad y Salud (SST)',
+                icon: '⛑️',
+                path: '../cursos/induccion-sst.html',
+                badgeTitle: 'Seguridad Total',
+                supabaseKey: 'sst'
+            },
+            {
+                id: 'planeacion',
+                title: 'Planeación Estratégica',
+                icon: '📈',
+                path: '../cursos/induccion-planeacion.html',
+                badgeTitle: 'Estratega',
+                supabaseKey: 'planeacion_estrategica'
+            }
+        ];
+
+        // Estado Global
+        let userProgress = []; // IDs de módulos completados
+        let currentUser = null;
+        let activeModuleIndex = -1;
+        let currentCourseId = null; // ID from database
+        let currentInscriptionId = null;
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            inicializarSupabase();
+
+            if (!verificarAutenticacion()) return;
+
+            currentUser = obtenerUsuarioActual();
+            setupProfile(currentUser);
+
+            // 1. Load Local Progress (Instant feedback)
+            loadLocalProgress();
+            renderUI();
+
+            // 2. Sync with Supabase (Background)
+            // await syncWithServer(); 
+            // Usamos la nueva sincronización con user_progress
+            await syncRealUserProgress();
+        });
+
+        // ... (setupProfile remains same)
+        function setupProfile(user) {
+            document.getElementById('user-name').textContent = user.nombre_completo.toUpperCase();
+            document.getElementById('user-role').textContent = (user.oficina_cargo || 'Funcionario').toUpperCase();
+
+            const initials = user.nombre_completo.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+            document.getElementById('user-initials').textContent = initials;
+
+            // Botón "Vista Educador" SOLO para educadores en modo vista
+            const enModoVista = localStorage.getItem('rol_original') === 'educador';
+
+            if (enModoVista) {
+                const btnBack = document.getElementById('btn-back-educator');
+                btnBack.style.display = 'flex';
+                btnBack.onclick = () => {
+                    if (typeof volverAVistaEducador === 'function') {
+                        volverAVistaEducador();
+                    } else {
+                        window.location.href = '../educador/dashboard.html';
+                    }
+                };
+            }
+        }
+
+        // ==========================================
+        // DATA SYNC & PERSISTENCE
+        // ==========================================
+
+        // Nueva función para sincronizar con la tabla user_progress
+        async function syncRealUserProgress() {
+            const supabase = getSupabase();
+            try {
+                const { data, error } = await supabase
+                    .from('user_progress')
+                    .select('*')
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+
+                if (data) {
+                    let hasUpdates = false;
+                    data.forEach(p => {
+                        if (p.completed) {
+                            // Buscar el módulo correspondiente
+                            const mod = INDUCTION_MODULES.find(m => m.supabaseKey === p.module_key);
+                            if (mod && !userProgress.includes(mod.id)) {
+                                userProgress.push(mod.id);
+                                hasUpdates = true;
+                            }
+                        }
+                    });
+
+                    if (hasUpdates) {
+                        saveLocalProgress(); // Actualizar caché local
+                        renderUI(); // Re-renderizar interfaz
+                    }
+                }
+
+                // También llamar al loadProgress visual del progress.js
+                if (window.loadProgress) window.loadProgress();
+
+            } catch (err) {
+                console.error('Error syncing user_progress:', err);
+            }
+        }
+
+        async function syncWithServer() {
+            // ... (legacy sync code reserved)
+        }
+
+        async function pushProgressToServer(moduleId, moduleIndex) {
+            // ... (legacy push code reserved)
+        }
+
+        // ... (loadLocalProgress, saveLocalProgress, markModuleComplete remain same)
+        function loadLocalProgress() {
+            // Sincronizar con el nuevo sistema de progreso (proviene de supabase-progress.js / localStorage)
+            if (window.SupabaseProgress) {
+                const allProgress = window.SupabaseProgress.getAllUserProgress();
+
+                // Mapeo de IDs del sistema unificado a los IDs del dashboard
+                const mapIds = {
+                    'atencion_ciudadano': 'atencion',
+                    'gestion_humana': 'humana',
+                    'gestion_ambiental': 'ambiental',
+                    'sst': 'sst',
+                    'planeacion_estrategica': 'planeacion'
+                };
+
+                // Reconstruir userProgress basado en lo aprobado
+                // userProgress = []; // Don't clear here, merge instead? 
+                // Better: keep logic but respect syncRealUserProgress authority
+
+                if (Array.isArray(allProgress)) {
+                    allProgress.forEach(p => {
+                        if (p.status === 'approved' && mapIds[p.module_name] && !userProgress.includes(mapIds[p.module_name])) {
+                            userProgress.push(mapIds[p.module_name]);
+                        }
+                    });
+                }
+            } else {
+                // Fallback legado
+                const key = `progress_${currentUser.id}_induccion_2026`;
+                const saved = localStorage.getItem(key);
+                if (saved) {
+                    const savedProg = JSON.parse(saved);
+                    savedProg.forEach(id => {
+                        if (!userProgress.includes(id)) userProgress.push(id);
+                    });
+                }
+            }
+        }
+
+        function saveLocalProgress() {
+            const key = `progress_${currentUser.id}_induccion_2026`;
+            localStorage.setItem(key, JSON.stringify(userProgress));
+        }
+
+        function markModuleComplete(moduleId) {
+            if (!userProgress.includes(moduleId)) {
+                userProgress.push(moduleId);
+                saveLocalProgress();
+
+                // Find index
+                const idx = INDUCTION_MODULES.findIndex(m => m.id === moduleId);
+                if (idx !== -1) {
+                    // pushProgressToServer(moduleId, idx); // Disabled legacy push
+                    // Use new completeModule via Supabase key?
+                    const mod = INDUCTION_MODULES[idx];
+                    if (window.completeModule && mod.supabaseKey) {
+                        window.completeModule(mod.supabaseKey);
+                    }
+                }
+
+                renderUI();
+            }
+        }
+
+        // ==========================================
+        // RENDER LOGIC
+        // ==========================================
+        function renderUI() {
+            renderSidebar();
+            renderBadges();
+            updateProgressCircle();
+            updateActionButtons();
+        }
+
+        function renderSidebar() {
+            const container = document.getElementById('modules-container');
+            container.innerHTML = '';
+
+            // El educador en modo vista puede acceder a todos los módulos sin restricciones
+            const esEducadorVista = localStorage.getItem('rol_original') === 'educador';
+
+            INDUCTION_MODULES.forEach((mod, index) => {
+                const isCompleted = userProgress.includes(mod.id);
+                // Locked if previous not complete (unless first or educator)
+                const prevComplete = index === 0 || userProgress.includes(INDUCTION_MODULES[index - 1].id);
+                const isLocked = esEducadorVista ? false : (!prevComplete && !isCompleted);
+                const isActive = index === activeModuleIndex;
+
+                const div = document.createElement('div');
+                div.className = `module-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`;
+
+                // Add Supabase Key as requested for side panel logic
+                div.setAttribute('data-module', mod.supabaseKey);
+
+                if (!isLocked) {
+                    div.onclick = () => openModule(index);
+                }
+
+                div.innerHTML = `
+                    <div class="module-icon">
+                        ${isCompleted ? '✓' : (isLocked ? '🔒' : mod.icon)}
+                    </div>
+                    <div class="module-text">
+                        <span class="module-title">${mod.title}</span>
+                        <span class="module-status">
+                            ${isCompleted ? 'Completado' : (isLocked ? 'Bloqueado' : 'Disponible')}
+                        </span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderBadges() {
+            const container = document.getElementById('badge-grid');
+            container.innerHTML = '';
+
+            // Modern SVG icons for badges
+            const badgeIcons = {
+                'atencion': `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" fill="url(#grad-atencion)"/>
+                    <path d="M8 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="grad-atencion" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#10b981"/><stop offset="100%" style="stop-color:#059669"/>
+                    </linearGradient></defs>
+                </svg>`,
+                'talento': `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="url(#grad-talento)"/>
+                    <defs><linearGradient id="grad-talento" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#f59e0b"/><stop offset="100%" style="stop-color:#d97706"/>
+                    </linearGradient></defs>
+                </svg>`,
+                'ambiental': `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="url(#grad-ambiental)"/>
+                    <circle cx="12" cy="9" r="2.5" fill="white"/>
+                    <defs><linearGradient id="grad-ambiental" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22c55e"/><stop offset="100%" style="stop-color:#16a34a"/>
+                    </linearGradient></defs>
+                </svg>`,
+                'seguridad': `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="url(#grad-seguridad)"/>
+                    <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="grad-seguridad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ef4444"/><stop offset="100%" style="stop-color:#dc2626"/>
+                    </linearGradient></defs>
+                </svg>`,
+                'estratega': `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 50px; height: 50px;">
+                    <path d="M9 11l3 3L22 4" stroke="url(#grad-estratega)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="url(#grad-estratega)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs><linearGradient id="grad-estratega" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8b5cf6"/><stop offset="100%" style="stop-color:#7c3aed"/>
+                    </linearGradient></defs>
+                </svg>`
+            };
+
+            INDUCTION_MODULES.forEach(mod => {
+                const isUnlocked = userProgress.includes(mod.id);
+                const iconKey = mod.id.replace('mod-', '');
+
+                const div = document.createElement('div');
+                div.className = `badge-item ${isUnlocked ? 'unlocked' : ''}`;
+                div.innerHTML = `
+                    <div class="badge-icon">${badgeIcons[iconKey] || mod.icon}</div>
+                    <div class="badge-name">${mod.badgeTitle}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateProgressCircle() {
+            const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+
+            // Update Circle CSS with gradient
+            const circle = document.getElementById('circular-progress');
+            const gradient = percent === 100
+                ? `conic-gradient(from 0deg, #10b981 0deg, #3b82f6 180deg, #8b5cf6 ${percent * 3.6}deg, #e2e8f0 0deg)`
+                : `conic-gradient(var(--color-brand-primary) ${percent * 3.6}deg, #e2e8f0 0deg)`;
+            circle.style.background = gradient;
+
+            // Animated counter
+            const textEl = document.getElementById('progress-text-percent');
+            let currentPercent = parseInt(textEl.textContent) || 0;
+            const increment = percent > currentPercent ? 1 : -1;
+            const interval = setInterval(() => {
+                if (currentPercent === percent) {
+                    clearInterval(interval);
+                    // Show sparkles on 100%
+                    if (percent === 100) {
+                        const sparkles = document.getElementById('progress-sparkles');
+                        sparkles.classList.add('active');
+                        setTimeout(() => sparkles.classList.remove('active'), 1500);
+                    }
+                } else {
+                    currentPercent += increment;
+                    textEl.textContent = `${currentPercent}%`;
+                }
+            }, 20);
+
+            // Update Message
+            const msgEl = document.getElementById('motivational-msg');
+            const firstName = currentUser.nombre_completo.split(' ')[0];
+
+            if (percent === 0) msgEl.textContent = `¡Vamos ${firstName}, tu viaje comienza hoy!`;
+            else if (percent < 50) msgEl.textContent = `¡Buen comienzo ${firstName}! Sigue así.`;
+            else if (percent < 100) msgEl.textContent = `¡Ya casi lo tienes, ${firstName}! Solo falta poco.`;
+            else msgEl.textContent = `¡Increíble ${firstName}! Eres un experto INFIBAGUÉ.`;
+        }
+
+        function updateActionButtons() {
+            const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+
+            // Update main action button
+            const mainBtn = document.getElementById('btn-cert-final');
+            const actionText = document.getElementById('action-btn-text');
+
+            // Update certificate buttons
+            const certActions = document.getElementById('certificate-actions');
+            const btnView = document.getElementById('btn-view-cert');
+            const btnDownload = document.getElementById('btn-download-cert');
+
+            if (percent === 100) {
+                // Enable main button
+                if (mainBtn) {
+                    mainBtn.classList.add('unlocked');
+                    mainBtn.disabled = false;
+                    mainBtn.onclick = () => {
+                        if (confirm('¿Deseas reiniciar la inducción? Se borrará tu progreso actual.')) {
+                            localStorage.removeItem(`induccion_progress_${currentUser.id}`);
+                            localStorage.removeItem(`progress_${currentUser.id}_induccion_2026`);
+                            if (window.SupabaseProgress) {
+                                // Limpiar también usando la API si es posible
+                            }
+                            location.reload();
+                        }
+                    };
+                }
+                if (actionText) {
+                    actionText.textContent = '🔄 Reiniciar Inducción';
+                }
+
+                // Enable certificate buttons
+                if (certActions) certActions.classList.add('enabled');
+                if (btnView) btnView.disabled = false;
+                if (btnDownload) btnDownload.disabled = false;
+            } else {
+                // Enable main button for start/continue
+                if (mainBtn) {
+                    mainBtn.classList.remove('unlocked');
+                    mainBtn.disabled = false;
+                    mainBtn.onclick = continueInduction;
+                }
+                if (actionText) {
+                    actionText.textContent = percent === 0 ? '🚀 Iniciar Inducción' : '▶ Continuar Aprendizaje';
+                }
+
+                // Disable certificate buttons
+                if (certActions) certActions.classList.remove('enabled');
+                if (btnView) btnView.disabled = true;
+                if (btnDownload) btnDownload.disabled = true;
+            }
+        }
+
+        function continueInduction() {
+            // Find first incomplete
+            let nextIndex = 0;
+            for (let i = 0; i < INDUCTION_MODULES.length; i++) {
+                if (!userProgress.includes(INDUCTION_MODULES[i].id)) {
+                    nextIndex = i;
+                    break;
+                }
+            }
+            openModule(nextIndex);
+        }
+
+        function openModule(index) {
+            if (index < 0 || index >= INDUCTION_MODULES.length) return;
+
+            // El educador en modo vista puede abrir cualquier módulo
+            const esEducadorVista = localStorage.getItem('rol_original') === 'educador';
+
+            // Lock Check (skip para educadores)
+            if (!esEducadorVista && index > 0 && !userProgress.includes(INDUCTION_MODULES[index - 1].id) && !userProgress.includes(INDUCTION_MODULES[index].id)) {
+                // alert('Debes completar el módulo anterior.');
+                return;
+            }
+
+            activeModuleIndex = index;
+            const module = INDUCTION_MODULES[index];
+
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('player-view').classList.add('active');
+
+            document.getElementById('current-module-title').textContent = module.title;
+            document.getElementById('current-module-icon').textContent = module.icon;
+
+            const iframe = document.getElementById('content-frame');
+            iframe.src = module.path;
+
+            renderSidebar();
+        }
+
+        function closePlayer() {
+            activeModuleIndex = -1;
+            document.getElementById('player-view').classList.remove('active');
+            document.getElementById('welcome-view').classList.remove('hidden');
+
+            setTimeout(() => {
+                document.getElementById('content-frame').src = 'about:blank';
+            }, 500);
+
+            renderUI();
+        }
+
+        // Función para volver al inicio (video de bienvenida)
+        function showWelcomeView() {
+            // Si hay un módulo activo, cerrarlo
+            if (activeModuleIndex !== -1) {
+                closePlayer();
+            } else {
+                // Asegurar que el welcome-view esté visible
+                document.getElementById('welcome-view').classList.remove('hidden');
+                document.getElementById('player-view').classList.remove('active');
+            }
+
+            // Scroll al inicio de la página
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Cerrar sidebar si está abierto (en móvil)
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        }
+
+        // ==========================================
+        // IFRAME MESSAGING
+        // ==========================================
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'MODULO_INDUCCION_COMPLETADO') {
+                const { aprobado, moduleId } = event.data.data;
+                const finalModuleId = moduleId || (activeModuleIndex !== -1 ? INDUCTION_MODULES[activeModuleIndex].id : null);
+
+                if (aprobado && finalModuleId) {
+                    markModuleComplete(finalModuleId); // Handles saving and UI update
+
+                    // Don't close player yet - wait for CARGAR_SIGUIENTE_MODULO message
+                    // closePlayer();
+
+                    // Optional: Toast or small alert could go here, but the UI update is the main feedback
+                    // alert(`¡Módulo ${moduleTitle} completado!`);
+
+                    if (activeModuleIndex === INDUCTION_MODULES.length - 1) {
+                        // Last module completed - close player and show completion
+                        closePlayer();
+                        setTimeout(() => {
+                            alert('¡Felicidades! Has completado todo el curso. Genera tu certificado ahora.');
+                        }, 500);
+                    }
+                }
+            }
+
+            // Handle request to load next module
+            if (event.data && event.data.type === 'CARGAR_SIGUIENTE_MODULO') {
+                const { siguienteModulo } = event.data.data;
+
+                // Find the index of the next module
+                const nextIndex = INDUCTION_MODULES.findIndex(m => m.id === siguienteModulo);
+
+                if (nextIndex !== -1) {
+                    // Load the next module directly
+                    setTimeout(() => {
+                        openModule(nextIndex);
+                    }, 500);
+                } else {
+                    // Module not found, close player
+                    closePlayer();
+                }
+            }
+        });
+
+        // ==========================================
+        // CERTIFICATE (Updated to use js/certificates.js)
+        // ==========================================
+        async function handleCertificadoClick() {
+            if (!currentInscriptionId) {
+                alert('No se ha encontrado tu inscripción. Por favor recarga la página.');
+                return;
+            }
+
+            // Get the download button (new dual button design)
+            const btn = document.getElementById('btn-download-cert');
+            if (!btn) {
+                console.error('Botón de descarga no encontrado');
+                return;
+            }
+
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span>Generando...</span>';
+            btn.disabled = true;
+
+            try {
+                // First verify completion locally just in case
+                const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+                if (percent < 100) {
+                    alert('Debes completar todos los módulos primero.');
+                    return;
+                }
+
+                // Call global function from certificates.js
+                await descargarCertificado(currentInscriptionId, 'Certificado_Induccion_2026.pdf');
+
+            } catch (error) {
+                console.error(error);
+                alert('Error al generar el certificado: ' + (error.message || 'Error desconocido'));
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // VIEW CERTIFICATE (Opens preview in new tab)
+        // ==========================================
+        function viewCertificate() {
+            if (!currentInscriptionId) {
+                alert('No se ha encontrado tu inscripción. Por favor recarga la página.');
+                return;
+            }
+
+            // Verify completion
+            const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+            if (percent < 100) {
+                alert('Debes completar todos los módulos primero.');
+                return;
+            }
+
+            // Call the preview function from certificates.js
+            // This will open the certificate in a new tab
+            if (typeof previsualizarCertificado === 'function') {
+                previsualizarCertificado(currentInscriptionId);
+            } else {
+                console.error('La función previsualizarCertificado no está disponible');
+                alert('Error al abrir la vista previa del certificado');
+            }
+        }
+
+        // ==========================================
+        // MOBILE MENU & SIDEBAR TOGGLE
+        // ==========================================
+        const sidebar = document.getElementById('sidebar');
+        const btnMenu = document.getElementById('btn-menu'); // Original burger button if still exists elsewhere
+        const btnMenuHeader = document.getElementById('btn-menu-header'); // New header button
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+
+        // Unified toggle function
+        function toggleSidebar() {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                // Mobile: toggle 'open' class
+                sidebar.classList.toggle('open');
+
+                // Update header button icon if it exists
+                if (btnMenuHeader) {
+                    const icon = btnMenuHeader.querySelector('i');
+                    if (icon) {
+                        if (sidebar.classList.contains('open')) {
+                            icon.classList.remove('fa-bars');
+                            icon.classList.add('fa-times');
+                        } else {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    }
+                }
+            } else {
+                // Desktop: toggle 'collapsed' class
+                sidebar.classList.toggle('collapsed');
+
+                // Update desktop toggle button icon
+                if (sidebarToggle) {
+                    const icon = sidebarToggle.querySelector('i');
+                    if (sidebar.classList.contains('collapsed')) {
+                        icon.classList.remove('fa-chevron-left');
+                        icon.classList.add('fa-chevron-right');
+                    } else {
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-left');
+                    }
+                }
+            }
+        }
+
+        // Event listeners (add only if element exists to avoid null errors)
+        if (btnMenu) btnMenu.addEventListener('click', toggleSidebar);
+        // Note: btnMenuHeader has onclick="toggleSidebar()" in HTML, so no duplicate listener needed here.
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                // Check if click is outside sidebar AND outside the button
+                // Use optional chaining just in case
+                const isClickInsideSidebar = sidebar.contains(e.target);
+                const isClickOnButton = btnMenuHeader && btnMenuHeader.contains(e.target);
+
+                if (!isClickInsideSidebar && !isClickOnButton) {
+                    toggleSidebar();
+                }
+            }
+        });
+
+        const btnLogout = document.getElementById('btn-logout');
+        if (btnLogout) {
+            btnLogout.addEventListener('click', cerrarSesion);
+        }
+
+        // ==========================================
+        // BACKGROUND SLIDESHOW
+        // ==========================================
+        function initBackgroundSlideshow() {
+            const slides = document.querySelectorAll('.bg-slide');
+            if (slides.length <= 1) return; // No slideshow si solo hay 1 imagen
+
+            let currentSlide = 0;
+
+            setInterval(() => {
+                // Fade out current
+                slides[currentSlide].classList.remove('active');
+
+                // Move to next
+                currentSlide = (currentSlide + 1) % slides.length;
+
+                // Fade in next
+                slides[currentSlide].classList.add('active');
+            }, 8000); // Cambio cada 8 segundos (lento y sutil)
+        }
+
+        // Inicializar slideshow cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pequeño delay para asegurar que todo esté cargado
+            setTimeout(initBackgroundSlideshow, 500);
+        });
+
+    </script>
+</body>
+
+</html>

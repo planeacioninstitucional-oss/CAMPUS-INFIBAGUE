@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inducción Gestión Ambiental - INFIBAGUÉ</title>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="../css/main.css">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #047857;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --text: #1f2937;
+            --bg: #f3f4f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: url('../assets/atenci.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* CAROUSEL CONTAINER */
+        .carousel-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: transparent;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        .slide-content {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        p {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* RESPONSIVE MOBILE */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 20px 15px;
+            }
+
+            .slide-content {
+                max-width: 100%;
+            }
+
+            h1 {
+                margin-bottom: 15px;
+            }
+
+            p {
+                margin-bottom: 20px;
+            }
+
+            .nav-controls {
+                padding: 0 20px;
+                bottom: 20px;
+            }
+
+            .nav-btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* NAVIGATION */
+        .nav-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s;
+            z-index: 30;
+        }
+
+        /* --- HEADER CON BOTÓN VOLVER A INICIO --- */
+        .module-header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            min-width: 300px;
+            max-width: 90%;
+        }
+
+        .module-header h2 {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .btn-back-home:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .module-header {
+                padding: 10px 15px;
+                min-width: auto;
+                width: 95%;
+            }
+
+            .module-header h2 {
+                font-size: 0.9rem;
+            }
+
+            .btn-back-home {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+
+            .btn-back-home span {
+                display: none;
+            }
+        }
+
+        /* --- SLIDE 1: HERO --- */
+        #slide-1 {
+            background: transparent;
+        }
+
+        /* --- SLIDE 2: PIGA HERO --- */
+        .piga-image-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border: 8px solid white;
+            transition: transform 0.3s ease;
+            background: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        .piga-image-container:hover {
+            transform: scale(1.02);
+        }
+
+        .piga-image-container img {
+            width: 100%;
+            height: auto;
+            max-height: 50vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        #slide-piga h2 {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        #slide-piga p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: #4b5563;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .hero-logo {
+            width: 150px;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* --- SLIDE 2: TREE POLICY --- */
+        .tree-container {
+            position: relative;
+            height: 60vh;
+            width: 60vh;
+            margin: 0 auto;
+        }
+
+        .policy-tree {
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%2310b981" d="M256 0c-40 0-75 25-100 60 10-5 25-5 35 0 20-30 50-40 80-40 66 0 120 54 120 120 0 15-5 30-10 40 40 10 70 50 70 90 0 55-45 100-100 100h-30v142h-60v-142h-40c-66 0-120-54-120-120 0-25 10-50 25-70-30 10-50 40-50 75 0 45 35 80 80 80h10v30H150c-66 0-120-54-120-120 0-66 54-120 120-120 15 0 30 5 40 10-10-40-50-70-90-70-55 0-100 45-100 100 0 25 10 50 25 70-40-15-85-10-120 20C45 150 0 200 0 256c0 66 54 120 120 120h30v136h60V376h50c66 0 120-54 120-120 0-40-20-75-50-95z"/></svg>') no-repeat center/contain;
+            position: relative;
+        }
+
+        .policy-leaf {
+            position: absolute;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 180px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 5px solid var(--primary);
+            opacity: 0.9;
+        }
+
+        .policy-leaf:hover {
+            transform: scale(1.1);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .leaf-1 {
+            top: 10%;
+            right: -20%;
+        }
+
+        .leaf-2 {
+            top: 30%;
+            left: -25%;
+        }
+
+        .leaf-3 {
+            top: 60%;
+            right: -20%;
+        }
+
+        .leaf-4 {
+            top: 10%;
+            left: -20%;
+        }
+
+        .leaf-icon {
+            font-size: 1.5rem;
+        }
+
+        /* --- SLIDE 3: PIGA WHEEL --- */
+        .wheel-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
+        }
+
+        .piga-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border: 10px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .wheel-selector {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-weight: bold;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .wheel-segment:hover {
+            opacity: 0.9;
+        }
+
+        .seg-1 {
+            background: #3b82f6;
+            transform: rotate(0deg);
+        }
+
+        /* Agua */
+        .seg-2 {
+            background: #f59e0b;
+            transform: rotate(72deg);
+        }
+
+        /* Energia */
+        .seg-3 {
+            background: #10b981;
+            transform: rotate(144deg);
+        }
+
+        /* Residuos */
+        .seg-4 {
+            background: #6366f1;
+            transform: rotate(216deg);
+        }
+
+        /* Papel */
+        .seg-5 {
+            background: #ef4444;
+            transform: rotate(288deg);
+        }
+
+        /* Emisiones */
+
+        .seg-icon {
+            transform: rotate(-45deg) translate(40px, 40px);
+            font-size: 2rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .piga-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 500px;
+            z-index: 20;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: left;
+        }
+
+        .piga-modal.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        /* --- SLIDE 4: PUZZLE --- */
+        .puzzle-game {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .waste-bin-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+        }
+
+        .waste-bin {
+            width: 90px;
+            height: 120px;
+            border-radius: 10px 10px 5px 5px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            border: 3px dashed transparent;
+            transition: all 0.3s;
+        }
+
+        .bin-white {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        .bin-black {
+            background-color: #1f2937;
+            color: white;
+        }
+
+        .bin-green {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .bin-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .waste-items {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            background: #e5e7eb;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .waste-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: grab;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .waste-item:active {
+            cursor: grabbing;
+            transform: scale(1.1);
+        }
+
+        /* --- SLIDE 5: QUIZ --- */
+        .quiz-container {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background: #f9fafb;
+            border-color: var(--primary);
+        }
+
+        .option-btn.correct {
+            background: #d1fae5;
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+
+        .option-btn.incorrect {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .tree-container {
+                width: 100%;
+                height: 50vh;
+            }
+
+            .policy-leaf {
+                width: 140px;
+                font-size: 0.8rem;
+            }
+
+            .puzzle-game {
+                grid-template-columns: 1fr;
+            }
+
+            .waste-bin {
+                width: 70px;
+                height: 90px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* --- PIGA TOUR STYLES --- */
+        .pt-container {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .pt-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .pt-header h3 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .pt-header p {
+            font-size: 1em;
+            opacity: 0.95;
+            color: white;
+            margin: 0;
+        }
+
+        .pt-main-content {
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            min-height: 500px;
+        }
+
+        .pt-welcome-screen {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .pt-start-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .pt-start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(245, 87, 108, 0.6);
+        }
+
+        .pt-tour-container {
+            display: none;
+            position: relative;
+            height: 100%;
+        }
+
+        .pt-tour-container.active {
+            display: block;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        .pt-circle-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto 20px;
+            aspect-ratio: 1;
+        }
+
+        .pt-center-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35%;
+            z-index: 10;
+            background: white;
+            border-radius: 50%;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pt-segment {
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        /* SVG Segment Styles */
+        .pt-segment path {
+            transition: all 0.3s;
+            stroke: white;
+            stroke-width: 2px;
+        }
+
+        .pt-segment:hover path {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+            transform-origin: center;
+        }
+
+        .pt-segment.active path {
+            filter: brightness(1.2);
+            stroke: #fff;
+            stroke-width: 4px;
+        }
+
+        .pt-segment.completed path {
+            opacity: 0.7;
+        }
+
+        .pt-segment-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .pt-seg-content {
+            position: absolute;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+        }
+
+        .pt-seg-content .icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .pt-seg-content .title {
+            font-size: 0.8rem;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .pt-modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-radius: 30px;
+            /* Match container */
+        }
+
+        .pt-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .pt-modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.4s ease-out;
+            text-align: left;
+        }
+
+        .pt-modal-header {
+            padding: 20px;
+            color: white;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .pt-modal-body {
+            padding: 20px;
+        }
+
+        .pt-modal-body ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pt-modal-body li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        .pt-modal-body li::before {
+            content: '✓';
+            background: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+            font-size: 0.8em;
+        }
+
+        .pt-modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .pt-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .pt-btn-next {
+            background: var(--primary);
+            color: white;
+        }
+
+        .pt-btn-close {
+            background: #6c757d;
+            color: white;
+        }
+
+        .pt-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .pt-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            transition: width 0.5s ease;
+        }
+
+        /* --- RECYCLING GAME STYLES (Adapted from Tailwind) --- */
+        .rg-game-container {
+            font-family: 'Segoe UI', sans-serif;
+            color: #0f172a;
+            /* slate-900 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .rg-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #f1f5f9;
+            /* slate-100 */
+        }
+
+        .rg-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            /* slate-800 */
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rg-score-box {
+            text-align: right;
+        }
+
+        .rg-score-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            color: #94a3b8;
+            /* slate-400 */
+        }
+
+        .rg-score-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #2563eb;
+            /* blue-600 */
+            line-height: 1;
+        }
+
+        .rg-main {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            flex: 1;
+        }
+
+        .rg-card-container {
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .rg-card {
+            width: 14rem;
+            height: 14rem;
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: default;
+            position: relative;
+        }
+
+        .rg-emoji {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rg-item-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #334155;
+            /* slate-700 */
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .rg-feedback-overlay {
+            position: absolute;
+            inset: 0;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 10;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .rg-feedback-correct {
+            background: rgba(16, 185, 129, 0.9);
+        }
+
+        /* emerald-500 */
+        .rg-feedback-incorrect {
+            background: rgba(244, 63, 94, 0.9);
+        }
+
+        /* rose-500 */
+
+        .rg-feedback-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            text-transform: uppercase;
+        }
+
+        .rg-bins-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .rg-bins-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rg-card {
+                max-width: 90%;
+                margin: 0 auto;
+            }
+
+            .rg-bin-btn {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .rg-bin-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-width: 4px;
+            border-style: solid;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            background: white;
+            /* default fallback */
+        }
+
+        .rg-bin-btn:disabled {
+            opacity: 0.8;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .rg-bin-btn:hover:not(:disabled) {
+            transform: translateY(-0.25rem);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .rg-bin-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        /* Bin specific styles */
+        .bin-white-style {
+            background-color: #ffffff;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        .bin-black-style {
+            background-color: #1e293b;
+            border-color: #0f172a;
+            color: white;
+        }
+
+        .bin-green-style {
+            background-color: #059669;
+            border-color: #047857;
+            color: white;
+        }
+
+        .rg-bin-bg-icon {
+            position: absolute;
+            right: -1rem;
+            top: -1rem;
+            opacity: 0.1;
+            transform: scale(2.5);
+            transition: transform 0.3s;
+        }
+
+        .rg-bin-btn:hover .rg-bin-bg-icon {
+            transform: scale(3);
+        }
+
+        .rg-bin-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .rg-bin-subtitle {
+            font-size: 0.75rem;
+            font-weight: 700;
+            opacity: 0.9;
+            margin-bottom: 0.75rem;
+        }
+
+        .rg-bin-desc {
+            font-size: 0.7rem;
+            text-align: center;
+            opacity: 0.8;
+            line-height: 1.25;
+        }
+
+        .rg-game-over {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid #f1f5f9;
+            width: 100%;
+            max-width: 28rem;
+            text-align: center;
+            animation: zoomIn 0.5s ease-out;
+        }
+
+        .rg-trophy-circle {
+            width: 5rem;
+            height: 5rem;
+            background: #dbeafe;
+            /* blue-100 */
+            color: #2563eb;
+            /* blue-600 */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .rg-stats-row {
+            background: #f8fafc;
+            /* slate-50 */
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .rg-stat-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .rg-stat-value {
+            font-size: 2.25rem;
+            font-weight: 900;
+            color: #334155;
+        }
+
+        .rg-stat-value.blue {
+            color: #2563eb;
+        }
+
+        .rg-restart-btn {
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .rg-restart-btn:hover {
+            background: #1e293b;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce-custom {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-bounce-custom {
+            animation: bounce-custom 0.5s infinite;
+        }
+
+        /* --- PIGA TRAIL STYLES (Namespaced 'piga-') --- */
+        .piga-wrapper {
+            width: 100%;
+            height: 100%;
+            background-color: #f8fafc;
+            color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            border-radius: 30px;
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            position: relative;
+        }
+
+        .piga-intro-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            margin: auto;
+            border: 1px solid #f1f5f9;
+            animation: pigaFadeIn 0.5s ease-out;
+        }
+
+        .piga-icon-circle {
+            width: 96px;
+            height: 96px;
+            background-color: #d1fae5;
+            color: #059669;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .piga-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .piga-description {
+            color: #475569;
+            margin-bottom: 32px;
+            font-size: 1.125rem;
+            line-height: 1.6;
+        }
+
+        .piga-btn-primary {
+            width: 100%;
+            background-color: #059669;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3);
+            transition: all 0.3s;
+        }
+
+        .piga-btn-primary:hover {
+            background-color: #047857;
+            transform: scale(1.02);
+        }
+
+        /* Tour Layout */
+        .piga-tour-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            gap: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .piga-circle-container {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .piga-circle-container {
+                display: none;
+            }
+        }
+
+        .piga-center-logo {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+            border: 8px solid #f1f5f9;
+            z-index: 10;
+        }
+
+        .piga-center-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            padding: 10px;
+        }
+
+        .piga-orbit-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px dashed #cbd5e1;
+            opacity: 0.5;
+        }
+
+        .piga-node {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid transparent;
+            /* Defined by color classes */
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20;
+            transform: translate(-50%, -50%);
+        }
+
+        .piga-node.active {
+            transform: translate(-50%, -50%) scale(1.25);
+            z-index: 30;
+            border-width: 4px;
+        }
+
+        .piga-node.visited-check {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: white;
+            color: #059669;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .piga-details-panel {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+            width: 100%;
+            max-width: 500px;
+            animation: pigaSlideIn 0.5s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .piga-panel-header {
+            padding: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .piga-panel-body {
+            padding: 32px;
+            flex: 1;
+        }
+
+        .piga-quote {
+            color: #475569;
+            font-size: 1.125rem;
+            font-style: italic;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .piga-tips-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .piga-tip-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+
+        .piga-tip-item:hover {
+            border-color: #e2e8f0;
+        }
+
+        .piga-panel-footer {
+            background-color: #f8fafc;
+            padding: 24px;
+            display: flex;
+            gap: 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .btn-piga-nav {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-piga-prev {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            color: #94a3b8;
+        }
+
+        .btn-piga-prev:hover:not(:disabled) {
+            background: white;
+            color: #475569;
+        }
+
+        .btn-piga-prev:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-piga-next {
+            flex: 2;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-piga-next:hover {
+            filter: brightness(1.1);
+        }
+
+        /* Utility classes for dynamic colors */
+        .piga-bg-emerald-500 {
+            background-color: #10b981;
+        }
+
+        .piga-bg-orange-500 {
+            background-color: #f97316;
+        }
+
+        .piga-bg-rose-600 {
+            background-color: #e11d48;
+        }
+
+        .piga-bg-purple-600 {
+            background-color: #9333ea;
+        }
+
+        .piga-bg-blue-500 {
+            background-color: #3b82f6;
+        }
+
+        .piga-border-emerald-600 {
+            border-color: #059669;
+        }
+
+        .piga-border-orange-600 {
+            border-color: #ea580c;
+        }
+
+        .piga-border-rose-700 {
+            border-color: #be123c;
+        }
+
+        .piga-border-purple-700 {
+            border-color: #7e22ce;
+        }
+
+        .piga-border-blue-600 {
+            border-color: #2563eb;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes pigaFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pigaSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .piga-tour-layout {
+                flex-direction: column;
+                padding: 10px;
+                gap: 20px;
+            }
+
+            .piga-circle-container {
+                display: none;
+            }
+
+            .piga-details-panel {
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .piga-mobile-indicators {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="progress-bar" id="progress-bar"></div>
+
+    <!-- Header con botón volver a inicio -->
+    <div class="module-header">
+        <h2>🌿 Gestión Ambiental</h2>
+        <button class="btn-back-home" onclick="goBackHome()" title="Volver al inicio del módulo">
+            <span>🏠</span>
+            <span>Volver a Inicio</span>
+        </button>
+    </div>
+
+    <div class="carousel-container">
+
+        <!-- SLIDE 1: INTRO -->
+        <div class="slide active" id="slide-1">
+            <div class="slide-content">
+                <div style="font-size: 5rem; margin-bottom: 20px;">🌿</div>
+                <h1>Inducción Gestión Ambiental</h1>
+                <p>Bienvenido al Sistema de Gestión Ambiental (SGA) de INFIBAGUÉ.</p>
+                <button class="nav-btn" style="margin: 0 auto;" onclick="nextSlide()">Iniciar Recorrido 🚀</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: PIGA HERO (NUEVO) -->
+        <div class="slide" id="slide-piga">
+            <div class="slide-content">
+                <div class="piga-image-container">
+                    <img src="../assets/SGA.png" alt="SGA INFIBAGUÉ">
+                </div>
+                <h2>PLAN INSTITUCIONAL DE GESTIÓN AMBIENTAL (PIGA)</h2>
+                <p>Nuestro compromiso con la sostenibilidad y la preservación del entorno natural a través de
+                    estrategias institucionales integrales en INFIBAGUÉ.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: SGA 2 (NUEVO) -->
+        <div class="slide" id="slide-sga2">
+            <div class="slide-content">
+                <div class="piga-image-container">
+                    <img src="../assets/SGA 2.png" alt="Gestión Ambiental - SGA 2">
+                </div>
+                <h2>Sistema de Gestión Ambiental</h2>
+                <p>Continuamos reforzando nuestros procesos para un futuro sostenible.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: POLÍTICA AMBIENTAL -->
+        <div class="slide" id="slide-2">
+            <div class="slide-content">
+                <div style="font-size: 6rem; margin-bottom: 20px; animation: float 3s ease-in-out infinite;">🌳</div>
+                <h2 style="font-size: 3rem; margin-bottom: 30px; text-transform: uppercase;">Política Ambiental</h2>
+                <p
+                    style="text-align: justify; font-size: 1.3rem; line-height: 1.8; max-width: 900px; margin: 0 auto; background: rgba(255,255,255,0.6); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                    Estamos comprometidos en orientar nuestra gestión, hacia el respeto, cuidado y protección del medio
+                    ambiente;
+                    previniendo la contaminación a través del uso sustentable y racional de los recursos, cumpliendo con
+                    la
+                    legislación ambiental vigente, mediante la implementación, operación y mejora continua del Sistema
+                    de
+                    Gestión Ambiental, conforme a la norma ISO 14001:2015.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: PIGA TOUR (NUEVO) -->
+        <div class="slide" id="slide-3">
+            <div class="slide-content"
+                style="width: 100%; height: 100%; max-width: 1200px; padding: 0; background: transparent; box-shadow: none;">
+
+                <div class="piga-wrapper">
+                    <!-- Intro Screen -->
+                    <div id="piga-intro"
+                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <div class="piga-intro-card">
+                            <div class="piga-icon-circle">
+                                <i data-lucide="leaf" style="width: 48px; height: 48px;"></i>
+                            </div>
+                            <h1 class="piga-title">Plan Institucional de Gestión Ambiental (PIGA)</h1>
+                            <p class="piga-description">
+                                Te damos la bienvenida a la inducción ambiental de <span
+                                    style="color: #059669; font-weight: bold;">INFIBAGUÉ</span>.
+                                Acompáñanos en este recorrido circular para conocer nuestros compromisos con el planeta.
+                            </p>
+                            <button class="piga-btn-primary" onclick="pigaStartTour()">
+                                <i data-lucide="play" style="fill: currentColor;"></i> Empecemos recorrido del PIGA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tour Screen -->
+                    <div id="piga-tour" class="piga-tour-layout hidden">
+                        <!-- Left: Circular Visual (Desktop) -->
+                        <div class="piga-circle-container">
+                            <!-- Center Logo -->
+                            <div class="piga-center-logo">
+                                <img src="../assets/logo.png" alt="INFIBAGUÉ Logo">
+                            </div>
+
+                            <!-- Orbit Ring -->
+                            <div class="piga-orbit-ring"></div>
+
+                            <!-- Nodes will be injected here -->
+                            <div id="piga-nodes-container"></div>
+                        </div>
+
+                        <!-- Right: Details Panel -->
+                        <div id="piga-details-panel" class="piga-details-panel">
+                            <!-- Dynamic Header -->
+                            <div id="piga-panel-header" class="piga-panel-header">
+                                <div
+                                    style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 16px; backdrop-filter: blur(4px);">
+                                    <i id="piga-panel-icon" data-lucide="leaf" style="width: 32px; height: 32px;"></i>
+                                </div>
+                                <div>
+                                    <h2 id="piga-panel-title"
+                                        style="font-size: 1.5rem; font-weight: 900; text-transform: uppercase;">TITULO
+                                    </h2>
+                                    <!-- Progress Dots -->
+                                    <div id="piga-progress-dots" style="display: flex; gap: 4px; margin-top: 4px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="piga-panel-body">
+                                <p id="piga-panel-desc" class="piga-quote"></p>
+
+                                <h3
+                                    style="font-weight: 700; color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.1em; margin-bottom: 16px;">
+                                    Acciones Clave:</h3>
+                                <div id="piga-tips-list" class="piga-tips-container"></div>
+                            </div>
+
+                            <div class="piga-panel-footer">
+                                <button id="btn-piga-prev" class="btn-piga-nav btn-piga-prev" onclick="pigaPrevStep()">
+                                    <i data-lucide="chevron-left"></i> Anterior
+                                </button>
+                                <button id="btn-piga-next" class="btn-piga-nav btn-piga-next" onclick="pigaNextStep()">
+                                    Siguiente Compromiso <i data-lucide="chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Indicators -->
+                        <div class="piga-mobile-indicators md:hidden" id="piga-mobile-indicators"></div>
+                    </div>
+
+                    <!-- Summary Screen -->
+                    <div id="piga-summary" class="hidden"
+                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <div class="piga-intro-card">
+                            <div class="piga-icon-circle">
+                                <i data-lucide="check-circle-2" style="width: 48px; height: 48px;"></i>
+                            </div>
+                            <h2 class="piga-title">¡Felicitaciones!</h2>
+                            <p class="piga-description">Has completado el recorrido por los compromisos del PIGA de
+                                INFIBAGUÉ. Ahora eres parte del cambio ambiental.</p>
+
+                            <div id="piga-summary-grid"
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; margin-bottom: 32px;">
+                                <!-- Summary icons injected here -->
+                            </div>
+
+                            <div style="display: flex; gap: 16px; flex-direction: column;">
+                                <button onclick="pigaInit()"
+                                    style="background: #f1f5f9; color: #475569; padding: 16px; border-radius: 16px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i data-lucide="rotate-ccw"></i> Volver al Inicio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        style="text-align: center; padding: 16px; position: absolute; bottom: 0; width: 100%; background: #f8fafc;">
+                        <span
+                            style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; letter-spacing: 0.1em;">INFIBAGUÉ
+                            AMBIENTAL</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: JUEGO RECICLAJE (PGIRS) -->
+        <div class="slide" id="slide-4">
+            <div class="slide-content p-0">
+
+                <div class="rg-game-container">
+
+                    <!-- Header -->
+                    <header class="rg-header">
+                        <div class="rg-header-text">
+                            <h1 class="rg-title">
+                                ♻️ Clasifica los Residuos (PGIRS)
+                            </h1>
+                            <p class="rg-subtitle">Módulo de Inducción Corporativa</p>
+                        </div>
+
+                        <div class="rg-score-box">
+                            <span class="rg-score-label">Puntaje</span>
+                            <span class="rg-score-value" id="rg-score">0</span>
+                        </div>
+                    </header>
+
+                    <!-- Game Area -->
+                    <main class="rg-main" id="rg-game-area"></main>
+
+                    <!-- Footer -->
+                    <footer class="rg-footer">
+                        <div class="rg-footer-info">
+                            ℹ️ Resolución 2184 de 2019 – Código de colores
+                        </div>
+                        <p>© 2026 Campus de Inducción</p>
+                    </footer>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- SLIDE 5: QUIZ -->
+        <div class="slide" id="slide-5">
+            <div class="slide-content">
+                <h2>Evaluación Final 📝</h2>
+                <div class="quiz-container">
+                    <!-- Q1 -->
+                    <div class="question-card active" id="q1">
+                        <h3>1. ¿Cuántos programas ambientales contempla el PIGA?</h3>
+                        <button class="option-btn" onclick="checkAnswer(1, false, this)">a) 3</button>
+                        <button class="option-btn" onclick="checkAnswer(1, true, this)">b) 5</button>
+                        <button class="option-btn" onclick="checkAnswer(1, false, this)">c) 8</button>
+                        <button class="option-btn" onclick="checkAnswer(1, false, this)">d) 7</button>
+                    </div>
+                    <!-- Q2 -->
+                    <div class="question-card" id="q2">
+                        <h3>2. Seleccione los programas del PIGA:</h3>
+                        <button class="option-btn" onclick="checkAnswer(2, false, this)">a) Gas, Baños, Luz,
+                            Basura</button>
+                        <button class="option-btn" onclick="checkAnswer(2, false, this)">b) Energía, Papel, Canecas,
+                            Pintura</button>
+                        <button class="option-btn" onclick="checkAnswer(2, true, this)">c) Agua, Energía, Residuos,
+                            Papel, Emisiones</button>
+                        <button class="option-btn" onclick="checkAnswer(2, false, this)">d) Ninguna de las
+                            anteriores</button>
+                    </div>
+                    <!-- Q3 -->
+                    <div class="question-card" id="q3">
+                        <h3>3. ¿Qué residuos van en la caneca BLANCA?</h3>
+                        <button class="option-btn" onclick="checkAnswer(3, false, this)">a) Orgánicos (comida)</button>
+                        <button class="option-btn" onclick="checkAnswer(3, true, this)">b) Aprovechables (papel, cartón,
+                            plástico limpios)</button>
+                        <button class="option-btn" onclick="checkAnswer(3, false, this)">c) Servilletas sucias</button>
+                    </div>
+                    <!-- Q4 -->
+                    <div class="question-card" id="q4">
+                        <h3>4. ¿Qué residuos van en la caneca NEGRA?</h3>
+                        <button class="option-btn" onclick="checkAnswer(4, false, this)">a) Orgánicos</button>
+                        <button class="option-btn" onclick="checkAnswer(4, false, this)">b) Aprovechables</button>
+                        <button class="option-btn" onclick="checkAnswer(4, true, this)">c) No Aprovechables
+                            (servilletas, papel higiénico, tapabocas)</button>
+                    </div>
+                    <!-- Q5 -->
+                    <div class="question-card" id="q5">
+                        <h3>5. ¿Qué residuos van en la caneca VERDE?</h3>
+                        <button class="option-btn" onclick="checkAnswer(5, true, this)">a) Orgánicos (restos de comida,
+                            poda)</button>
+                        <button class="option-btn" onclick="checkAnswer(5, false, this)">b) Papel archivo</button>
+                        <button class="option-btn" onclick="checkAnswer(5, false, this)">c) Papel contaminado</button>
+                    </div>
+
+                    <div class="question-card" id="q-end" style="text-align: center;">
+                        <div style="font-size: 4rem;">🏆</div>
+                        <h3>¡Módulo Completado!</h3>
+                        <p>Has finalizado exitosamente la inducción ambiental.</p>
+                        <button class="nav-btn" style="width: 100%; justify-content: center;"
+                            onclick="finishModule()">Finalizar Curso</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-controls">
+            <button class="nav-btn prev-btn" onclick="prevSlide()" style="opacity:0">⬅ Anterior</button>
+            <button class="nav-btn next-btn" onclick="nextSlide()">Siguiente ➡</button>
+        </div>
+
+    </div>
+
+    <script src="../js/utils.js"></script>
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progress-bar');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        let quizApproved = false;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // Button visibility
+            prevBtn.style.opacity = currentSlide === 0 ? '0' : '1';
+            prevBtn.style.pointerEvents = currentSlide === 0 ? 'none' : 'all';
+
+            if (currentSlide === totalSlides - 1) {
+                nextBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function showToast(msg) {
+            alert(msg); // Placeholder for a nicer toast
+        }
+
+        // --- PIGA LOGIC ---
+        const pigaData = {
+            1: { title: "Programa Ahorro de Agua 💧", desc: "Objetivo: Racionalidad en el uso del recurso. <br>Acción: Cierra la llave, reporta fugas y sé consciente del consumo." },
+            2: { title: "Programa Ahorro de Energía ⚡", desc: "Objetivo: Uso eficiente y cultura de ahorro. <br>Acción: Apaga luces y equipos que no uses, aprovecha luz natural." },
+            3: { title: "Gestión de Residuos (PGIRS) ♻️", desc: "Código de colores:<br>⚪ Blanco: Aprovechables.<br>⚫ Negro: No aprovechables.<br>🟢 Verde: Orgánicos." },
+            4: { title: "Programa Cero Papel 📄", desc: "Estrategias:<br>- Impresión doble cara.<br>- Uso de correo electrónico.<br>- Digitalización de archivos." },
+            5: { title: "Control de Emisiones 🔊", desc: "Minimizar ruido y contaminación visual.<br>Respetar niveles de volumen y espacios visuales limpios." }
+        };
+
+        function openPiga(id) {
+            document.getElementById('piga-title').innerHTML = pigaData[id].title;
+            document.getElementById('piga-desc').innerHTML = pigaData[id].desc;
+            document.getElementById('piga-modal').classList.add('active');
+        }
+
+        function closePiga() {
+            document.getElementById('piga-modal').classList.remove('active');
+        }
+
+        // --- RECYCLING GAME LOGIC (Converted from React) ---
+        const RG_ITEMS = [
+            { id: 1, name: 'Caja de Cartón', emoji: '📦', category: 'blanca' },
+            { id: 2, name: 'Botella Plástica', emoji: '🍾', category: 'blanca' },
+            { id: 3, name: 'Papel Higiénico', emoji: '🧻', category: 'negra' },
+            { id: 4, name: 'Tapabocas Usado', emoji: '😷', category: 'negra' },
+            { id: 5, name: 'Cáscara de Banano', emoji: '🍌', category: 'verde' },
+            { id: 6, name: 'Hojas Secas', emoji: '🍂', category: 'verde' },
+            { id: 7, name: 'Lata de Refresco', emoji: '🥤', category: 'blanca' },
+            { id: 8, name: 'Servilleta Sucia', emoji: '🧻', category: 'negra' },
+        ];
+
+        const RG_BINS = [
+            {
+                id: 'blanca', title: 'Blanca', subtitle: 'Aprovechables',
+                description: 'Plástico, cartón, vidrio, papel, metales (limpios).',
+                styleClass: 'bin-white-style'
+            },
+            {
+                id: 'negra', title: 'Negra', subtitle: 'No Aprovechables',
+                description: 'Papel higiénico, servilletas, papeles contaminados, tapabocas.',
+                styleClass: 'bin-black-style'
+            },
+            {
+                id: 'verde', title: 'Verde', subtitle: 'Orgánicos',
+                description: 'Restos de comida, desechos agrícolas, cortes de césped.',
+                styleClass: 'bin-green-style'
+            }
+        ];
+
+        let rgState = {
+            items: [],
+            currentIndex: 0,
+            score: 0,
+            feedback: null, // 'correct', 'incorrect'
+            isGameOver: false
+        };
+
+        function rgInitGame() {
+            rgState.items = [...RG_ITEMS].sort(() => Math.random() - 0.5);
+            rgState.currentIndex = 0;
+            rgState.score = 0;
+            rgState.feedback = null;
+            rgState.isGameOver = false;
+            rgRender();
+        }
+
+        function rgHandleSelection(binId) {
+            if (rgState.isGameOver || rgState.feedback) return;
+
+            const currentItem = rgState.items[rgState.currentIndex];
+
+            if (currentItem.category === binId) {
+                rgState.score += 10;
+                rgState.feedback = 'correct';
+            } else {
+                rgState.feedback = 'incorrect';
+            }
+
+            rgRender(); // Show feedback
+
+            setTimeout(() => {
+                rgState.feedback = null;
+                if (rgState.currentIndex < rgState.items.length - 1) {
+                    rgState.currentIndex++;
+                } else {
+                    rgState.isGameOver = true;
+                }
+                rgRender();
+            }, 1200);
+        }
+
+        function rgRestartGame() {
+            rgInitGame();
+        }
+
+        function rgRender() {
+            const gameArea = document.getElementById('rg-game-area');
+            const scoreEl = document.getElementById('rg-score');
+
+            if (!gameArea) return; // Guard clause if slide not present
+            if (scoreEl) scoreEl.innerText = rgState.score;
+
+            if (rgState.isGameOver) {
+                // RENDER GAME OVER
+                const effectiveness = Math.round((rgState.score / (rgState.items.length * 10)) * 100);
+                gameArea.innerHTML = `
+                    <div class="rg-game-over">
+                        <div class="rg-trophy-circle">
+                            <i data-lucide="trophy" style="width: 48px; height: 48px;"></i>
+                        </div>
+                        <h2 style="font-size: 1.875rem; font-weight: 900; color: #1e293b; margin-bottom: 0.5rem;">¡Inducción Completada!</h2>
+                        <p style="color: #64748b; margin-bottom: 2rem;">Has demostrado un excelente conocimiento en la gestión de residuos.</p>
+                        
+                        <div class="rg-stats-row">
+                            <div>
+                                <div class="rg-stat-label">Puntaje Final</div>
+                                <div class="rg-stat-value blue">${rgState.score}</div>
+                            </div>
+                            <div style="width: 1px; background: #e2e8f0;"></div>
+                            <div>
+                                <div class="rg-stat-label">Efectividad</div>
+                                <div class="rg-stat-value">${effectiveness}%</div>
+                            </div>
+                        </div>
+
+                        <button onclick="rgRestartGame()" class="rg-restart-btn">
+                            <i data-lucide="refresh-cw"></i> Reintentar Clasificación
+                        </button>
+                    </div>
+                `;
+            } else {
+                // RENDER GAMEPLAY
+                const currentItem = rgState.items[rgState.currentIndex];
+                const feedbackClass = rgState.feedback === 'incorrect' ? 'animate-bounce-custom' : '';
+                const feedbackStyle = rgState.feedback === 'correct' ? 'transform: scale(1.1); opacity: 0; transition: all 0.5s;' : ''; // Simple fade out/scale effect if correct
+                // Actually, the original React code hides the MAIN card on correct to show valid feedback? 
+                // Wait, React code: feedback === 'correct' ? 'scale-110 opacity-0' : ''
+                // But inside, it shows feedback overlays. If opacity is 0, overlay is invisible??
+                // Ah, the overlay is inside, but the parent scale/opacity applies to the whole `relative` div? 
+                // Let's look closely at React code: 
+                // className={`relative ... ${feedback === 'correct' ? 'scale-110 opacity-0' : ''}`}
+                // This implies the CARD disappears when correct? 
+                // No, usually in these games, you show the "Correct" overlay. 
+                // Let's implement a nicer feedback: show overlay, don't hide the card immediately until the timeout.
+
+                let feedbackOverlay = '';
+                if (rgState.feedback === 'correct') {
+                    feedbackOverlay = `
+                        <div class="rg-feedback-overlay rg-feedback-correct">
+                            <i data-lucide="check-circle-2" style="width: 64px; height: 64px; margin-bottom: 0.5rem;"></i>
+                            <span class="rg-feedback-text">¡Correcto!</span>
+                        </div>
+                    `;
+                } else if (rgState.feedback === 'incorrect') {
+                    feedbackOverlay = `
+                        <div class="rg-feedback-overlay rg-feedback-incorrect">
+                            <i data-lucide="x-circle" style="width: 64px; height: 64px; margin-bottom: 0.5rem;"></i>
+                            <span class="rg-feedback-text">Incorrecto</span>
+                        </div>
+                    `;
+                }
+
+                // Bins HTML
+                const binsHtml = RG_BINS.map(bin => `
+                    <button 
+                        onclick="rgHandleSelection('${bin.id}')" 
+                        class="rg-bin-btn ${bin.styleClass}" 
+                        ${rgState.feedback ? 'disabled' : ''}
+                    >
+                        <div class="rg-bin-bg-icon"><i data-lucide="trash-2"></i></div>
+                        <i data-lucide="trash-2" style="width: 40px; height: 40px; margin-bottom: 0.5rem;"></i>
+                        <h3 class="rg-bin-title">${bin.title}</h3>
+                        <span class="rg-bin-subtitle">${bin.subtitle}</span>
+                        <p class="rg-bin-desc">${bin.description}</p>
+                    </button>
+                `).join('');
+
+                gameArea.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 0.5rem;">
+                        <p style="color: #475569; font-size: 1.125rem;">Selecciona la caneca correcta para el siguiente residuo:</p>
+                    </div>
+
+                    <div class="rg-card-container ${feedbackClass}" style="${rgState.feedback === 'correct' ? 'transform: scale(1.05);' : ''}">
+                        <div class="rg-card">
+                            <span class="rg-emoji" role="img" aria-label="${currentItem?.name}">${currentItem?.emoji}</span>
+                            <span class="rg-item-name">${currentItem?.name}</span>
+                            ${feedbackOverlay}
+                        </div>
+                        <div style="margin-top: 1rem; text-align: center; color: #94a3b8; font-weight: 500;">
+                            ${rgState.currentIndex + 1} / ${rgState.items.length} residuos
+                        </div>
+                    </div>
+
+                    <div class="rg-bins-grid">
+                        ${binsHtml}
+                    </div>
+                `;
+            }
+
+            // Re-init icons
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        // Initialize on load
+        rgInitGame();
+
+        // --- QUIZ LOGIC ---
+        function checkAnswer(qId, isCorrect, btn) {
+            if (isCorrect) {
+                btn.classList.add('correct');
+                setTimeout(() => {
+                    const currentQ = document.getElementById(`q${qId}`);
+                    currentQ.classList.remove('active');
+                    const nextQ = document.getElementById(`q${qId + 1}`) || document.getElementById('q-end');
+                    if (nextQ) nextQ.classList.add('active');
+                }, 800);
+            } else {
+                btn.classList.add('incorrect');
+            }
+        }
+
+        function finishModule() {
+            quizApproved = true;
+            if (typeof notificarTerminoModulo === 'function') {
+                notificarTerminoModulo(true);
+            } else {
+                alert('Módulo Completado!');
+                // Don't redirect yet - wait for user to click SST button
+            }
+        }
+
+        // initGame(); removed
+        updateSlide();
+
+        // Función para volver al inicio del módulo
+        function goBackHome() {
+            // Resetear al slide 1
+            currentSlide = 0;
+
+            // Actualizar display
+            updateSlide();
+
+            // Scroll al inicio
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+    </script>
+    <script>
+        /* --- PIGA LOGIC (NEW) --- */
+        const PIGA_DATA = [
+            {
+                id: 0,
+                title: 'Cuidemos el Papel',
+                color: 'piga-bg-emerald-500',
+                borderColor: 'piga-border-emerald-600',
+                icon: 'leaf',
+                tips: [
+                    'Revisa en pantalla antes de imprimir',
+                    'Imprime lo necesario'
+                ],
+                description: 'Promovemos el uso responsable de los recursos forestales reduciendo el consumo innecesario de papel.'
+            },
+            {
+                id: 1,
+                title: 'Cuidemos la Energía',
+                color: 'piga-bg-orange-500',
+                borderColor: 'piga-border-orange-600',
+                icon: 'zap',
+                tips: [
+                    'Apaga la luz y PC al finalizar',
+                    'Desconecta cargadores si no los usa'
+                ],
+                description: 'Buscamos la eficiencia energética para reducir nuestra huella de carbono institucional.'
+            },
+            {
+                id: 2,
+                title: 'Controlamos la Contaminación',
+                color: 'piga-bg-rose-600',
+                borderColor: 'piga-border-rose-700',
+                icon: 'globe',
+                tips: [
+                    'Control Atmosférico',
+                    'Control Visual',
+                    'Control Auditivo'
+                ],
+                description: 'Implementamos medidas para minimizar impactos negativos en el aire y el entorno visual y sonoro.'
+            },
+            {
+                id: 3,
+                title: 'Disposición de Residuos',
+                color: 'piga-bg-purple-600',
+                borderColor: 'piga-border-purple-700',
+                icon: 'recycle',
+                tips: [
+                    'Hacemos la disposición adecuada de todos los residuos',
+                    'Separación en la fuente'
+                ],
+                description: 'Garantizamos que cada residuo llegue a su destino correcto, fomentando el reciclaje y la reutilización.'
+            },
+            {
+                id: 4,
+                title: 'Cuidemos el Agua',
+                color: 'piga-bg-blue-500',
+                borderColor: 'piga-border-blue-600',
+                icon: 'droplets',
+                tips: [
+                    'Cierra bien las llaves después de usarla',
+                    'Notifica fugas de agua inmediatamente'
+                ],
+                description: 'El agua es vida. Nos enfocamos en el ahorro y la vigilancia constante de nuestras redes hidráulicas.'
+            }
+        ];
+
+        let pigaState = {
+            step: 'intro', // 'intro', 'tour', 'summary'
+            currentIndex: 0,
+            visited: []
+        };
+
+        function pigaInit() {
+            pigaState = {
+                step: 'intro',
+                currentIndex: 0,
+                visited: []
+            };
+            pigaRender();
+        }
+
+        function pigaStartTour() {
+            pigaState.step = 'tour';
+            pigaState.currentIndex = 0;
+            pigaState.visited = [0];
+            pigaRender();
+        }
+
+        function pigaNextStep() {
+            if (pigaState.currentIndex < PIGA_DATA.length - 1) {
+                const nextIdx = pigaState.currentIndex + 1;
+                pigaState.currentIndex = nextIdx;
+                if (!pigaState.visited.includes(nextIdx)) {
+                    pigaState.visited.push(nextIdx);
+                }
+            } else {
+                pigaState.step = 'summary';
+            }
+            pigaRender();
+        }
+
+        function pigaPrevStep() {
+            if (pigaState.currentIndex > 0) {
+                pigaState.currentIndex--;
+            }
+            pigaRender();
+        }
+
+        function pigaSetIndex(index) {
+            pigaState.currentIndex = index;
+            pigaRender();
+        }
+
+        function pigaRender() {
+            // Manage Steps Visibility
+            document.getElementById('piga-intro').classList.add('hidden');
+            document.getElementById('piga-tour').classList.add('hidden');
+            document.getElementById('piga-summary').classList.add('hidden');
+
+            if (pigaState.step === 'intro') {
+                document.getElementById('piga-intro').classList.remove('hidden');
+            } else if (pigaState.step === 'tour') {
+                document.getElementById('piga-tour').classList.remove('hidden');
+                pigaRenderTour();
+            } else if (pigaState.step === 'summary') {
+                document.getElementById('piga-summary').classList.remove('hidden');
+                pigaRenderSummary();
+            }
+
+            // Refresh Icons
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function pigaRenderTour() {
+            const data = PIGA_DATA[pigaState.currentIndex];
+            const container = document.getElementById('piga-nodes-container');
+            const total = PIGA_DATA.length;
+            const radius = 140; // px
+
+            // Render Nodes
+            let nodesHtml = '';
+            PIGA_DATA.forEach((item, index) => {
+                const isActive = index === pigaState.currentIndex;
+                const isVisited = pigaState.visited.includes(index);
+
+                // Angle msg: item 0 (Paper) left/top (-90 deg from top is -90? No react code says: (index * (360/5)) - 90)
+                // -90 is 12 o'clock if CSS 0 is 3 o'clock. 
+                // Let's assume standard CSS trig where 0 is right.
+                const angleDeg = (index * (360 / total)) - 90;
+                const angleRad = angleDeg * (Math.PI / 180);
+
+                const left = 50 + (Math.cos(angleRad) * radius / 450 * 100); // % approximate? No, container is fixed px 
+                // Using px values relative to 450x450 container center (225, 225)
+                const cx = 225 + (Math.cos(angleRad) * radius);
+                const cy = 225 + (Math.sin(angleRad) * radius);
+
+                const activeClass = isActive ? 'active' : '';
+                const visitedBadge = isVisited && !isActive ? '<div class="piga-node visited-check"><i data-lucide="check" style="width:12px"></i></div>' : '';
+
+                nodesHtml += `
+                    <div class="piga-node ${item.color} ${item.borderColor} ${activeClass}" 
+                         style="left: ${cx}px; top: ${cy}px; color: white;"
+                         onclick="pigaSetIndex(${index})">
+                        <i data-lucide="${item.icon}" style="width: 24px; height: 24px;"></i>
+                        <span style="font-size: 8px; font-weight: 700; text-transform: uppercase; margin-top: 4px;">
+                            ${item.title.split(' ').pop()}
+                        </span>
+                        ${visitedBadge}
+                    </div>
+                `;
+            });
+            container.innerHTML = nodesHtml;
+
+            // Render Mobile Indicators
+            const mobileContainer = document.getElementById('piga-mobile-indicators');
+            mobileContainer.innerHTML = PIGA_DATA.map((item, idx) => `
+                <div onclick="pigaSetIndex(${idx})" 
+                     class="${item.color} ${pigaState.currentIndex === idx ? 'active' : ''}"
+                     style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; transform: ${pigaState.currentIndex === idx ? 'scale(1.1)' : 'scale(0.9)'}; transition: all 0.3s; cursor: pointer;">
+                    <i data-lucide="${item.icon}" style="width: 18px; height: 18px;"></i>
+                </div>
+            `).join('');
+
+            // Render Details Panel
+            const panelHeader = document.getElementById('piga-panel-header');
+            panelHeader.className = `piga-panel-header ${data.color}`; // Apply bg color
+
+            document.getElementById('piga-panel-icon').setAttribute('data-lucide', data.icon);
+            document.getElementById('piga-panel-title').innerText = data.title;
+            document.getElementById('piga-panel-desc').innerText = `"${data.description}"`;
+
+            // Progress dots
+            const dotsContainer = document.getElementById('piga-progress-dots');
+            dotsContainer.innerHTML = PIGA_DATA.map((_, i) =>
+                `<div style="height: 4px; width: 24px; border-radius: 2px; background: ${i === pigaState.currentIndex ? 'white' : 'rgba(255,255,255,0.3)'};"></div>`
+            ).join('');
+
+            // Tips
+            const tipsList = document.getElementById('piga-tips-list');
+            tipsList.innerHTML = data.tips.map(tip => `
+                <div class="piga-tip-item">
+                    <div class="${data.color}" style="width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0;">
+                        <i data-lucide="check" style="width: 12px; height: 12px;"></i>
+                    </div>
+                    <span style="font-weight: 600; color: #334155;">${tip}</span>
+                </div>
+            `).join('');
+
+            // Buttons
+            document.getElementById('btn-piga-prev').disabled = pigaState.currentIndex === 0;
+            const nextBtn = document.getElementById('btn-piga-next');
+            nextBtn.className = `btn-piga-nav btn-piga-next ${data.color}`;
+            nextBtn.innerHTML = pigaState.currentIndex === PIGA_DATA.length - 1
+                ? 'Finalizar Recorrido <i data-lucide="flag"></i>'
+                : 'Siguiente Compromiso <i data-lucide="chevron-right"></i>';
+        }
+
+        function pigaRenderSummary() {
+            const grid = document.getElementById('piga-summary-grid');
+            grid.innerHTML = PIGA_DATA.map(item => `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <div class="${item.color}" style="padding: 8px; border-radius: 8px; color: white;">
+                        <i data-lucide="${item.icon}" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <span style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase;">${item.title.split(' ').pop()}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <!-- SUPABASE CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Cliente Supabase Centralizado -->
+    <script src="../js/supabaseClient.js"></script>
+
+    <!-- Supabase Config -->
+    <script src="../js/config.js"></script>
+    <!-- Sistema de Progreso con Supabase -->
+    <script src="../js/progress.js"></script>
+
+    <!-- Función para finalizar módulo e ir al siguiente -->
+    <script>
+        // Variable para controlar si el módulo está listo para finalizar
+        let moduleAmbientalCompleted = false;
+
+        // Función para verificar si completó el recorrido PIGA
+        function checkAmbientalComplete() {
+            if (pigaState.step === 'summary' && quizApproved) {
+                moduleAmbientalCompleted = true;
+                showNextModuleButton();
+            }
+        }
+
+        // Mostrar botón para ir al siguiente módulo
+        function showNextModuleButton() {
+            // Verificar si ya existe
+            if (document.getElementById('btn-go-to-sst')) return;
+
+            // Crear el botón
+            const summaryContainer = document.getElementById('piga-summary');
+            if (summaryContainer) {
+                const btnContainer = document.createElement('div');
+                btnContainer.style.cssText = 'margin-top: 30px; text-align: center;';
+                btnContainer.innerHTML = `
+                    <button id="btn-go-to-sst" onclick="finishAmbientalAndGoToSST()" 
+                            style="padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); 
+                                   color: white; border: none; border-radius: 50px; font-size: 1.1rem; 
+                                   font-weight: 600; cursor: pointer; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); 
+                                   transition: all 0.3s;">
+                        <i class="fas fa-arrow-right" style="margin-right: 8px;"></i>
+                        Ir a SST (Seguridad y Salud en el Trabajo)
+                    </button>
+                `;
+                summaryContainer.appendChild(btnContainer);
+            }
+        }
+
+        // Función para finalizar y navegar al siguiente módulo
+        async function finishAmbientalAndGoToSST() {
+            const btn = document.getElementById('btn-go-to-sst');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            }
+
+            try {
+                if (window.SupabaseProgress) {
+                    // El módulo ambiental no tiene evaluación con puntaje, así que usamos 100%
+                    const result = await window.SupabaseProgress.finishModuleAndNavigate(
+                        'gestion_ambiental',
+                        100,
+                        100
+                    );
+
+                    console.log('📊 Resultado guardado en Supabase:', result);
+
+                    // Notificar al padre si está en iframe
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'MODULO_INDUCCION_COMPLETADO',
+                            data: {
+                                moduleId: 'ambiental',
+                                moduleName: 'gestion_ambiental',
+                                aprobado: true,
+                                fecha: new Date().toISOString()
+                            }
+                        }, '*');
+                    }
+
+                    // Navegar al siguiente módulo
+                    setTimeout(() => {
+                        if (result.nextModule) {
+                            window.location.href = result.nextModule.url;
+                        } else {
+                            window.location.href = '../funcionario/dashboard.html';
+                        }
+                    }, 500);
+                } else {
+                    console.warn('⚠️ SupabaseProgress no disponible');
+                    window.location.href = 'induccion-sst.html';
+                }
+            } catch (error) {
+                console.error('Error al guardar progreso:', error);
+                alert('Ocurrió un error al guardar tu progreso. Por favor, intenta de nuevo.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-arrow-right" style="margin-right: 8px;"></i> Ir a SST';
+                }
+            }
+        }
+
+        // Verificar al cambiar a resumen
+        const originalPigaRender = pigaRender;
+        pigaRender = function () {
+            originalPigaRender();
+            checkAmbientalComplete();
+        };
+    </script>
+
+    <!-- Inicializar Supabase y validar acceso al cargar -->
+    <!-- Inicializar Supabase y validar acceso al cargar -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (typeof inicializarSupabase === 'function') {
+                inicializarSupabase();
+                console.log('✅ Supabase inicializado para Gestión Ambiental');
+            }
+
+            if (window.SupabaseProgress) {
+                try {
+                    // Validar acceso (Async)
+                    const canAccess = await window.SupabaseProgress.canAccessModule('gestion_ambiental');
+
+                    if (!canAccess.allowed) {
+                        console.warn('⛔ Acceso denegado:', canAccess.message);
+                        alert(canAccess.message);
+                        window.location.href = canAccess.redirectTo || '../funcionario/dashboard.html';
+                        return;
+                    }
+
+                    // Verificar progreso (Async)
+                    const progress = await window.SupabaseProgress.getModuleProgress('gestion_ambiental');
+
+                    if (progress && progress.status === 'approved') {
+                        const repasar = confirm('Ya completaste este módulo. ¿Deseas repasarlo?');
+                        if (!repasar) {
+                            const nextModule = window.SupabaseProgress.getNextModule('gestion_ambiental');
+                            if (nextModule) {
+                                window.location.href = nextModule.url;
+                            } else {
+                                window.location.href = '../funcionario/dashboard.html';
+                            }
+                            return;
+                        }
+                    }
+
+                    // Iniciar módulo (Async)
+                    await window.SupabaseProgress.startModule('gestion_ambiental');
+                    console.log('🚀 Módulo Gestión Ambiental iniciado');
+
+                } catch (error) {
+                    console.error('❌ Error inicializando módulo con Supabase:', error);
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
