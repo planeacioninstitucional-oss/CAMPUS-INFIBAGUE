@@ -1,0 +1,3411 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inducción Atención al Ciudadano - INFIBAGUÉ</title>
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/induccion.css">
+    <link rel="stylesheet" href="../css/atencion-ciudadano-enhanced.css">
+    <!-- Iconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* ==================== CSS CUSTOM PROPERTIES ==================== */
+        :root {
+            /* Colors - Gradients */
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --gradient-secondary: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
+            --gradient-accent: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --gradient-surface: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+
+            /* Glass Effects */
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-shadow: 0 8px 32px rgba(37, 99, 235, 0.1);
+
+            /* Spacing - Fluid */
+            --spacing-xs: clamp(0.5rem, 2vw, 0.75rem);
+            --spacing-sm: clamp(0.75rem, 3vw, 1rem);
+            --spacing-md: clamp(1rem, 4vw, 1.5rem);
+            --spacing-lg: clamp(1.5rem, 5vw, 2rem);
+            --spacing-xl: clamp(2rem, 6vw, 3rem);
+
+            /* Typography */
+            --font-size-xs: clamp(0.7rem, 2vw, 0.8rem);
+            --font-size-sm: clamp(0.8rem, 2.5vw, 0.95rem);
+            --font-size-base: clamp(0.9rem, 3vw, 1.125rem);
+            --font-size-lg: clamp(1rem, 3.5vw, 1.25rem);
+            --font-size-xl: clamp(1.15rem, 4vw, 1.5rem);
+            --font-size-2xl: clamp(1.35rem, 5vw, 2rem);
+            --font-size-3xl: clamp(1.6rem, 6vw, 2.5rem);
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+            /* Shadows */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+            --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15);
+            --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ==================== BASE STYLES ==================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #f0f9ff 100%);
+            background-attachment: fixed;
+            font-family: 'Poppins', sans-serif;
+            /* CLAVE */
+            margin: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Background Image with Transparency */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('../assets/atenci.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.15;
+            /* Transparencia sutil */
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(22, 163, 74, 0.06) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes bgFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(20px, -20px) scale(1.05);
+            }
+        }
+
+        /* ==================== LAYOUT ==================== */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-md);
+            /* CLAVE */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ==================== HEADER - ENHANCED ==================== */
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 20px;
+            box-shadow: var(--glass-shadow), 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: var(--spacing-lg);
+            z-index: 10;
+            border: 1px solid var(--glass-border);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: visible;
+            gap: var(--spacing-md);
+        }
+
+        .module-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .module-header:hover {
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Header Left Section */
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex: 1;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(37, 99, 235, 0.2));
+            transition: transform var(--transition-base);
+        }
+
+        .header-logo:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title {
+            color: #1e40af;
+            margin: 0;
+            font-size: var(--font-size-xl);
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        /* Header Right Section */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        /* Back Button - Premium Design */
+        .btn-back-home {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-back-home::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-back-home:hover::before {
+            left: 100%;
+        }
+
+        .btn-back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+        }
+
+        .btn-back-home:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .back-icon {
+            width: 20px;
+            height: 20px;
+            transition: transform var(--transition-base);
+        }
+
+        .btn-back-home:hover .back-icon {
+            transform: translateX(-3px);
+        }
+
+        .back-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsive Header */
+        @media (max-width: 768px) {
+            .module-header {
+                padding: var(--spacing-sm) var(--spacing-md);
+                gap: var(--spacing-sm);
+                flex-wrap: nowrap;
+            }
+
+            .header-left {
+                flex: 1;
+                min-width: 0;
+                gap: 10px;
+            }
+
+            .header-logo {
+                width: 35px;
+                height: 35px;
+                flex-shrink: 0;
+            }
+
+            .header-title-group {
+                gap: 8px;
+                min-width: 0;
+            }
+
+            .header-title {
+                font-size: 1rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .header-right {
+                flex-shrink: 0;
+            }
+
+            .back-text {
+                display: none;
+            }
+
+            .btn-back-home {
+                padding: 10px 14px;
+                min-width: 44px;
+            }
+
+            .back-icon {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .module-header {
+                padding: 10px 12px;
+            }
+
+            .header-logo {
+                width: 30px;
+                height: 30px;
+            }
+
+            .header-title {
+                font-size: 0.9rem;
+            }
+
+            .btn-back-home {
+                padding: 8px 12px;
+            }
+        }
+
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            transition: all var(--transition-bounce);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-dot.active {
+            background: var(--gradient-primary);
+            transform: scale(1.5);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), var(--shadow-glow);
+        }
+
+        .progress-dot.active::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .progress-dot.completed {
+            background: var(--gradient-secondary);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* ==================== TYPOGRAPHY ==================== */
+        .slide {
+            display: none;
+            /* Hidden by default */
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+            padding: var(--spacing-sm);
+            /* Reduced padding for mobile default */
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            transition: all var(--transition-slow);
+            height: 100%;
+            /* Take full height */
+            width: 100%;
+            /* Take full width */
+        }
+
+        @media (min-width: 768px) {
+            .slide {
+                padding: var(--spacing-md);
+            }
+        }
+
+        .slide.active {
+            display: flex !important;
+            /* Show active slide - force with important */
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            animation: slideIn 0.5s ease-out;
+            visibility: visible;
+        }
+
+        /* Force hide inactive slides - prevent mobile display issues */
+        .slide:not(.active) {
+            display: none !important;
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide.prev {
+            display: none;
+        }
+
+        /* Smooth Scrollbar */
+        .slide::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide::-webkit-scrollbar-track {
+            background: rgba(226, 232, 240, 0.3);
+            border-radius: 10px;
+        }
+
+        .slide::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            transition: background var(--transition-base);
+        }
+
+        .slide::-webkit-scrollbar-thumb:hover {
+            background: var(--gradient-secondary);
+        }
+
+        /* ==================== TYPOGRAPHY ==================== */
+        .slide-title {
+            font-size: var(--font-size-3xl);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(37, 99, 235, 0.1);
+            position: relative;
+            padding-bottom: var(--spacing-sm);
+            animation: slideInDown 0.6s var(--transition-bounce);
+        }
+
+        .slide-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            animation: expandWidth 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes expandWidth {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 80px;
+            }
+        }
+
+        .slide-description {
+            text-align: center;
+            color: #64748b;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto var(--spacing-lg) auto;
+            font-size: var(--font-size-lg);
+            line-height: 1.6;
+            font-weight: 500;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== ROLE CARDS ==================== */
+        .role-selection {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            flex-wrap: wrap;
+            /* Allow wrapping on small screens */
+            width: 100%;
+        }
+
+        .role-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 20px;
+            /* Reduced padding for mobile */
+            width: min(300px, 100%);
+            /* Responsive width */
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            /* Reduced hover movement */
+            border-color: #2563eb;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            /* Smaller icon */
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .role-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        .role-card:hover .role-icon {
+            color: #2563eb;
+        }
+
+        .role-title {
+            font-size: 1.25rem;
+            /* Smaller title */
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .role-subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        /* Attributes List */
+        .attributes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .attr-item {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            transition: all 0.2s;
+        }
+
+        .attr-item:hover {
+            transform: translateX(5px);
+            border-left: 5px solid #22c55e;
+        }
+
+        .attr-icon {
+            background: #dcfce7;
+            color: #16a34a;
+            min-width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Nav Buttons */
+        .nav-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-nav {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-prev {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-next {
+            background-color: #2563eb;
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+        }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-option {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1rem;
+            color: #334155;
+        }
+
+        .quiz-option:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .quiz-option.selected {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .quiz-option.correct {
+            background: #22c55e !important;
+            color: white !important;
+            border-color: #22c55e !important;
+        }
+
+        .quiz-option.incorrect {
+            background: #ef4444 !important;
+            color: white !important;
+            border-color: #ef4444 !important;
+        }
+
+        /* --- PUZZLE STYLES --- */
+        .puzzle-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .puzzle-col {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .puzzle-item {
+            background: white;
+            padding: 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .puzzle-item.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .puzzle-item.matched {
+            border-color: #22c55e;
+            background: #dcfce7;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* Timeline */
+        .timeline-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .time-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem 1.5rem;
+            /* Larger touch area */
+            text-align: center;
+            width: 100%;
+            max-width: 250px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            border-top: 5px solid #2563eb;
+        }
+
+        .days-big {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            line-height: 1;
+            margin: 10px 0;
+        }
+
+        .days-label {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* ========================================== */
+        /* ATTR-ITEM ALIGNMENT */
+        /* ========================================== */
+        .attr-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .attr-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .attr-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--icon-bg, #f3f4f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .attr-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--icon-color, #6b7280);
+        }
+
+        /* ========================================== */
+        /* PROTOCOL GRID RESPONSIVE */
+        /* ========================================== */
+        .protocol-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .protocol-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 0 15px;
+            }
+        }
+
+        /* ========================================== */
+        /* CHANNELS SECTION RESPONSIVE DESIGN */
+        /* ========================================== */
+        .channels-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: flex-start;
+            justify-content: center;
+            width: 100%;
+            max-width: 100%;
+            margin-top: 20px;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            flex: 2;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .luminito-avatar {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .luminito-circle {
+            width: 200px;
+            height: 200px;
+            background: #e0f2fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .luminito-circle:hover {
+            transform: scale(1.05);
+        }
+
+        .luminito-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .luminito-text {
+            color: #0284c7;
+            font-weight: 800;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .channel-text {
+            font-size: 0.85rem;
+            color: #4b5563;
+            display: block;
+            margin-top: 5px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Tablet */
+        @media (max-width: 900px) {
+            .channels-container {
+                flex-direction: column;
+                gap: 30px;
+                padding: 0 15px;
+            }
+
+            .channels-grid {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .luminito-avatar {
+                max-width: 100%;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            .channels-container {
+                gap: 25px;
+                padding: 0 10px;
+            }
+
+            .channels-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                width: 100%;
+            }
+
+            .luminito-circle {
+                width: 120px;
+                height: 120px;
+                border: 3px solid white;
+            }
+
+            .luminito-text {
+                font-size: 1.1rem;
+            }
+
+            .channel-text {
+                font-size: 0.8rem;
+                line-height: 1.3;
+            }
+        }
+
+        /* Very small mobile */
+        @media (max-width: 400px) {
+            .channels-container {
+                padding: 0 8px;
+                gap: 20px;
+            }
+
+            .channels-grid {
+                gap: 10px;
+            }
+
+            .luminito-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .luminito-text {
+                font-size: 1rem;
+            }
+        }
+
+        /* Ajustes Responsive para Móvil */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            .slide-title {
+                font-size: 1.8rem;
+            }
+
+            .slide-description {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Module Header - ENHANCED -->
+        <div class="module-header">
+            <div class="header-left">
+                <img src="../assets/logo.png" alt="INFIBAGUÉ" class="header-logo" onerror="this.style.display='none'">
+                <div class="header-title-group">
+                    <h2 class="header-title">Atención al Ciudadano</h2>
+
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn-back-home" onclick="goBackHome()" title="Volver al Dashboard">
+                    <svg class="back-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span class="back-text">Volver al Inicio</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SLIDE 1: ROLE SELECTION -->
+        <div class="slide active" id="slide-1">
+            <h1 class="slide-title">Bienvenido</h1>
+            <p class="slide-description">Selecciona el perfil de inducción que deseas realizar.</p>
+
+            <div class="role-selection">
+                <div class="role-card role-admin" onclick="startPath('admin')">
+                    <div class="role-icon">
+                        <!-- Laptop/Admin Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z" />
+                        </svg>
+                    </div>
+                    <div class="role-title">Administrativo</div>
+                    <div class="role-subtitle">Gestión, PQRS y Comunicaciones.</div>
+                </div>
+
+                <div class="role-card role-operative" onclick="startPath('operative')">
+                    <div class="role-icon">
+                        <!-- Helmet Icon -->
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C8.13 2 5 5.13 5 9c0 1.74.5 3.37 1.41 4.84.95 1.54 2.2 2.86 3.59 4.16.8.75 1.21 1.83 1.21 2.92V21c0 .55.45 1 1 1h.5c.55 0 1-.45 1-1v-.08c0-1.09.41-2.17 1.21-2.92 1.39-1.3 2.64-2.62 3.59-4.16C18.5 12.37 19 10.74 19 9c0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 .22-.01.44-.04.65-.13-.08-.27-.14-.42-.18-1.55-.42-2.73-1.6-3.15-3.15-.04-.15-.1-.29-.18-.42.21-.03.43-.04.65-.04.05 0 .09 0 .14.01V5.13c-.48-.09-.98-.13-1.5-.13s-1.02.04-1.5.13v.78c.05 0 .09-.01.14-.01.22 0 .44.01.65.04-.08.13-.14.27-.18.42-.42 1.55-1.6 2.73-3.15 3.15-.15.04-.29.1-.42.18-.03-.21-.04-.43-.04-.65 0-2.76 2.24-5 5-5z" />
+                        </svg>
+                    </div>
+                    <div class="role-title">Operativo</div>
+                    <div class="role-subtitle">Atención en campo y técnica.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ADMINISTRATIVE PATH ================= -->
+
+        <!-- SLIDE 2: ATTRIBUTES -->
+        <div class="slide" id="slide-admin-1">
+            <h1 class="slide-title">Atributos de la Buena Atención</h1>
+            <p class="slide-description">Claves para un servicio de excelencia en INFIBAGUÉ.</p>
+
+            <div class="attributes-list">
+                <div class="attr-item" style="--icon-color:#2563eb; --icon-bg:#dbeafe;">
+                    <div class="attr-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Contacto y Saludo</strong>
+                        <p style="font-size: 0.9rem; color: #4b5563; margin-top: 5px;">
+                            Contacto visual inmediato. Saludo corporativo: <em>"Buenos días/tardes, Bienvenido a
+                                INFIBAGUÉ, mi nombre es... ¿en qué le puedo servir?"</em>. No espere a que el ciudadano
+                            salude primero.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="attr-item" style="--icon-color:#f59e0b; --icon-bg:#fef3c7;">
+                    <div class="attr-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-14v5.5l4.33 2.5.75-1.23-3.58-2.12V6h-1.5z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Escucha Activa</strong>
+                        <p style="font-size: 0.9rem; color: #4b5563; margin-top: 5px;">
+                            Escuchar con atención y sin interrumpir al usuario.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="attr-item" style="--icon-color:#06b6d4; --icon-bg:#cffafe;">
+                    <div class="attr-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M21.99 8c0-.72-.37-1.35-.94-1.7l-7-3.99c-.66-.37-1.44-.37-2.1 0l-7 3.99c-.57.35-.94.98-.94 1.7v7.99c0 .72.37 1.35.94 1.7l7 3.99c.33.19.69.29 1.05.29s.72-.1 1.05-.29l7-3.99c.57-.35.94-.98.94-1.7V8zM12 19.8l-7-3.99V8.8l7 3.99 7-3.99v7.01l-7 3.99zM12 11.8l-6-3.41L12 4.97l6 3.42-6 3.41z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Lenguaje Claro</strong>
+                        <p style="font-size: 0.9rem; color: #4b5563; margin-top: 5px;">
+                            Sea respetuoso y sencillo. Evite tecnicismos legales o internos (numerales de normas,
+                            memorandos) que confundan al ciudadano.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="attr-item" style="--icon-color:#ec4899; --icon-bg:#fce7f3;">
+                    <div class="attr-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Cordialidad</strong>
+                        <p style="font-size: 0.9rem; color: #4b5563; margin-top: 5px;">
+                            Mantenga las normas de cortesía en todo momento: saludar, agradecer, despedirse.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="attr-item" style="--icon-color:#8b5cf6; --icon-bg:#ede9fe;">
+                    <div class="attr-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Presentación Personal</strong>
+                        <p style="font-size: 0.9rem; color: #4b5563; margin-top: 5px;">
+                            Cumplir con lo establecido en el MANUAL DE IMAGEN del Instituto.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="goToSlide('slide-1')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-admin-1')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: PQRSD -->
+        <div class="slide" id="slide-admin-2">
+            <h1 class="slide-title">Trámite de PQRSD</h1>
+            <p class="slide-description">Términos legales de respuesta (Ley 1755 de 2015).</p>
+
+            <div
+                style="background: white; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 20px;">
+                <p>Las peticiones deberán resolverse dentro de los siguientes plazos:</p>
+
+                <div class="timeline-container">
+                    <div class="time-card">
+                        <div style="font-size: 2rem; margin-bottom:10px">📅</div>
+                        <div class="days-big">15</div>
+                        <div class="days-label">Días Hábiles</div>
+                        <div style="font-size: 0.8rem; margin-top: 10px; color: #666;">Regla General</div>
+                    </div>
+
+                    <div class="time-card" style="border-top-color: #f59e0b;">
+                        <div style="font-size: 2rem; margin-bottom:10px">📂</div>
+                        <div class="days-big" style="color: #ea580c;">10</div>
+                        <div class="days-label">Días Hábiles</div>
+                        <div style="font-size: 0.8rem; margin-top: 10px; color: #666;">Las peticiones de documentos y de
+                            información deberán resolverse dentro de los diez (10) días siguientes a su recepción</div>
+                    </div>
+
+                    <div class="time-card" style="border-top-color: #16a34a;">
+                        <div style="font-size: 2rem; margin-bottom:10px">⚡</div>
+                        <div class="days-big" style="color: #16a34a;">3</div>
+                        <div class="days-label">Días Hábiles</div>
+                        <div style="font-size: 0.8rem; margin-top: 10px; color: #666;">Copias / Traslados</div>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top: 30px; background: #fff1f2; color: #991b1b; padding: 15px; border-radius: 10px; border: 1px solid #fecaca; font-size: 0.9rem;">
+                    <i class="fas fa-exclamation-circle"></i> <strong>Sanción Disciplinaria:</strong> constituye una
+                    falta disciplinaria grave lo cual puede acarrear sanciones que van desde multas económicas y
+                    suspensión del cargo de 1 a 18 meses, hasta la destitución e inhabilidad.
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-admin-2')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-admin-2')">Siguiente</button>
+            </div>
+        </div>
+
+
+
+        <!-- SLIDE 4: COMUNICACIONES EXTERNAS -->
+        <div class="slide" id="slide-admin-3">
+            <h1 class="slide-title">Comunicaciones Externas</h1>
+            <p class="slide-description">¿Quién puede firmar respuestas oficiales?</p>
+
+            <div style="display: flex; gap: 30px; align-items: stretch; justify-content: center; flex-wrap: wrap;">
+
+                <!-- General Rule -->
+                <div
+                    style="background: white; padding: 30px; border-radius: 20px; flex: 1; min-width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                    <div style="font-size: 3rem; color: #1e40af; margin-bottom: 20px;"><i
+                            class="fas fa-file-signature"></i>
+                    </div>
+                    <h3 style="color: #1e3a8a; margin-bottom: 15px;">Regla General</h3>
+                    <p style="color: #4b5563;">Las cartas o comunicaciones oficiales externas deberán ser suscritas por:
+                    </p>
+                    <ul class="policy-list" style="margin-top: 15px;">
+                        <li>El Gerente</li>
+                        <li>La Secretaria General</li>
+                        <li>Los Jefes de las Oficinas</li>
+                        <li>Los Directores</li>
+                    </ul>
+                </div>
+
+                <!-- Exception -->
+                <div
+                    style="background: #ecfccb; padding: 30px; border-radius: 20px; flex: 1; min-width: 300px; border: 2px dashed #84cc16; position: relative;">
+                    <div
+                        style="position: absolute; top: -15px; right: -15px; background: #84cc16; color: white; padding: 5px 15px; border-radius: 50px; font-weight: bold; transform: rotate(5deg);">
+                        ¡Importante!</div>
+                    <div style="font-size: 3rem; color: #4d7c0f; margin-bottom: 20px;"><i class="fas fa-gavel"></i>
+                    </div>
+                    <h3 style="color: #3f6212; margin-bottom: 15px;">Excepción Exclusiva</h3>
+                    <p style="color: #3f6212; font-weight: 500;">
+                        Respuestas a <strong>Entes de Control</strong> o <strong>Juzgados</strong>.
+                    </p>
+                    <p style="margin-top: 15px; color: #365314;">
+                        Estas deben ser suscritas de manera <strong>EXCLUSIVA</strong> por el Representante Legal.
+                    </p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="https://www.infibague.gov.co/wp-content/uploads/2025/11/MAN-GD-005-MANUAL-DE-CORRESPONDENCIA-DOCUMENTOS-ORGANIZACIONAL.pdf"
+                    target="_blank" style="color: #2563eb; text-decoration: underline; font-weight: 600;"><i
+                        class="fas fa-book"></i> Ver MAN-GD-005 Manual De Correspondencia</a>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-admin-3')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-admin-3')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: ENVIO RESPUESTAS -->
+        <div class="slide" id="slide-admin-4">
+            <h1 class="slide-title">Envío de Respuestas</h1>
+            <p class="slide-description">Protocolo de salida de comunicaciones.</p>
+
+            <div style="max-width: 800px; margin: 0 auto;">
+                <div
+                    style="background: #fffbeb; border-left: 5px solid #f59e0b; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px;">
+                    <h3 style="color: #b45309; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-archive"></i> Oficina Asesora de Comunicaciones
+                    </h3>
+                    <p style="margin-top: 10px; color: #78350f;">
+                        Tiene la responsabilidad de generar el <strong>consecutivo único</strong> de comunicación
+                        externa y
+                        de administrar el archivo físico y digital.
+                    </p>
+                </div>
+
+                <div
+                    style="background: #eff6ff; border-left: 5px solid #2563eb; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <h3 style="color: #1e40af; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-paper-plane"></i> Canales Oficiales
+                    </h3>
+                    <p style="margin-top: 10px; color: #1e3a8a;">
+                        Toda respuesta oficial solo podrá enviarse desde los canales de atención administrados por la
+                        Oficina Asesora de Comunicaciones y Participación Ciudadana.
+                    </p>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-admin-4')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-admin-4')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: CANALES -->
+        <div class="slide" id="slide-admin-5">
+            <h1 class="slide-title">Canales de Atención</h1>
+            <p class="slide-description">¿Cómo interactúa el ciudadano con nosotros?</p>
+
+            <div class="channels-container">
+                <!-- Grid -->
+                <div class="channels-grid">
+                    <div class="attr-item" style="padding: 15px; --icon-color:#2563eb; --icon-bg:#dbeafe;">
+                        <div class="attr-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
+                            </svg>
+                        </div>
+                        <div><strong>Presencial</strong><br><span class="channel-text">Calle 60 con Cra. 5 Edif Cami
+                                Norte</span></div>
+                    </div>
+                    <div class="attr-item" style="padding: 15px; --icon-color:#ea580c; --icon-bg:#ffedd5;">
+                        <div class="attr-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                            </svg>
+                        </div>
+                        <div><strong>Correo</strong><br><span class="channel-text">correspondencia@infibague.gov.co
+                                y anticorrupción@infibague.gov.co</span></div>
+                    </div>
+                    <div class="attr-item" style="padding: 15px; --icon-color:#dc2626; --icon-bg:#fee2e2;">
+                        <div class="attr-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.27-.27.35-.66.24-1.01-.37-1.11-.56-2.3-.56-3.53 0-.55-.45-1-1-1H4.39c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                        </div>
+                        <div><strong>Línea Fija</strong><br><span class="channel-text">608 2772348 Ext 100</span>
+                        </div>
+                    </div>
+                    <div class="attr-item" style="padding: 15px; --icon-color:#16a34a; --icon-bg:#dcfce7;">
+                        <div class="attr-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M16.75 13.96c.25.13.36.43.26.69l-.35 1c-.13.37-.58.5-1.02.5-.23 0-3.37-.15-6.8-3.58-3.44-3.43-3.58-6.57-3.58-6.81 0-.44.13-.89.5-1.02l1-.35c.26-.09.56.02.69.26l1.22 2.6c.1.21.03.46-.14.59l-.78.58c-.14.11-.2.27-.16.43.34 1.45 1.54 2.64 2.99 2.98.16.04.32-.02.43-.16l.58-.78c.13-.17.38-.24.59-.14l2.56 1.21z" />
+                            </svg>
+                        </div>
+                        <div><strong>WhatsApp</strong><br><span class="channel-text">317 474 1611</span></div>
+                    </div>
+                    <div class="attr-item" style="padding: 15px; --icon-color:#0891b2; --icon-bg:#cffafe;">
+                        <div class="attr-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                            </svg>
+                        </div>
+                        <div><strong>Web</strong><br><span class="channel-text">www.infibague.gov.co</span>
+                        </div>
+                    </div>
+                    <div class="attr-item" style="padding: 15px; --icon-color:#7c3aed; --icon-bg:#ddd6fe;">
+                        <div class="attr-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.66 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
+                            </svg>
+                        </div>
+                        <div><strong>Redes</strong><br><span class="channel-text">Facebook: Infibague, Twitter:
+                                @infibague
+                                Instagram: @infibague
+                            </span></div>
+                    </div>
+                </div>
+
+                <!-- Luminito Avatar -->
+                <div class="luminito-avatar">
+                    <div class="luminito-circle">
+                        <img src="../assets/lumi.jpg" alt="Luminito">
+                    </div>
+                    <h3 class="luminito-text">¡Hola, soy Luminito!</h3>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-admin-5')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-admin-5')">Siguiente </button>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: HORARIO -->
+        <div class="slide" id="slide-admin-6">
+            <h1 class="slide-title">Horario de Atención</h1>
+            <p class="slide-description">Nuestra disponibilidad para la ciudadanía.</p>
+
+            <div style="max-width: 900px; margin: 0 auto;">
+                <!-- Intro Text -->
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <p style="color: #4b5563; font-size: 0.95rem; max-width: 600px; margin: 0 auto;">
+                        Todos los canales habilitados son administrados por la Oficina de Comunicaciones y son atendidos
+                        en el siguiente horario:
+                    </p>
+                </div>
+
+                <!-- Schedule Cards -->
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+
+                    <!-- Lunes a Jueves Card -->
+                    <div
+                        style="background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); padding: 25px; border-radius: 20px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); color: white; text-align: center; position: relative; overflow: hidden;">
+                        <div
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;">
+                        </div>
+                        <div style="position: relative; z-index: 1;">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">
+                                <i class="fas fa-calendar-week"></i>
+                            </div>
+                            <h3 style="font-size: 1.3rem; margin-bottom: 15px; font-weight: 700;">Lunes a Jueves</h3>
+                            <div
+                                style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px);">
+                                <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">
+                                    <i class="fas fa-clock" style="margin-right: 8px;"></i>7:00am - 12:00pm
+                                </p>
+                                <p style="font-size: 1.1rem; font-weight: 600;">
+                                    <i class="fas fa-clock" style="margin-right: 8px;"></i>2:00pm - 5:00pm
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Viernes Card -->
+                    <div
+                        style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); padding: 25px; border-radius: 20px; box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3); color: white; text-align: center; position: relative; overflow: hidden;">
+                        <div
+                            style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;">
+                        </div>
+                        <div style="position: relative; z-index: 1;">
+                            <div style="font-size: 2.5rem; margin-bottom: 10px;">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <h3 style="font-size: 1.3rem; margin-bottom: 15px; font-weight: 700;">Viernes</h3>
+                            <div
+                                style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 12px; backdrop-filter: blur(10px);">
+                                <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">
+                                    <i class="fas fa-clock" style="margin-right: 8px;"></i>7:00am - 3:00pm
+                                </p>
+                                <p style="font-size: 0.9rem; opacity: 0.95; font-style: italic;">
+                                    (Jornada Continua)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Section -->
+                <div style="text-align: center;">
+                    <img src="../assets/horario.png" alt="Horario de Atención"
+                        style="max-width: 500px; width: 100%; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="goToSlide('slide-admin-5')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-admin-6')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- ================= OPERATIVE PATH ================= -->
+
+        <!-- SLIDE OP 1: PROTOCOLO VERBAL -->
+        <div class="slide" id="slide-operative-1">
+            <h1 class="slide-title">Protocolo de Atención Verbal</h1>
+            <p class="slide-description">La forma correcta de interactuar con el ciudadano.</p>
+
+            <div class="protocol-grid">
+
+                <!-- DO's -->
+                <div
+                    style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 16px; padding: 15px; position: relative; overflow: hidden;">
+                    <div
+                        style="background: #22c55e; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 1rem; border-radius: 8px 8px 0 0; margin: -15px -15px 15px -15px;">
+                        <i class="fas fa-check-circle"></i> LO CORRECTO
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div
+                            style="background: white; border-left: 4px solid #22c55e; padding: 12px; border-radius: 8px; display: flex; align-items: start; gap: 10px;">
+                            <i class="fas fa-user-check"
+                                style="color: #16a34a; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <div>
+                                <strong style="color: #15803d;">Trato Formal</strong>
+                                <p style="font-size: 0.85rem; margin-top: 3px; color: #4b5563;">Siempre use:
+                                    <em>"Señor"</em> o
+                                    <em>"Señora"</em>.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            style="background: white; border-left: 4px solid #22c55e; padding: 12px; border-radius: 8px; display: flex; align-items: start; gap: 10px;">
+                            <i class="fas fa-smile"
+                                style="color: #16a34a; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <div>
+                                <strong style="color: #15803d;">Cordialidad</strong>
+                                <p style="font-size: 0.85rem; margin-top: 3px; color: #4b5563;">Salude, agradezca y
+                                    despídase siempre.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            style="background: white; border-left: 4px solid #22c55e; padding: 12px; border-radius: 8px; display: flex; align-items: start; gap: 10px;">
+                            <i class="fas fa-volume-up"
+                                style="color: #16a34a; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <div>
+                                <strong style="color: #15803d;">Claridad</strong>
+                                <p style="font-size: 0.85rem; margin-top: 3px; color: #4b5563;">Use un lenguaje sencillo
+                                    y claro.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DON'Ts -->
+                <div
+                    style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 16px; padding: 15px; position: relative; overflow: hidden;">
+                    <div
+                        style="background: #ef4444; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 1rem; border-radius: 8px 8px 0 0; margin: -15px -15px 15px -15px;">
+                        <i class="fas fa-times-circle"></i> A EVITAR
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div
+                            style="background: white; border-left: 4px solid #ef4444; padding: 12px; border-radius: 8px; display: flex; align-items: start; gap: 10px;">
+                            <i class="fas fa-heart-broken"
+                                style="color: #dc2626; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <div>
+                                <strong style="color: #991b1b;">Exceso de Confianza</strong>
+                                <p style="font-size: 0.85rem; margin-top: 3px; color: #4b5563;">Nunca diga: <em>"Mi
+                                        amor"</em>,
+                                    <em>"Corazón"</em>, <em>"Reina"</em>, etc.
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            style="background: white; border-left: 4px solid #ef4444; padding: 12px; border-radius: 8px; display: flex; align-items: start; gap: 10px;">
+                            <i class="fas fa-hand-paper"
+                                style="color: #dc2626; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <div>
+                                <strong style="color: #991b1b;">Tutear</strong>
+                                <p style="font-size: 0.85rem; margin-top: 3px; color: #4b5563;">Mantenga la distancia
+                                    profesional.</p>
+                            </div>
+                        </div>
+                        <div
+                            style="background: white; border-left: 4px solid #ef4444; padding: 12px; border-radius: 8px; display: flex; align-items: start; gap: 10px;">
+                            <i class="fas fa-comments"
+                                style="color: #dc2626; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <div>
+                                <strong style="color: #991b1b;">Respuestas Cortantes</strong>
+                                <p style="font-size: 0.85rem; margin-top: 3px; color: #4b5563;">Evite el <em>"Sí"</em> o
+                                    <em>"No"</em>
+                                    seco. Se interpreta como grosería.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="goToSlide('slide-1')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-operative-1')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- ================= GENERAL PATH (SHARED) ================= -->
+
+        <!-- SLIDE GENERAL 1: VESTIMENTA -->
+        <div class="slide" id="slide-general-1">
+            <h1 class="slide-title">Nuestra Imagen: Vestimenta</h1>
+            <p class="slide-description">El reflejo de nuestra identidad y profesionalismo.</p>
+
+            <div
+                style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: flex; gap: 30px; align-items: stretch; justify-content: center; flex-wrap: wrap;">
+                    <!-- Administrativo/Directivos -->
+                    <div
+                        style="flex: 1; min-width: 300px; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+                        <h3
+                            style="color: #1e3a8a; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; width: 100%;">
+                            <i class="fas fa-user-tie"></i> Administrativo y Directivos
+                        </h3>
+                        <div style="width: 100%; height: 350px; overflow: hidden; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.3s;"
+                            onclick="window.open('../assets/VETI.png', '_blank')"
+                            onmouseover="this.style.transform='scale(1.02)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                            <img src="../assets/VETI.png" alt="Vestuario Administrativo"
+                                onerror="this.src='https://via.placeholder.com/400x350?text=Imagen+No+Encontrada'"
+                                style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <p style="text-align: center; margin-top: 15px; font-size: 0.9rem; color: #64748b;">
+                            Camisas, busos tipo polo y prendas institucionales según el cargo.
+                        </p>
+                    </div>
+
+                    <!-- Operativo -->
+                    <div
+                        style="flex: 1; min-width: 300px; padding: 20px; display: flex; flex-direction: column; align-items: center;">
+                        <h3
+                            style="color: #15803d; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; width: 100%;">
+                            <i class="fas fa-hard-hat"></i> Operativo y Campo
+                        </h3>
+                        <div style="width: 100%; height: 350px; overflow: hidden; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.3s;"
+                            onclick="window.open('../assets/VESTI 2.png', '_blank')"
+                            onmouseover="this.style.transform='scale(1.02)'"
+                            onmouseout="this.style.transform='scale(1)'">
+                            <img src="../assets/VESTI 2.png" alt="Vestuario Operativo"
+                                onerror="this.src='https://via.placeholder.com/400x350?text=Imagen+No+Encontrada'"
+                                style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <p style="text-align: center; margin-top: 15px; font-size: 0.9rem; color: #64748b;">
+                            Overoles, chalecos, gorras y elementos de protección personal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-operative-1')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-general-2')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- SLIDE GENERAL 2: IDENTIFICACION -->
+        <div class="slide" id="slide-general-2">
+            <h1 class="slide-title">Identificación Institucional</h1>
+            <p class="slide-description">Colores de carné según el tipo de vinculación.</p>
+
+            <!-- ESTILOS ESPECÍFICOS PARA CARNETS -->
+            <style>
+                .carnets-container {
+                    display: flex;
+                    gap: 25px;
+                    justify-content: center;
+                    align-items: stretch;
+                    margin-top: 30px;
+                    flex-wrap: wrap;
+                    padding: 0 20px;
+                }
+
+                .carnet-card {
+                    text-align: center;
+                    width: 220px;
+                    perspective: 1000px;
+                    cursor: pointer;
+                    transition: transform 0.3s ease;
+                }
+
+                .carnet-card:hover {
+                    transform: translateY(-10px);
+                }
+
+                .carnet-inner {
+                    background: white;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+                    height: 340px;
+                    border: 2px solid transparent;
+                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                    position: relative;
+                }
+
+                .carnet-card:hover .carnet-inner {
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+                    transform: scale(1.02);
+                }
+
+                .carnet-header {
+                    height: 100px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .carnet-header::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                    transform: rotate(45deg);
+                    transition: all 0.5s;
+                    opacity: 0;
+                }
+
+                .carnet-card:hover .carnet-header::before {
+                    animation: shimmer 0.8s ease-out;
+                }
+
+                @keyframes shimmer {
+                    0% {
+                        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                        opacity: 0;
+                    }
+
+                    50% {
+                        opacity: 1;
+                    }
+
+                    100% {
+                        transform: translateX(100%) translateY(100%) rotate(45deg);
+                        opacity: 0;
+                    }
+                }
+
+                .carnet-icon {
+                    font-size: 3rem;
+                    color: white;
+                    z-index: 2;
+                    transition: transform 0.3s ease;
+                }
+
+                .carnet-card:hover .carnet-icon {
+                    transform: scale(1.2) rotate(5deg);
+                }
+
+                .carnet-body {
+                    padding: 25px 20px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .carnet-title {
+                    font-size: 1.6rem;
+                    font-weight: 800;
+                    margin-bottom: 8px;
+                    letter-spacing: 1px;
+                    font-family: 'Poppins', sans-serif;
+                }
+
+                .carnet-subtitle {
+                    color: #475569;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                }
+
+                .carnet-divider {
+                    width: 50px;
+                    height: 3px;
+                    border-radius: 2px;
+                    margin-bottom: 15px;
+                }
+
+                .carnet-info {
+                    font-size: 0.85rem;
+                    color: #64748b;
+                    line-height: 1.5;
+                    padding: 0 10px;
+                }
+
+                .carnet-badge {
+                    position: absolute;
+                    bottom: 15px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    padding: 5px 15px;
+                    border-radius: 20px;
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                /* Colores específicos */
+                .carnet-amarillo .carnet-header {
+                    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+                }
+
+                .carnet-amarillo .carnet-inner {
+                    border-color: #fbbf24;
+                }
+
+                .carnet-amarillo .carnet-title {
+                    color: #d97706;
+                }
+
+                .carnet-amarillo .carnet-divider {
+                    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+                }
+
+                .carnet-amarillo .carnet-badge {
+                    background: #fef3c7;
+                    color: #d97706;
+                }
+
+                .carnet-verde .carnet-header {
+                    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+                }
+
+                .carnet-verde .carnet-inner {
+                    border-color: #4ade80;
+                    border-width: 3px;
+                }
+
+                .carnet-verde .carnet-title {
+                    color: #15803d;
+                }
+
+                .carnet-verde .carnet-divider {
+                    background: linear-gradient(90deg, #4ade80, #22c55e);
+                }
+
+                .carnet-verde .carnet-badge {
+                    background: #dcfce7;
+                    color: #15803d;
+                }
+
+                .carnet-verde {
+                    transform: scale(1.05);
+                }
+
+                .carnet-rojo .carnet-header {
+                    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+                }
+
+                .carnet-rojo .carnet-inner {
+                    border-color: #f87171;
+                }
+
+                .carnet-rojo .carnet-title {
+                    color: #b91c1c;
+                }
+
+                .carnet-rojo .carnet-divider {
+                    background: linear-gradient(90deg, #f87171, #ef4444);
+                }
+
+                .carnet-rojo .carnet-badge {
+                    background: #fee2e2;
+                    color: #b91c1c;
+                }
+
+                /* RESPONSIVE PARA MÓVIL */
+                @media (max-width: 768px) {
+                    .carnets-container {
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 20px;
+                        padding: 0 15px;
+                    }
+
+                    .carnet-card {
+                        width: 100%;
+                        max-width: 300px;
+                    }
+
+                    .carnet-card:hover {
+                        transform: translateY(-5px);
+                    }
+
+                    .carnet-verde {
+                        transform: scale(1);
+                        order: -1;
+                    }
+
+                    .carnet-inner {
+                        height: auto;
+                        min-height: 300px;
+                    }
+
+                    .carnet-header {
+                        height: 90px;
+                    }
+
+                    .carnet-icon {
+                        font-size: 2.5rem;
+                    }
+
+                    .carnet-title {
+                        font-size: 1.4rem;
+                    }
+
+                    .carnet-subtitle {
+                        font-size: 0.95rem;
+                    }
+
+                    .carnet-info {
+                        font-size: 0.9rem;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .carnet-card {
+                        max-width: 280px;
+                    }
+
+                    .carnet-inner {
+                        min-height: 280px;
+                    }
+
+                    .carnet-header {
+                        height: 80px;
+                    }
+
+                    .carnet-icon {
+                        font-size: 2.2rem;
+                    }
+
+                    .carnet-title {
+                        font-size: 1.3rem;
+                    }
+
+                    .carnet-body {
+                        padding: 20px 15px;
+                    }
+                }
+            </style>
+
+            <div class="carnets-container">
+
+                <!-- Directivos - Amarillo -->
+                <div class="carnet-card carnet-amarillo" onclick="showCarnetInfo('directivo')">
+                    <div class="carnet-inner">
+                        <div class="carnet-header">
+                            <i class="fas fa-user-tie carnet-icon"></i>
+                        </div>
+                        <div class="carnet-body">
+                            <h3 class="carnet-title">AMARILLO</h3>
+                            <p class="carnet-subtitle">Directivos</p>
+                            <div class="carnet-divider"></div>
+                            <p class="carnet-info">Gerentes, directores y jefes de área</p>
+                            <span class="carnet-badge">Alto Rango</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Funcionarios - Verde (Destacado) -->
+                <div class="carnet-card carnet-verde" onclick="showCarnetInfo('funcionario')">
+                    <div class="carnet-inner">
+                        <div class="carnet-header">
+                            <i class="fas fa-id-card-alt carnet-icon"></i>
+                        </div>
+                        <div class="carnet-body">
+                            <h3 class="carnet-title">VERDE</h3>
+                            <p class="carnet-subtitle">Funcionarios</p>
+                            <div class="carnet-divider"></div>
+                            <p class="carnet-info">Personal de planta en áreas operativas y administrativas</p>
+                            <span class="carnet-badge">Principal</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contratistas - Rojo -->
+                <div class="carnet-card carnet-rojo" onclick="showCarnetInfo('contratista')">
+                    <div class="carnet-inner">
+                        <div class="carnet-header">
+                            <i class="fas fa-briefcase carnet-icon"></i>
+                        </div>
+                        <div class="carnet-body">
+                            <h3 class="carnet-title">ROJO</h3>
+                            <p class="carnet-subtitle">Contratistas</p>
+                            <div class="carnet-divider"></div>
+                            <p class="carnet-info">Personal externo y prestadores de servicios</p>
+                            <span class="carnet-badge">Temporal</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <script>
+                function showCarnetInfo(tipo) {
+                    const mensajes = {
+                        'directivo': 'Carné AMARILLO: Para personal directivo y de alto mando. Incluye acceso a todas las áreas institucionales.',
+                        'funcionario': 'Carné VERDE: Para funcionarios de planta. Es el carné más común en la institución.',
+                        'contratista': 'Carné ROJO: Para contratistas y personal externo. Tiene acceso limitado según el contrato.'
+                    };
+
+                    // Crear toast notification
+                    const toast = document.createElement('div');
+                    toast.style.cssText = `
+                        position: fixed;
+                        bottom: 100px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background: rgba(30, 58, 138, 0.95);
+                        color: white;
+                        padding: 15px 25px;
+                        border-radius: 50px;
+                        font-size: 0.95rem;
+                        z-index: 1000;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                        animation: slideUp 0.3s ease;
+                        max-width: 90%;
+                        text-align: center;
+                    `;
+                    toast.textContent = mensajes[tipo];
+                    document.body.appendChild(toast);
+
+                    setTimeout(() => {
+                        toast.style.animation = 'slideDown 0.3s ease';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 3000);
+                }
+            </script>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-general-2')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-general-2')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- SLIDE GENERAL 3: VOCEROS -->
+        <div class="slide" id="slide-general-3">
+            <h1 class="slide-title">Voceros Oficiales</h1>
+            <p class="slide-description">Únicos autorizados para declaraciones públicas.</p>
+
+            <style>
+                .vocero-card {
+                    background: white;
+                    border-radius: 15px;
+                    padding: 15px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                    transition: all 0.3s ease;
+                    cursor: pointer;
+                    border-left: 4px solid #2563eb;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .vocero-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+                    border-left-color: #22c55e;
+                }
+
+                .vocero-icon {
+                    width: 45px;
+                    height: 45px;
+                    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 1.1rem;
+                    flex-shrink: 0;
+                }
+
+                .vocero-card:hover .vocero-icon {
+                    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+                    transform: rotate(360deg);
+                    transition: all 0.5s ease;
+                }
+
+                .vocero-title {
+                    font-size: 0.9rem;
+                    color: #1e293b;
+                    font-weight: 500;
+                    line-height: 1.3;
+                }
+
+                /* Grid container for voceros */
+                .voceros-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 15px;
+                    max-width: 900px;
+                    margin: 0 auto;
+                    padding: 10px;
+                }
+
+                /* Tablet: 2 columns */
+                @media (max-width: 768px) {
+                    .voceros-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 12px;
+                        padding: 10px;
+                    }
+
+                    .vocero-card {
+                        padding: 12px;
+                    }
+
+                    .vocero-icon {
+                        width: 40px;
+                        height: 40px;
+                        font-size: 1rem;
+                    }
+
+                    .vocero-title {
+                        font-size: 0.85rem;
+                    }
+                }
+
+                /* Mobile: 1 column to prevent overflow */
+                @media (max-width: 480px) {
+                    .voceros-grid {
+                        grid-template-columns: 1fr;
+                        gap: 10px;
+                        padding: 5px;
+                    }
+
+                    .vocero-card {
+                        padding: 10px;
+                    }
+
+                    .vocero-icon {
+                        width: 38px;
+                        height: 38px;
+                        font-size: 0.95rem;
+                    }
+
+                    .vocero-title {
+                        font-size: 0.8rem;
+                    }
+                }
+            </style>
+
+            <div class="voceros-grid">
+                <div class="vocero-card">
+                    <div class="vocero-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="vocero-title">Gerente Infibagué</div>
+                </div>
+
+                <div class="vocero-card">
+                    <div class="vocero-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="vocero-title">Director de Financiamiento, Promoción y Desarrollo</div>
+                </div>
+
+                <div class="vocero-card">
+                    <div class="vocero-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="vocero-title">Director Operativo</div>
+                </div>
+
+                <div class="vocero-card">
+                    <div class="vocero-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="vocero-title">Director Administrativo</div>
+                </div>
+
+                <div class="vocero-card">
+                    <div class="vocero-icon">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <div class="vocero-title">Secretaria General</div>
+                </div>
+
+                <div class="vocero-card">
+                    <div class="vocero-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <div class="vocero-title">Asesora Museo Panóptico</div>
+                </div>
+
+                <div class="vocero-card">
+                    <div class="vocero-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <div class="vocero-title">Jefes de oficina (Designados)</div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-general-3')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-general-3')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- SLIDE GENERAL 4: CRISIS & ALARMAS -->
+        <div class="slide" id="slide-general-4">
+            <h1 class="slide-title">Gestión de Crisis</h1>
+            <p class="slide-description">¿Qué es y cómo detectarla a tiempo?</p>
+
+            <style>
+                .crisis-container {
+                    display: flex;
+                    gap: 30px;
+                    align-items: stretch;
+                    height: auto;
+                    min-height: 300px;
+                }
+
+                .crisis-box {
+                    flex: 1;
+                    padding: 30px;
+                    border-radius: 20px;
+                }
+
+                .crisis-def {
+                    background: #fff1f2;
+                    border-left: 5px solid #e11d48;
+                }
+
+                .crisis-alarm {
+                    background: #fff7ed;
+                    border-left: 5px solid #f97316;
+                }
+
+                .crisis-warning-box {
+                    margin-top: 20px;
+                    background: rgba(255, 255, 255, 0.6);
+                    padding: 15px;
+                    border-radius: 10px;
+                    display: flex;
+                    gap: 10px;
+                    align-items: flex-start;
+                }
+
+                @media (max-width: 768px) {
+                    .crisis-container {
+                        flex-direction: column;
+                        gap: 20px;
+                        padding-bottom: 20px;
+                        min-height: auto;
+                    }
+
+                    .crisis-box {
+                        padding: 20px;
+                    }
+
+                    /* Ensure proper spacing for buttons */
+                    #slide-general-4 .nav-buttons {
+                        margin-top: 30px;
+                        margin-bottom: 20px;
+                        padding: 15px 0;
+                        position: relative;
+                        flex-shrink: 0;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .crisis-container {
+                        gap: 15px;
+                        padding-bottom: 15px;
+                    }
+
+                    .crisis-box {
+                        padding: 15px;
+                    }
+
+                    .crisis-box h2 {
+                        font-size: 1.3rem !important;
+                    }
+
+                    .crisis-box p {
+                        font-size: 0.95rem !important;
+                    }
+
+                    .crisis-warning-box {
+                        padding: 12px;
+                    }
+
+                    #slide-general-4 .nav-buttons {
+                        margin-top: 25px;
+                        margin-bottom: 15px;
+                        padding: 10px 0;
+                    }
+                }
+            </style>
+
+            <div class="crisis-container">
+
+                <!-- Definición -->
+                <div class="crisis-box crisis-def">
+                    <h2 style="color: #be123c; margin-bottom: 20px; font-size: 1.5rem;">
+                        <i class="fas fa-fire-alt"></i> Crisis
+                    </h2>
+                    <p style="color: #4c0519; font-size: 1.05rem; line-height: 1.6;">
+                        Situación o conjunto de eventos que generan una <strong>imagen negativa</strong>
+                        hacia una organización o figura pública.
+                    </p>
+                    <div class="crisis-warning-box">
+                        <i class="fas fa-exclamation-triangle" style="color: #e11d48; margin-top: 3px;"></i>
+                        <span style="font-size: 0.9rem; color: #881337;">El manejo inadecuado puede
+                            desencadenar pérdidas económicas y <strong>daños irreparables</strong> en la
+                            reputación de la empresa.</span>
+                    </div>
+                </div>
+
+                <!-- Alarmas -->
+                <div class="crisis-box crisis-alarm">
+                    <h2 style="color: #ea580c; margin-bottom: 20px; font-size: 1.5rem;">
+                        <i class="fas fa-bell"></i> Alarmas
+                    </h2>
+                    <p style="color: #7c2d12; font-size: 1.05rem; margin-bottom: 15px;">
+                        Señales que funcionan como aviso antes de la crisis:
+                    </p>
+                    <ul class="policy-list" style="color: #431407;">
+                        <li>Comportamiento de los empleados.</li>
+                        <li>Comentarios en territorio.</li>
+                        <li>Noticias en medios de comunicación.</li>
+                        <li>Publicaciones y comentarios en <strong>Redes Sociales</strong>.</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="goToSlide('slide-general-3')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-general-4')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- SLIDE GENERAL 5: REPORTE -->
+        <div class="slide" id="slide-general-5">
+            <h1 class="slide-title">¿A quién se reporta?</h1>
+            <p class="slide-description">Protocolo inmediato ante una posible crisis.</p>
+
+            <style>
+                .report-wrapper {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                }
+
+                .report-card {
+                    background: white;
+                    padding: 50px;
+                    border-radius: 30px;
+                    text-align: center;
+                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+                    max-width: 600px;
+                    width: 100%;
+                    border-top: 10px solid #2563eb;
+                }
+
+                .report-icon {
+                    font-size: 4rem;
+                    color: #2563eb;
+                    margin-bottom: 30px;
+                }
+
+                .report-title {
+                    color: #1e3a8a;
+                    margin-bottom: 20px;
+                    font-size: 1.8rem;
+                }
+
+                .report-text {
+                    font-size: 1.2rem;
+                    color: #4b5563;
+                    margin-bottom: 30px;
+                }
+
+                .report-pills {
+                    display: flex;
+                    gap: 20px;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                }
+
+                .report-pill {
+                    background: #eff6ff;
+                    padding: 15px 30px;
+                    border-radius: 50px;
+                    color: #1e40af;
+                    font-weight: bold;
+                    border: 1px solid #bfdbfe;
+                    white-space: nowrap;
+                }
+
+                @media (max-width: 768px) {
+                    .report-card {
+                        padding: 30px 20px;
+                    }
+
+                    .report-icon {
+                        font-size: 3rem;
+                        margin-bottom: 20px;
+                    }
+
+                    .report-title {
+                        font-size: 1.5rem;
+                    }
+
+                    .report-text {
+                        font-size: 1rem;
+                    }
+
+                    .report-pills {
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+
+                    .report-pill {
+                        width: 100%;
+                        white-space: normal;
+                        padding: 12px 20px;
+                    }
+                }
+            </style>
+
+            <div class="report-wrapper">
+
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h2 class="report-title">Reporte Inmediato</h2>
+                    <p class="report-text">
+                        Cualquier señal de alarma debe ser informada al instante a:
+                    </p>
+
+                    <div class="report-pills">
+                        <div class="report-pill">
+                            <i class="fas fa-user-tie"></i> Alta Dirección
+                        </div>
+                        <div class="report-pill">
+                            <i class="fas fa-bullseye"></i> Oficina de Comunicaciones y atención ciudadana
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-general-5')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-general-5')">Siguiente</button>
+            </div>
+        </div>
+
+
+        <!-- SLIDE GENERAL 6: REDES Y CIERRE -->
+        <div class="slide" id="slide-general-6">
+            <h1 class="slide-title">Nuestras Redes</h1>
+            <p class="slide-description">Infibagué se ilumina de diferentes maneras.</p>
+
+            <div style="display: flex; gap: 30px; align-items: center; justify-content: center; margin-bottom: 30px;">
+                <!-- Social Card 1 -->
+                <div
+                    style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width: 250px;">
+                    <div
+                        style="height: 120px; background: #e2e8f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                        <i class="fab fa-facebook" style="font-size: 3rem;"></i>
+                    </div>
+                    <div style="margin-top: 15px; text-align: center;">
+                        <h4 style="color: #1e293b;">Facebook</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">@Infibagué</p>
+                    </div>
+                </div>
+
+                <!-- Social Card 2 -->
+                <div
+                    style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width: 250px;">
+                    <div
+                        style="height: 120px; background: #e2e8f0; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                        <i class="fab fa-instagram" style="font-size: 3rem;"></i>
+                    </div>
+                    <div style="margin-top: 15px; text-align: center;">
+                        <h4 style="color: #1e293b;">Instagram</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">@infibague</p>
+                    </div>
+                </div>
+
+                <!-- Luminito -->
+                <div style="text-align: center;">
+                    <div
+                        style="width: 150px; height: 150px; background: #e0f2fe; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 5px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                        <i class="fas fa-headset" style="font-size: 4rem; color: #0284c7;"></i>
+                    </div>
+                    <h4 style="color: #0284c7; margin-top: 10px;">¡Síguenos!</h4>
+                </div>
+            </div>
+
+            <div
+                style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; border-radius: 20px; color: white; text-align: center; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);">
+                <i class="fas fa-heart" style="font-size: 2rem; margin-bottom: 15px; color: #d1fae5;"></i>
+                <h2 style="font-size: 1.5rem; margin-bottom: 10px;">Sintámonos Orgullosos</h2>
+                <p style="font-size: 1.1rem; opacity: 0.9;">"Los logros se celebran en equipo."</p>
+                <p style="margin-top: 15px; font-size: 0.9rem;">Al compartir nuestros contenidos,
+                    apoyamos a la empresa
+                    y mostramos al mundo qué hace Infibagué.</p>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-general-6')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="nextSlide('slide-general-6')">Ir a
+                    Evaluación</button>
+            </div>
+        </div>
+
+        <!-- ================= EVALUATION SECTION ================= -->
+
+        <!-- INTRO EVAL -->
+        <div class="slide" id="slide-eval-intro">
+            <h1 class="slide-title">Evaluación de Conocimientos</h1>
+            <p class="slide-description">Demuestra lo aprendido en este módulo.</p>
+            <div style="text-align: center; margin-top: 50px;">
+                <i class="fas fa-clipboard-check" style="font-size: 5rem; color: #2563eb; margin-bottom: 20px;"></i>
+                <p>A continuación encontrarás una serie de preguntas situacionales y juegos visuales.
+                </p>
+                <p><strong>¡Mucho éxito!</strong></p>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" onclick="prevSlide('slide-eval-intro')">Atrás</button>
+                <button class="btn-nav btn-next" onclick="startEvaluation()">Iniciar</button>
+            </div>
+        </div>
+
+
+        <!-- ================= ADMIN QUESTIONS ================= -->
+
+        <!-- Q1 ADMIN: Ley 1755 -->
+        <div class="slide" id="slide-eval-admin-1">
+            <h1 class="slide-title">Pregunta 1 / 5</h1>
+            <p class="slide-description">Marco Legal - Peticiones</p>
+
+            <div class="question-box" style="max-width: 600px; margin: 0 auto;">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">¿De conformidad con el art. 14 de la
+                    Ley 1755 de
+                    2015, cuál es el término para dar respuesta a una petición?</p>
+
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q1')">
+                    <div class="option-marker">A</div>
+                    <div>10 días hábiles</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q1')">
+                    <div class="option-marker">B</div>
+                    <div>15 días calendario</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q1')">
+                    <div class="option-marker">C</div>
+                    <div>10 días calendario</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, true, 'admin-q1')">
+                    <!-- Correct -->
+                    <div class="option-marker">D</div>
+                    <div>15 días hábiles</div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-admin-q1" style="display:none;"
+                    onclick="nextSlide('slide-eval-admin-1')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Q2 ADMIN: Firma -->
+        <div class="slide" id="slide-eval-admin-2">
+            <h1 class="slide-title">Pregunta 2 / 5</h1>
+            <p class="slide-description">Responsabilidad en Respuestas</p>
+
+            <div class="question-box" style="max-width: 600px; margin: 0 auto;">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Necesita responder una solicitud de
+                    la Procuraduría.
+                    ¿Quién debe firmar?</p>
+
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q2')">
+                    <div class="option-marker">A</div>
+                    <div>Profesional Universitario Líder</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q2')">
+                    <div class="option-marker">B</div>
+                    <div>Director o Jefe de Dependencia</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, true, 'admin-q2')">
+                    <!-- Correct -->
+                    <div class="option-marker">C</div>
+                    <div>Gerente General</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q2')">
+                    <div class="option-marker">D</div>
+                    <div>Yo (quien redacté la respuesta)</div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-admin-q2" style="display:none;"
+                    onclick="nextSlide('slide-eval-admin-2')">Siguiente</button>
+            </div>
+        </div>
+
+
+        <!-- ================= PUZZLE GAME 1: CANALES (SHARED) ================= -->
+        <div class="slide" id="slide-eval-puzzle">
+            <h1 class="slide-title">Juego de Conexión 1/2</h1>
+            <p class="slide-description">Empareja el Canal de Atención con su Icono/Nombre.</p>
+
+            <div class="puzzle-container" id="puzzle-board">
+                <!-- Left Col: Icons -->
+                <div class="puzzle-col" id="puzzle-icons">
+                    <div class="puzzle-item" data-id="presencial" onclick="handlePuzzleClick(this, 'icon')"><i
+                            class="fas fa-building fa-2x"></i>
+                    </div>
+                    <div class="puzzle-item" data-id="telefonico" onclick="handlePuzzleClick(this, 'icon')"><i
+                            class="fas fa-phone fa-2x"></i>
+                    </div>
+                    <div class="puzzle-item" data-id="virtual" onclick="handlePuzzleClick(this, 'icon')"><i
+                            class="fas fa-envelope fa-2x"></i>
+                    </div>
+                </div>
+
+                <!-- Right Col: Names -->
+                <div class="puzzle-col" id="puzzle-names">
+                    <div class="puzzle-item" data-id="telefonico" onclick="handlePuzzleClick(this, 'name')">
+                        Línea (608)
+                        277 2000</div>
+                    <div class="puzzle-item" data-id="virtual" onclick="handlePuzzleClick(this, 'name')">
+                        correspondencia@infibague.gov.co </div>
+                    <div class="puzzle-item" data-id="presencial" onclick="handlePuzzleClick(this, 'name')">
+                        Ventanilla
+                        Única</div>
+                </div>
+            </div>
+            <p id="puzzle-feedback"
+                style="text-align: center; margin-top: 20px; color: #2563eb; font-weight: bold; height: 20px;">
+            </p>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-puzzle" style="display:none;"
+                    onclick="nextSlide('slide-eval-puzzle')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- ================= PUZZLE GAME 2: VOCEROS Y COMUNICACIONES (SHARED) ================= -->
+        <div class="slide" id="slide-eval-puzzle-2">
+            <h1 class="slide-title">Juego de Conexión 2/2</h1>
+            <p class="slide-description">Empareja cada pregunta con su respuesta correcta.</p>
+
+            <div class="puzzle-container" id="puzzle-board-2">
+                <!-- Left Col: Questions -->
+                <div class="puzzle-col" id="puzzle-questions">
+                    <div class="puzzle-item puzzle-question" data-id="vocero"
+                        onclick="handlePuzzle2Click(this, 'question')">
+                        <i class="fas fa-microphone-alt" style="color: #2563eb; margin-right: 8px;"></i>
+                        ¿Quién es el vocero principal?
+                    </div>
+                    <div class="puzzle-item puzzle-question" data-id="firma"
+                        onclick="handlePuzzle2Click(this, 'question')">
+                        <i class="fas fa-signature" style="color: #2563eb; margin-right: 8px;"></i>
+                        ¿Quién suscribe respuestas oficiales?
+                    </div>
+                    <div class="puzzle-item puzzle-question" data-id="externas"
+                        onclick="handlePuzzle2Click(this, 'question')">
+                        <i class="fas fa-paper-plane" style="color: #2563eb; margin-right: 8px;"></i>
+                        ¿ENVIO DE RESPUESTAS O COMUNICACIONES OFICIALES EXTERNAS?
+                    </div>
+                </div>
+
+                <!-- Right Col: Answers -->
+                <div class="puzzle-col" id="puzzle-answers">
+                    <div class="puzzle-item puzzle-answer" data-id="vocero"
+                        onclick="handlePuzzle2Click(this, 'answer')">
+                        Gerente General
+                    </div>
+                    <div class="puzzle-item puzzle-answer" data-id="firma" onclick="handlePuzzle2Click(this, 'answer')">
+                        El Gerente, la Secretaria General, los jefes de las Oficinas y los Directores
+                    </div>
+                    <div class="puzzle-item puzzle-answer" data-id="externas"
+                        onclick="handlePuzzle2Click(this, 'answer')">
+                        La Oficina Asesora de Comunicaciones y Participación Ciudadana
+                    </div>
+                </div>
+            </div>
+            <p id="puzzle-feedback-2"
+                style="text-align: center; margin-top: 20px; color: #2563eb; font-weight: bold; height: 20px;">
+            </p>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-puzzle-2" style="display:none;"
+                    onclick="nextSlide('slide-eval-puzzle-2')">Siguiente</button>
+            </div>
+        </div>
+
+
+        <!-- ================= SCENARIO QUESTIONS ================= -->
+
+        <!-- Q ADMIN 4: Periodista Oficina -->
+        <div class="slide" id="slide-eval-admin-4">
+            <h1 class="slide-title">Pregunta 4 / 5</h1>
+            <p class="slide-description">Manejo de Medios</p>
+
+            <div class="question-box" style="max-width: 600px; margin: 0 auto;">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Llega un periodista a su oficina
+                    pidiendo
+                    declaraciones. ¿Qué hace?</p>
+
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q4')">
+                    <div class="option-marker">A</div>
+                    <div>Doy las declaraciones inmediatamente</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, false, 'admin-q4')">
+                    <div class="option-marker">B</div>
+                    <div>Le digo que vuelva después</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, true, 'admin-q4')">
+                    <!-- Correct -->
+                    <div class="option-marker">D</div> <!-- Keeping user's D letter for consistency -->
+                    <div>Informo a Gerencia o Comunicaciones</div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-admin-q4" style="display:none;"
+                    onclick="nextSlide('slide-eval-admin-4')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Q OPERATIVE 2: Usuario Consulta -->
+        <div class="slide" id="slide-eval-operative-2">
+            <h1 class="slide-title">Pregunta 2 / 4</h1>
+            <p class="slide-description">Atención en Campo</p>
+
+            <div class="question-box" style="max-width: 600px; margin: 0 auto;">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Un ciudadano se acerca mientras
+                    trabaja para hacer
+                    una consulta. Usted:</p>
+
+                <div class="quiz-option" onclick="selectOption(this, false, 'op-q2')">
+                    <div class="option-marker">A</div>
+                    <div>Lo ignoro y sigo trabajando</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, false, 'op-q2')">
+                    <div class="option-marker">B</div>
+                    <div>Le digo a un compañero que lo atienda</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, true, 'op-q2')"> <!-- Correct -->
+                    <div class="option-marker">C</div>
+                    <div>Saludo, escucho y oriento sobre canales</div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-op-q2" style="display:none;"
+                    onclick="nextSlide('slide-eval-operative-2')">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Q OPERATIVE 3: Periodista Campo -->
+        <div class="slide" id="slide-eval-operative-3">
+            <h1 class="slide-title">Pregunta 3 / 4</h1>
+            <p class="slide-description">Medios en Terreno</p>
+
+            <div class="question-box" style="max-width: 600px; margin: 0 auto;">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Un periodista en campo le pide
+                    declaraciones sobre un
+                    suceso. Usted:</p>
+
+                <div class="quiz-option" onclick="selectOption(this, false, 'op-q3')">
+                    <div class="option-marker">A</div>
+                    <div>Le cuento todo lo que sé</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, true, 'op-q3')"> <!-- Correct -->
+                    <div class="option-marker">D</div>
+                    <div>Informo a mi superior o Alta Gerencia</div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-op-q3" style="display:none;"
+                    onclick="nextSlide('slide-eval-operative-3')">Siguiente</button>
+            </div>
+        </div>
+
+
+        <!-- Q COMMON: Camisa -->
+        <div class="slide" id="slide-eval-common-shirt">
+            <h1 class="slide-title">Pregunta Final</h1>
+            <p class="slide-description">Imagen Institucional</p>
+
+            <div class="question-box" style="max-width: 600px; margin: 0 auto;">
+                <p style="font-size: 1.1rem; margin-bottom: 20px;">Debo mandar a hacer una prenda
+                    institucional. ¿Qué
+                    criterio uso?</p>
+
+                <div class="quiz-option" onclick="selectOption(this, false, 'common-shirt')">
+                    <div class="option-marker">A</div>
+                    <div>Elijo mi color favorito</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, false, 'common-shirt')">
+                    <div class="option-marker">B</div>
+                    <div>Elijo un color de moda</div>
+                </div>
+                <div class="quiz-option" onclick="selectOption(this, true, 'common-shirt')">
+                    <!-- Correct -->
+                    <div class="option-marker">C</div>
+                    <div>Cumplo estrictamente el Manual de Imagen</div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-nav btn-next" id="btn-common-shirt" style="display:none;"
+                    onclick="finishEvaluation()">Finalizar</button>
+            </div>
+        </div>
+
+        <!-- FINAL RESULT SLIDE -->
+        <div class="slide" id="slide-eval-result">
+            <h1 class="slide-title">Resultados de la Evaluación</h1>
+            <p class="slide-description">¡Felicidades por completar el módulo!</p>
+            <div style="text-align: center; margin-top: 50px;">
+                <i class="fas fa-trophy" style="font-size: 5rem; color: #facc15; margin-bottom: 20px;"></i>
+                <p style="font-size: 1.5rem; color: #1e40af;">Tu puntuación: <span id="score-display"
+                        style="font-weight: bold;">0/0</span></p>
+                <p id="feedback-message" style="margin-top: 20px; font-size: 1.1rem; color: #4b5563;">
+                </p>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-nav btn-prev" id="btn-retry" onclick="retryEvaluation()"
+                    style="display:none; background-color: #f59e0b; color: white;">Repetir Evaluación</button>
+                <button class="btn-nav btn-next" id="btn-finish-module" onclick="finishModule()">Ir a Modulo Gestion
+                    Humana</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentPath = [];
+        let currentIndex = 0;
+
+        // Define Paths
+        const pathAdmin = [
+            'slide-1', 'slide-admin-1', 'slide-admin-2', 'slide-admin-3', 'slide-admin-4', 'slide-admin-5', 'slide-admin-6',
+            'slide-general-1', 'slide-general-2', 'slide-general-3', 'slide-general-4', 'slide-general-5', 'slide-general-6',
+            'slide-eval-intro', 'slide-eval-admin-1', 'slide-eval-admin-2', 'slide-eval-puzzle', 'slide-eval-puzzle-2', 'slide-eval-admin-4', 'slide-eval-common-shirt', 'slide-eval-result'
+        ];
+
+        const pathOperative = [
+            'slide-1', 'slide-operative-1', 'slide-admin-5', 'slide-admin-6',
+            'slide-general-1', 'slide-general-2', 'slide-general-3', 'slide-general-4', 'slide-general-5', 'slide-general-6',
+            'slide-eval-intro', 'slide-eval-puzzle', 'slide-eval-puzzle-2', 'slide-eval-operative-2', 'slide-eval-operative-3', 'slide-eval-common-shirt', 'slide-eval-result'
+        ];
+
+        let quizScore = 0;
+        let totalQuestions = 0;
+
+        function startPath(role) {
+            if (role === 'admin') {
+                currentPath = pathAdmin;
+                totalQuestions = 5;
+            } else if (role === 'operative') {
+                currentPath = pathOperative;
+                totalQuestions = 4;
+            }
+            currentIndex = 1;
+            showSlide(currentPath[currentIndex]);
+        }
+
+        function startEvaluation() {
+            // Move to first question slide based on role
+            // currentPath includes 'slide-eval-intro', the next one is the first question
+            nextSlide(currentPath[currentIndex]);
+        }
+
+        let selectedPuzzleIcon = null;
+        let selectedPuzzleName = null;
+        let puzzleMatches = 0;
+
+        function selectOption(element, isCorrect, btnId) {
+            if (element.classList.contains('disabled')) return;
+
+            // Disable siblings
+            const parent = element.parentElement;
+            const siblings = parent.querySelectorAll('.quiz-option');
+            siblings.forEach(sib => {
+                sib.classList.add('disabled');
+                sib.style.cursor = 'default';
+                if (sib !== element) sib.style.opacity = '0.6';
+            });
+
+            element.classList.add('selected');
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                quizScore++;
+            } else {
+                element.classList.add('incorrect');
+                // Highlight correct one
+                // This would require tagging the correct one in HTML, but for now we just show red
+            }
+
+            // Show Next Button
+            const nextBtn = document.getElementById('btn-' + btnId);
+            if (nextBtn) {
+                nextBtn.style.display = 'block';
+                // Auto scroll to button if needed
+                nextBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function handlePuzzleClick(element, type) {
+            if (element.classList.contains('matched')) return;
+
+            // Clear previous selection of same type
+            if (type === 'icon') {
+                document.querySelectorAll('#puzzle-icons .puzzle-item').forEach(el => el.classList.remove('selected'));
+                selectedPuzzleIcon = element;
+            } else {
+                document.querySelectorAll('#puzzle-names .puzzle-item').forEach(el => el.classList.remove('selected'));
+                selectedPuzzleName = element;
+            }
+            element.classList.add('selected');
+
+            // Check Match
+            if (selectedPuzzleIcon && selectedPuzzleName) {
+                const iconId = selectedPuzzleIcon.getAttribute('data-id');
+                const nameId = selectedPuzzleName.getAttribute('data-id');
+
+                if (iconId === nameId) {
+                    // Match!
+                    selectedPuzzleIcon.classList.remove('selected');
+                    selectedPuzzleName.classList.remove('selected');
+                    selectedPuzzleIcon.classList.add('matched');
+                    selectedPuzzleName.classList.add('matched');
+
+                    selectedPuzzleIcon.innerHTML += ' <i class="fas fa-check" style="color:#22c55e"></i>';
+
+                    puzzleMatches++;
+                    selectedPuzzleIcon = null;
+                    selectedPuzzleName = null;
+                    document.getElementById('puzzle-feedback').textContent = "¡Correcto!";
+
+                    if (puzzleMatches === 3) {
+                        quizScore++; // 1 point for full puzzle
+                        document.getElementById('puzzle-feedback').textContent = "¡Rompecabezas Completado!";
+                        document.getElementById('btn-puzzle').style.display = 'block';
+                    }
+                } else {
+                    // No match
+                    document.getElementById('puzzle-feedback').textContent = "Intenta de nuevo.";
+                    document.getElementById('puzzle-feedback').style.color = '#ef4444';
+                    setTimeout(() => {
+                        selectedPuzzleIcon.classList.remove('selected');
+                        selectedPuzzleName.classList.remove('selected');
+                        selectedPuzzleIcon = null;
+                        selectedPuzzleName = null;
+                        document.getElementById('puzzle-feedback').textContent = "";
+                        document.getElementById('puzzle-feedback').style.color = '#2563eb';
+                    }, 1000);
+                }
+            }
+        }
+
+        // Second Puzzle Game Variables
+        let selectedPuzzleQuestion = null;
+        let selectedPuzzleAnswer = null;
+        let puzzle2Matches = 0;
+
+        function handlePuzzle2Click(element, type) {
+            if (element.classList.contains('matched')) return;
+
+            // Clear previous selection of same type
+            if (type === 'question') {
+                document.querySelectorAll('#puzzle-questions .puzzle-item').forEach(el => el.classList.remove('selected'));
+                selectedPuzzleQuestion = element;
+            } else {
+                document.querySelectorAll('#puzzle-answers .puzzle-item').forEach(el => el.classList.remove('selected'));
+                selectedPuzzleAnswer = element;
+            }
+            element.classList.add('selected');
+
+            // Check Match
+            if (selectedPuzzleQuestion && selectedPuzzleAnswer) {
+                const questionId = selectedPuzzleQuestion.getAttribute('data-id');
+                const answerId = selectedPuzzleAnswer.getAttribute('data-id');
+
+                if (questionId === answerId) {
+                    // Match!
+                    selectedPuzzleQuestion.classList.remove('selected');
+                    selectedPuzzleAnswer.classList.remove('selected');
+                    selectedPuzzleQuestion.classList.add('matched');
+                    selectedPuzzleAnswer.classList.add('matched');
+
+                    selectedPuzzleQuestion.innerHTML += ' <i class="fas fa-check" style="color:#22c55e"></i>';
+
+                    puzzle2Matches++;
+                    selectedPuzzleQuestion = null;
+                    selectedPuzzleAnswer = null;
+                    document.getElementById('puzzle-feedback-2').textContent = "¡Correcto!";
+
+                    if (puzzle2Matches === 3) {
+                        quizScore++; // 1 point for full puzzle
+                        document.getElementById('puzzle-feedback-2').textContent = "¡Rompecabezas Completado!";
+                        document.getElementById('btn-puzzle-2').style.display = 'block';
+                    }
+                } else {
+                    // No match
+                    document.getElementById('puzzle-feedback-2').textContent = "Intenta de nuevo.";
+                    document.getElementById('puzzle-feedback-2').style.color = '#ef4444';
+                    setTimeout(() => {
+                        selectedPuzzleQuestion.classList.remove('selected');
+                        selectedPuzzleAnswer.classList.remove('selected');
+                        selectedPuzzleQuestion = null;
+                        selectedPuzzleAnswer = null;
+                        document.getElementById('puzzle-feedback-2').textContent = "";
+                        document.getElementById('puzzle-feedback-2').style.color = '#2563eb';
+                    }, 1000);
+                }
+            }
+        }
+
+        function finishEvaluation() {
+            // Show result slide
+            nextSlide('slide-eval-common-shirt'); // Move to result slide
+
+            const scoreDisplay = document.getElementById('score-display');
+            const feedback = document.getElementById('feedback-message');
+            const percentage = (quizScore / totalQuestions) * 100;
+
+            scoreDisplay.textContent = `${quizScore}/${totalQuestions} (${percentage}%)`;
+
+            const btnFinish = document.getElementById('btn-finish-module');
+            const btnRetry = document.getElementById('btn-retry');
+
+            if (percentage >= 80) {
+                feedback.textContent = "¡Excelente trabajo! Has aprobado el módulo de Atención al Ciudadano.";
+                feedback.style.color = '#15803d';
+                btnFinish.style.display = 'block';
+                btnRetry.style.display = 'none';
+            } else {
+                feedback.textContent = "No has alcanzado el 80% requerido. Debes repetir la evaluación para continuar.";
+                feedback.style.color = '#b45309';
+                btnFinish.style.display = 'none';
+                btnRetry.style.display = 'block';
+            }
+
+            // Here we would save to Supabase
+            console.log('Curso terminado. Score:', quizScore);
+        }
+
+        function showSlide(id) {
+            // Primero remover active de todos los slides
+            document.querySelectorAll('.slide').forEach(s => {
+                s.classList.remove('active');
+            });
+
+            // Forzar reflow para asegurar que los cambios se apliquen inmediatamente
+            document.body.offsetHeight;
+
+            // Activar el slide seleccionado
+            const targetSlide = document.getElementById(id);
+            if (targetSlide) {
+                targetSlide.classList.add('active');
+                // Scroll al inicio del slide
+                targetSlide.scrollTop = 0;
+            }
+
+            // Update Title Indicator
+            const header = document.getElementById('slide-indicator');
+            if (header) {
+                if (id === 'slide-1') header.textContent = '';
+                else header.textContent = `Progreso: ${currentIndex}/${currentPath.length - 1}`;
+            }
+        }
+
+        // Variable para prevenir doble-clic en navegación
+        let isNavigating = false;
+
+        function nextSlide(currentId) {
+            // Prevenir navegación múltiple rápida
+            if (isNavigating) return;
+            isNavigating = true;
+
+            if (currentIndex < currentPath.length - 1) {
+                currentIndex++;
+                showSlide(currentPath[currentIndex]);
+            } else {
+                finishModule();
+            }
+
+            // Liberar el bloqueo después de la animación
+            setTimeout(() => {
+                isNavigating = false;
+            }, 500);
+        }
+
+        // Función finishModule con persistencia en Supabase
+        async function finishModule() {
+            const percentage = (quizScore / totalQuestions) * 100;
+            const aprobado = percentage >= 80;
+
+            // Mostrar indicador de carga
+            const btnFinish = document.getElementById('btn-finish-module');
+            if (btnFinish) {
+                btnFinish.disabled = true;
+                btnFinish.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            }
+
+            try {
+                // Guardar progreso en Supabase usando el nuevo sistema
+                if (window.SupabaseProgress) {
+                    const result = await window.SupabaseProgress.finishModuleAndNavigate(
+                        'atencion_ciudadano',
+                        quizScore,
+                        totalQuestions
+                    );
+
+                    console.log('📊 Resultado guardado en Supabase:', result);
+
+                    // Si está en iframe, notificar al padre
+                    if (window.parent !== window && window.SupabaseProgress.notifyModuleCompleted) {
+                        window.SupabaseProgress.notifyModuleCompleted(
+                            'atencion_ciudadano',
+                            aprobado,
+                            quizScore,
+                            totalQuestions
+                        );
+                    }
+
+                    // Navegar según el resultado
+                    if (aprobado) {
+                        // Pequeño delay para mostrar el resultado
+                        setTimeout(() => {
+                            if (result.nextModule) {
+                                window.location.href = result.nextModule.url;
+                            } else {
+                                // Último módulo completado
+                                window.location.href = '../funcionario/dashboard.html';
+                            }
+                        }, 1000);
+                    } else {
+                        // Restaurar botón
+                        if (btnFinish) {
+                            btnFinish.disabled = false;
+                            btnFinish.textContent = 'Reintentar Evaluación';
+                        }
+                    }
+                } else {
+                    // Fallback si SupabaseProgress no está disponible
+                    console.error('⚠️ SupabaseProgress no está disponible');
+
+                    if (aprobado) {
+                        // Notificar al padre si está en iframe
+                        if (window.parent !== window) {
+                            window.parent.postMessage({
+                                type: 'MODULO_INDUCCION_COMPLETADO',
+                                data: {
+                                    moduleId: 'atencion',
+                                    moduleName: 'atencion_ciudadano',
+                                    aprobado: aprobado,
+                                    score: quizScore,
+                                    total: totalQuestions,
+                                    percentage: percentage,
+                                    fecha: new Date().toISOString()
+                                }
+                            }, '*');
+                        }
+
+                        window.location.href = 'induccion-gestion-humana.html';
+                    } else {
+                        alert('Debes aprobar el módulo con al menos 80% para continuar.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error al guardar progreso:', error);
+                alert('Ocurrió un error al guardar tu progreso. Por favor, intenta de nuevo.');
+
+                // Restaurar botón
+                if (btnFinish) {
+                    btnFinish.disabled = false;
+                    btnFinish.textContent = 'Ir a Modulo Gestion Humana';
+                }
+            }
+        }
+
+        function retryEvaluation() {
+            // Reset Score
+            quizScore = 0;
+
+            // Reset Puzzles
+            puzzleMatches = 0;
+            selectedPuzzleIcon = null;
+            selectedPuzzleName = null;
+            document.getElementById('puzzle-feedback').textContent = "";
+            document.getElementById('btn-puzzle').style.display = 'none';
+            document.querySelectorAll('#puzzle-board .puzzle-item').forEach(el => {
+                el.classList.remove('selected', 'matched');
+                const check = el.querySelector('.fa-check');
+                if (check) check.remove();
+            });
+
+            puzzle2Matches = 0;
+            selectedPuzzleQuestion = null;
+            selectedPuzzleAnswer = null;
+            document.getElementById('puzzle-feedback-2').textContent = "";
+            document.getElementById('btn-puzzle-2').style.display = 'none';
+            document.querySelectorAll('#puzzle-board-2 .puzzle-item').forEach(el => {
+                el.classList.remove('selected', 'matched');
+                const check = el.querySelector('.fa-check');
+                if (check) check.remove();
+            });
+
+            // Reset Quiz Options
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect', 'selected', 'disabled');
+                opt.style.opacity = '1';
+                opt.style.cursor = 'pointer';
+            });
+
+            // Hide Next Buttons for Questions
+            ['btn-admin-q1', 'btn-admin-q2', 'btn-admin-q4', 'btn-op-q2', 'btn-op-q3', 'btn-common-shirt'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.style.display = 'none';
+            });
+
+            // Go back to Intro
+            const introIndex = currentPath.indexOf('slide-eval-intro');
+            if (introIndex !== -1) {
+                currentIndex = introIndex;
+                showSlide('slide-eval-intro');
+            } else {
+                // Fallback
+                goBackHome();
+            }
+        }
+
+        function prevSlide(currentId) {
+            // Prevenir navegación múltiple rápida
+            if (isNavigating) return;
+            isNavigating = true;
+
+            if (currentIndex > 0) {
+                currentIndex--;
+                showSlide(currentPath[currentIndex]);
+            }
+
+            // Liberar el bloqueo después de la animación
+            setTimeout(() => {
+                isNavigating = false;
+            }, 500);
+        }
+
+        function goToSlide(id) {
+            // Prevenir navegación múltiple rápida
+            if (isNavigating) return;
+            isNavigating = true;
+
+            const idx = currentPath.indexOf(id);
+            if (idx !== -1) {
+                currentIndex = idx;
+                showSlide(id);
+            }
+
+            // Liberar el bloqueo después de la animación
+            setTimeout(() => {
+                isNavigating = false;
+            }, 500);
+        }
+
+        function goBackHome() {
+            // Reset to welcome slide (role selection)
+            currentIndex = 0;
+            currentPath = [];
+            quizScore = 0;
+
+            // Show the welcome slide
+            showSlide('slide-1');
+
+            // Reset any quiz states
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect', 'disabled');
+            });
+        }
+    </script>
+
+    <!-- Supabase Config -->
+    <script src="../js/config.js"></script>
+    <!-- Sistema de Progreso con Supabase -->
+    <script src="../js/progress.js"></script>
+    <!-- Shared Utilities -->
+    <script src="../js/utils.js"></script>
+
+    <!-- Inicializar Supabase y validar acceso al cargar -->
+    <!-- Inicializar Supabase y validar acceso al cargar -->
+    <script>
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Inicializar cliente de Supabase (si existe)
+            if (typeof inicializarSupabase === 'function') {
+                inicializarSupabase();
+                console.log('✅ Supabase inicializado para Atención al Ciudadano');
+            }
+
+            // Validar acceso al módulo (Async)
+            if (window.SupabaseProgress) {
+                try {
+                    const accessResult = await window.SupabaseProgress.canAccessModule('atencion_ciudadano');
+
+                    if (!accessResult.allowed) {
+                        console.warn('⛔ Acceso denegado:', accessResult.message);
+                        alert(accessResult.message);
+                        window.location.href = accessResult.redirectTo || '../funcionario/dashboard.html';
+                        return;
+                    }
+
+                    // Verificar progreso existente (Async)
+                    const progress = await window.SupabaseProgress.getModuleProgress('atencion_ciudadano');
+
+                    if (progress && progress.status === 'approved') {
+                        const repasar = confirm('Ya completaste este módulo. ¿Deseas repasarlo?');
+                        if (!repasar) {
+                            const nextModule = window.SupabaseProgress.getNextModule('atencion_ciudadano');
+                            if (nextModule) {
+                                window.location.href = nextModule.url;
+                            } else {
+                                window.location.href = '../funcionario/dashboard.html';
+                            }
+                            return;
+                        }
+                    }
+
+                    // Marcar módulo como iniciado (Async)
+                    await window.SupabaseProgress.startModule('atencion_ciudadano');
+                    console.log('🚀 Módulo iniciado en Supabase');
+
+                } catch (error) {
+                    console.error('❌ Error inicializando módulo con Supabase:', error);
+                }
+            }
+        });
+    </script>
+
+    <!-- Enhanced Carousel Navigation System REMOVED due to conflict with inline script -->
+    <!-- <script src="../js/atencion-ciudadano-carousel.js"></script> -->
+    <!DOCTYPE html>
+    <html lang="es">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Módulo de Inducción</title>
+
+        <!-- Estilos básicos -->
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: #f5f7fa;
+            }
+
+            .container {
+                max-width: 900px;
+                margin: auto;
+                padding: 20px;
+                background: white;
+                min-height: 100vh;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            .btn {
+                background: #2563eb;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                margin-top: 20px;
+            }
+
+            .btn:disabled {
+                background: gray;
+                cursor: not-allowed;
+            }
+
+            .hidden {
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- SUPABASE CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <!-- Cliente Supabase Centralizado -->
+        <script src="../js/supabaseClient.js"></script>
+
+    </body>
+
+    </html>

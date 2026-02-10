@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Iniciar sesión en Campus Virtual">
+    <title>Iniciar Sesión - Campus Virtual</title>
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/components.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #10b981 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .auth-header {
+            padding: 2.5rem 2.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .auth-logo {
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+        }
+
+        .auth-subtitle {
+            color: var(--color-text-secondary);
+        }
+
+        .auth-body {
+            padding: 2.5rem;
+        }
+
+        .auth-footer {
+            padding: 1.5rem 2.5rem;
+            background: var(--color-gray-50);
+            text-align: center;
+            border-bottom-left-radius: 1.5rem;
+            border-bottom-right-radius: 1.5rem;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-password a {
+            font-size: 0.875rem;
+            color: var(--color-primary-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 1rem;
+            }
+
+            .auth-header {
+                padding: 1.5rem 1rem 1rem;
+            }
+
+            .auth-body {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .auth-footer {
+                padding: 1.25rem;
+            }
+
+            .auth-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="./assets/logo-entidad.png" alt="Logo" class="auth-logo" onerror="this.style.display='none'">
+                <h1 class="auth-title">Iniciar Sesión</h1>
+                <p class="auth-subtitle">Accede a tu cuenta del Campus Virtual</p>
+            </div>
+
+            <div class="auth-body">
+                <form id="form-login">
+                    <div class="form-group">
+                        <label for="cedula" class="form-label">Número de Cédula</label>
+                        <input type="text" id="cedula" name="cedula" class="form-input" placeholder="Ej: 1234567890"
+                            required autocomplete="username">
+                        <span class="form-error">Por favor ingresa tu número de cédula</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" id="password" name="password" class="form-input"
+                            placeholder="Tu contraseña" required autocomplete="current-password">
+                        <span class="form-error">La contraseña es requerida</span>
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-primary btn-block btn-large mt-lg" id="btn-submit">
+                        Iniciar Sesión
+                    </button>
+                </form>
+            </div>
+
+            <div class="auth-footer">
+                <p>
+                    ¿No tienes una cuenta?
+                    <a href="./registro.html" style="font-weight: 600;">Regístrate aquí</a>
+                </p>
+                <p class="mt-sm">
+                    <a href="./index.html" style="color: var(--color-text-secondary);">← Volver al inicio</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/auth.js"></script>
+
+    <script>
+        // Inicializar Supabase
+        inicializarSupabase();
+
+        // Redirigir si ya hay sesión activa
+        if (verificarSesionActiva()) {
+            const usuario = obtenerUsuarioActual();
+            redirigirSegunRol(usuario.rol);
+        }
+
+        // Manejo del formulario
+        const form = document.getElementById('form-login');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        // Validación en tiempo real
+        const inputs = form.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function () {
+                validarCampo(this);
+            });
+
+            input.addEventListener('input', function () {
+                if (this.parentElement.classList.contains('error')) {
+                    validarCampo(this);
+                }
+            });
+        });
+
+        // Envío del formulario
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Validar campos
+            let valido = true;
+            inputs.forEach(input => {
+                if (!validarCampo(input)) {
+                    valido = false;
+                }
+            });
+
+            if (!valido) {
+                return;
+            }
+
+            // Deshabilitar botón
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="loading"></span> Iniciando sesión...';
+
+            // Obtener datos
+            const cedula = document.getElementById('cedula').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Iniciar sesión usando cédula
+            const resultado = await iniciarSesion(cedula, password);
+
+            // Rehabilitar botón
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Iniciar Sesión';
+
+            if (resultado.success) {
+                mostrarNotificacion('¡Bienvenido! Redirigiendo...', 'success');
+
+                // Redirigir según rol
+                setTimeout(() => {
+                    redirigirSegunRol(resultado.usuario.rol);
+                }, 1000);
+            } else {
+                mostrarNotificacion(resultado.message || 'Cédula o contraseña incorrectos', 'error');
+            }
+        });
+
+
+
+        /**
+         * Valida un campo individual
+         */
+        function validarCampo(input) {
+            const formGroup = input.parentElement;
+            const valor = input.value.trim();
+
+            // Remover error previo
+            formGroup.classList.remove('error');
+
+            // Campo requerido vacío
+            if (input.hasAttribute('required') && !valor) {
+                formGroup.classList.add('error');
+                return false;
+            }
+
+            // Validar cédula (solo números)
+            if (input.id === 'cedula' && valor && !/^\d{6,12}$/.test(valor)) {
+                formGroup.classList.add('error');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</body>
+
+</html>

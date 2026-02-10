@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inducción y Reinducción - INFIBAGUÉ</title>
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/induccion.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        /* Layout Principal */
+        .induccion-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .induccion-sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo img {
+            height: 40px;
+            filter: brightness(0) invert(1);
+        }
+
+        .sidebar-logo span {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-curso {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .sidebar-progress {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Módulos en Sidebar */
+        .modulos-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .modulo-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .modulo-item:hover:not(.locked) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modulo-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #10b981;
+        }
+
+        .modulo-item.completed {
+            opacity: 0.9;
+        }
+
+        .modulo-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modulo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .modulo-icon.pending {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .modulo-icon.active {
+            background: #3b82f6;
+            border: 2px solid #60a5fa;
+            animation: pulse-icon 2s infinite;
+        }
+
+        .modulo-icon.completed {
+            background: #10b981;
+        }
+
+        .modulo-icon.locked {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes pulse-icon {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+            }
+        }
+
+        .modulo-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .modulo-titulo {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modulo-estado {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            padding: 20px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .btn-volver:hover {
+            opacity: 1;
+        }
+
+        /* Contenido Principal */
+        .induccion-content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        .current-module-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .btn-certificado {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-certificado:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-certificado.show {
+            display: flex;
+        }
+
+        /* Iframe Container */
+        .content-frame-container {
+            flex: 1;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+
+        .content-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 1.1rem;
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .induccion-sidebar {
+                    width: 85%;
+                    /* Don't cover fully */
+                    max-width: 320px;
+                    position: fixed;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                    height: 100dvh;
+                    /* Dynamic viewport height */
+                    z-index: 200;
+                    /* Higher than content */
+                    transform: translateX(-100%);
+                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+                }
+
+                .induccion-sidebar.open {
+                    transform: translateX(0);
+                }
+
+                /* Overlay for sidebar */
+                .sidebar-overlay {
+                    display: block;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 150;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.3s;
+                    backdrop-filter: blur(2px);
+                }
+
+                .induccion-sidebar.open+.sidebar-overlay,
+                body.sidebar-open .sidebar-overlay {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+
+                .content-header {
+                    padding-left: 16px;
+                    gap: 15px;
+                }
+
+                .menu-toggle {
+                    display: flex !important;
+                    background: white;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 8px;
+                    cursor: pointer;
+                    color: #1e3a8a;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                    z-index: 50;
+                }
+
+                .close-sidebar {
+                    display: flex !important;
+                    position: absolute;
+                    top: 15px;
+                    right: 15px;
+                    background: rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 8px;
+                    width: 36px;
+                    height: 36px;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 1.2rem;
+                }
+
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .induccion-sidebar {
+                        width: 85%;
+                        /* Don't cover fully */
+                        max-width: 320px;
+                        position: fixed;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        height: 100dvh;
+                        /* Dynamic viewport height */
+                        z-index: 200;
+                        /* Higher than content */
+                        transform: translateX(-100%);
+                        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+                    }
+
+                    .induccion-sidebar.open {
+                        transform: translateX(0);
+                    }
+
+                    /* Overlay for sidebar */
+                    .sidebar-overlay {
+                        display: block;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 150;
+                        opacity: 0;
+                        pointer-events: none;
+                        transition: opacity 0.3s;
+                        backdrop-filter: blur(2px);
+                    }
+
+                    .induccion-sidebar.open+.sidebar-overlay,
+                    body.sidebar-open .sidebar-overlay {
+                        opacity: 1;
+                        pointer-events: auto;
+                    }
+
+                    .content-header {
+                        padding-left: 16px;
+                        gap: 15px;
+                    }
+
+                    .menu-toggle {
+                        display: flex !important;
+                        background: white;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 8px;
+                        padding: 8px;
+                        cursor: pointer;
+                        color: #1e3a8a;
+                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                        z-index: 50;
+                    }
+
+                    .close-sidebar {
+                        display: flex !important;
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: rgba(255, 255, 255, 0.15);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        border-radius: 8px;
+                        width: 36px;
+                        height: 36px;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-size: 1.2rem;
+                        cursor: pointer;
+                        z-index: 201;
+                        transition: all 0.2s;
+                    }
+
+                    .close-sidebar:hover {
+                        background: rgba(255, 255, 255, 0.3);
+                        transform: scale(1.05);
+                    }
+                }
+
+                .menu-toggle,
+                .close-sidebar,
+                .sidebar-overlay {
+                    display: none;
+                }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Cargando curso de inducción...</p>
+    </div>
+
+    <div class="induccion-layout">
+        <!-- Sidebar -->
+        <aside class="induccion-sidebar">
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="./assets/logo-entidad.png" alt="INFIBAGUÉ">
+                    <span>INFIBAGUÉ</span>
+                </div>
+                <div class="sidebar-title">Curso Actual</div>
+                <div class="sidebar-curso">Inducción y Reinducción 2026</div>
+            </div>
+
+            <div class="sidebar-progress">
+                <div class="progress-label">
+                    <span>Progreso</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="modulos-list" id="modulosList">
+                <!-- Se genera dinámicamente -->
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="./funcionario/dashboard.html" class="btn-volver">
+                    ← Volver al Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="induccion-content">
+            <header class="content-header">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12h18M3 6h18M3 18h18"></path>
+                    </svg>
+                </button>
+                <span class="current-module-name" id="currentModuleName">Cargando...</span>
+                <button class="btn-certificado" id="btnCertificado" onclick="descargarCertificado()">
+                    🎓 Descargar Certificado
+                </button>
+            </header>
+
+            <div class="content-frame-container">
+                <iframe src="" class="content-frame" id="contentFrame"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+            </div>
+        </main>
+    </div>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/courses.js"></script>
+    <script src="./js/certificates.js"></script>
+
+    <script>
+        // ============================================
+        // MÓDULO DE INDUCCIÓN - PÁGINA PRINCIPAL
+        // ============================================
+
+        inicializarSupabase();
+        verificarAutenticacion();
+
+        const usuario = obtenerUsuarioActual();
+        const cursoId = obtenerParametroURL('id');
+
+        // Verificar que hay curso
+        if (!cursoId) {
+            window.location.href = './funcionario/dashboard.html';
+        }
+
+        // Estado global
+        let modulos = [];
+        let moduloActualIndex = 0;
+        let modulosCompletados = [];
+        let inscripcionId = null;
+
+        // Definición de módulos con sus archivos
+        const MODULOS_INDUCCION = [
+            { key: 'atencion', titulo: 'Atención al Ciudadano', archivo: './cursos/induccion-atencion-ciudadano.html' },
+            { key: 'humana', titulo: 'Gestión Humana', archivo: './cursos/induccion-gestion-humana.html' },
+            { key: 'ambiental', titulo: 'Gestión Ambiental', archivo: './cursos/induccion-gestion-ambiental.html' },
+            { key: 'sst', titulo: 'Seguridad y Salud en el Trabajo', archivo: './cursos/induccion-sst.html' },
+            { key: 'planeacion', titulo: 'Planeación Estratégica', archivo: './cursos/induccion-planeacion.html' }
+        ];
+
+        function toggleSidebar() {
+            document.querySelector('.induccion-sidebar').classList.toggle('open');
+        }
+
+        // Close sidebar when clicking a module on mobile
+        const originalSeleccionarModulo = seleccionarModulo; // Wait, seleccionarModulo is defined below.
+        // We will override or add logic after definition.
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+
+        async function init() {
+            try {
+                // Cargar datos del curso
+                const supabase = getSupabase();
+
+                // Obtener inscripción
+                const { data: inscripcion } = await supabase
+                    .from('inscripciones')
+                    .select('*')
+                    .eq('curso_id', cursoId)
+                    .eq('funcionario_id', usuario.id)
+                    .single();
+
+                if (inscripcion) {
+                    inscripcionId = inscripcion.id;
+                }
+
+                // Obtener módulos del curso
+                const { data: modulosDB } = await supabase
+                    .from('modulos')
+                    .select('*')
+                    .eq('curso_id', cursoId)
+                    .order('orden');
+
+                if (modulosDB && modulosDB.length > 0) {
+                    modulos = modulosDB;
+                }
+
+                // Obtener módulos completados
+                if (inscripcionId) {
+                    const { data: completados } = await supabase
+                        .from('modulos_completados')
+                        .select('modulo_id')
+                        .eq('inscripcion_id', inscripcionId);
+
+                    if (completados) {
+                        modulosCompletados = completados.map(m => m.modulo_id);
+                    }
+                }
+
+                // Encontrar primer módulo no completado
+                moduloActualIndex = 0;
+                for (let i = 0; i < modulos.length; i++) {
+                    if (!modulosCompletados.includes(modulos[i].id)) {
+                        moduloActualIndex = i;
+                        break;
+                    }
+                    // Si todos están completados, quedarse en el último
+                    if (i === modulos.length - 1) {
+                        moduloActualIndex = i;
+                    }
+                }
+
+                // Renderizar UI
+                renderizarModulos();
+                cargarModulo(moduloActualIndex);
+                actualizarProgreso();
+
+                // Ocultar loading
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                }, 500);
+
+            } catch (error) {
+                console.error('Error al inicializar:', error);
+                mostrarNotificacion('Error al cargar el curso', 'error');
+            }
+        }
+
+        // ============================================
+        // RENDERIZAR MÓDULOS EN SIDEBAR
+        // ============================================
+
+        function renderizarModulos() {
+            const container = document.getElementById('modulosList');
+
+            const html = modulos.map((modulo, index) => {
+                const completado = modulosCompletados.includes(modulo.id);
+                const activo = index === moduloActualIndex;
+                const bloqueado = index > 0 && !modulosCompletados.includes(modulos[index - 1].id) && !completado;
+
+                let iconClass = 'pending';
+                let iconContent = index + 1;
+                let estado = 'Pendiente';
+
+                if (completado) {
+                    iconClass = 'completed';
+                    iconContent = '✓';
+                    estado = 'Completado';
+                } else if (activo) {
+                    iconClass = 'active';
+                    estado = 'En curso';
+                } else if (bloqueado) {
+                    iconClass = 'locked';
+                    iconContent = '🔒';
+                    estado = 'Bloqueado';
+                }
+
+                return `
+                    <div class="modulo-item ${activo ? 'active' : ''} ${completado ? 'completed' : ''} ${bloqueado ? 'locked' : ''}"
+                         onclick="${!bloqueado ? `seleccionarModulo(${index})` : ''}"
+                         title="${bloqueado ? 'Completa el módulo anterior' : modulo.titulo}">
+                        <div class="modulo-icon ${iconClass}">${iconContent}</div>
+                        <div class="modulo-info">
+                            <div class="modulo-titulo">${escaparHTML(modulo.titulo)}</div>
+                            <div class="modulo-estado">${estado}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // ============================================
+        // CARGAR MÓDULO
+        // ============================================
+
+        function cargarModulo(index) {
+            if (index < 0 || index >= modulos.length) return;
+
+            moduloActualIndex = index;
+            const modulo = modulos[index];
+
+            // Actualizar header
+            document.getElementById('currentModuleName').textContent = modulo.titulo;
+
+            // Cargar contenido en iframe
+            const iframe = document.getElementById('contentFrame');
+
+            // Usar el archivo local correspondiente
+            const moduloInfo = MODULOS_INDUCCION[index];
+            if (moduloInfo) {
+                iframe.src = moduloInfo.archivo;
+            } else {
+                iframe.src = modulo.contenido_url || '';
+            }
+
+            // Actualizar sidebar
+            renderizarModulos();
+        }
+
+        function seleccionarModulo(index) {
+            cargarModulo(index);
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+        }
+
+        // ============================================
+        // ACTUALIZAR PROGRESO
+        // ============================================
+
+        function actualizarProgreso() {
+            const total = modulos.length;
+            const completados = modulosCompletados.length;
+            const porcentaje = Math.round((completados / total) * 100);
+
+            document.getElementById('progressPercent').textContent = `${porcentaje}%`;
+            document.getElementById('progressBar').style.width = `${porcentaje}%`;
+
+            // Mostrar botón de certificado si completó todos
+            if (completados === total) {
+                document.getElementById('btnCertificado').classList.add('show');
+            }
+        }
+
+        // ============================================
+        // ESCUCHAR MENSAJES DE LOS MÓDULOS
+        // ============================================
+
+        window.addEventListener('message', async (event) => {
+            if (event.data.type === 'MODULO_INDUCCION_COMPLETADO') {
+                const data = event.data.data;
+
+                if (data.aprobado) {
+                    await marcarModuloCompletado();
+
+                    // Verificar si es el último módulo
+                    if (data.ultimoModulo || moduloActualIndex >= modulos.length - 1) {
+                        // Mostrar celebración y botón de certificado
+                        mostrarNotificacion('¡Felicidades! Has completado todos los módulos 🎉', 'success');
+                        document.getElementById('btnCertificado').classList.add('show');
+                    } else {
+                        // Pasar al siguiente módulo
+                        mostrarNotificacion('¡Módulo completado! Cargando siguiente...', 'success');
+                        setTimeout(() => {
+                            cargarModulo(moduloActualIndex + 1);
+                        }, 1500);
+                    }
+                }
+            }
+        });
+
+        // ============================================
+        // MARCAR MÓDULO COMPLETADO
+        // ============================================
+
+        async function marcarModuloCompletado() {
+            try {
+                const modulo = modulos[moduloActualIndex];
+                const supabase = getSupabase();
+
+                // Insertar en modulos_completados
+                await supabase
+                    .from('modulos_completados')
+                    .upsert({
+                        inscripcion_id: inscripcionId,
+                        modulo_id: modulo.id
+                    }, { onConflict: 'inscripcion_id,modulo_id' });
+
+                // Agregar a la lista local
+                if (!modulosCompletados.includes(modulo.id)) {
+                    modulosCompletados.push(modulo.id);
+                }
+
+                // Actualizar progreso en inscripción
+                const porcentaje = Math.round((modulosCompletados.length / modulos.length) * 100);
+                await supabase
+                    .from('inscripciones')
+                    .update({
+                        porcentaje_avance: porcentaje,
+                        aprobado: modulosCompletados.length === modulos.length
+                    })
+                    .eq('id', inscripcionId);
+
+                // Actualizar UI
+                actualizarProgreso();
+                renderizarModulos();
+
+            } catch (error) {
+                console.error('Error al marcar módulo:', error);
+            }
+        }
+
+        // ============================================
+        // CERTIFICADO
+        // ============================================
+
+        async function descargarCertificado() {
+            // Usar el sistema de certificados existente
+            if (typeof generarCertificado === 'function') {
+                await generarCertificado(inscripcionId);
+            } else {
+                // Fallback: generar certificado básico
+                generarCertificadoBasico();
+            }
+        }
+
+        function generarCertificadoBasico() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const centerX = pageWidth / 2;
+
+            // Fondo
+            doc.setFillColor(240, 245, 252);
+            doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+            // Marco
+            doc.setLineWidth(2);
+            doc.setDrawColor(30, 58, 138);
+            doc.rect(15, 15, pageWidth - 30, pageHeight - 30);
+            doc.setLineWidth(0.5);
+            doc.rect(18, 18, pageWidth - 36, pageHeight - 36);
+
+            // Título
+            doc.setFont("times", "bold");
+            doc.setTextColor(30, 58, 138);
+            doc.setFontSize(36);
+            doc.text("CERTIFICADO", centerX, 55, { align: "center" });
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(14);
+            doc.setTextColor(59, 130, 246);
+            doc.text("DE INDUCCIÓN Y REINDUCCIÓN", centerX, 65, { align: "center" });
+
+            // Contenido
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            doc.setTextColor(55, 65, 81);
+            doc.text("El Instituto de Financiamiento, Promoción y Desarrollo de Ibagué", centerX, 85, { align: "center" });
+            doc.text("INFIBAGUÉ certifica que:", centerX, 95, { align: "center" });
+
+            // Nombre
+            doc.setFont("times", "bold");
+            doc.setFontSize(24);
+            doc.setTextColor(30, 58, 138);
+            doc.text(usuario.nombre_completo.toUpperCase(), centerX, 115, { align: "center" });
+
+            // Línea
+            doc.setLineWidth(0.5);
+            doc.setDrawColor(203, 213, 225);
+            doc.line(80, 122, pageWidth - 80, 122);
+
+            // Texto
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);
+            doc.setTextColor(55, 65, 81);
+            doc.text("Ha completado satisfactoriamente el programa de", centerX, 135, { align: "center" });
+            doc.setFont("helvetica", "bold");
+            doc.text("INDUCCIÓN Y REINDUCCIÓN INFIBAGUÉ 2026", centerX, 145, { align: "center" });
+
+            // Módulos completados
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(107, 114, 128);
+            doc.text("Módulos completados: Atención al Ciudadano, Gestión Humana, Gestión Ambiental,", centerX, 160, { align: "center" });
+            doc.text("Seguridad y Salud en el Trabajo, Planeación Estratégica", centerX, 167, { align: "center" });
+
+            // Fecha
+            const fecha = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.text(`Ibagué, ${fecha}`, centerX, 182, { align: "center" });
+
+            // Firma
+            doc.setLineWidth(0.5);
+            doc.setDrawColor(107, 114, 128);
+            doc.line(centerX - 40, 195, centerX + 40, 195);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.setTextColor(30, 58, 138);
+            doc.text("Gerente General", centerX, 200, { align: "center" });
+
+            // Código
+            const codigo = `INFI-IND-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+            doc.setFontSize(8);
+            doc.setTextColor(156, 163, 175);
+            doc.text(`Código de verificación: ${codigo}`, centerX, pageHeight - 22, { align: "center" });
+
+            // Descargar
+            doc.save(`Certificado_Induccion_${usuario.nombre_completo.replace(/\s+/g, '_')}_2026.pdf`);
+        }
+
+        // ============================================
+        // INICIAR
+        // ============================================
+        init();
+    </script>
+</body>
+
+</html>

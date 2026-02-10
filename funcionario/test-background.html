@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Background Images</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .image-test {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+
+        .image-box {
+            width: 100%;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 1px solid #000;
+            margin: 10px 0;
+        }
+
+        .slideshow-test {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .bg-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 2.5s ease-in-out;
+        }
+
+        .bg-slide.active {
+            opacity: 0.35;
+        }
+
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom,
+                    rgba(255, 255, 255, 0.60) 0%,
+                    rgba(255, 255, 255, 0.65) 30%,
+                    rgba(255, 255, 255, 0.70) 50%,
+                    rgba(255, 255, 255, 0.65) 70%,
+                    rgba(255, 255, 255, 0.60) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1e3a8a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🔍 Test de Imágenes de Fondo</h1>
+
+        <div class="image-test">
+            <h2>1. Imagen Individual (sin overlay)</h2>
+            <div class="image-box" style="background-image: url('../assets/san-bernardo-bg-1.jpg');"></div>
+            <p><strong>Ruta:</strong> ../assets/san-bernardo-bg-1.jpg</p>
+        </div>
+
+        <div class="image-test">
+            <h2>2. Imagen Individual (sin overlay)</h2>
+            <div class="image-box" style="background-image: url('../assets/PAGINA-WEB-1.jpeg');"></div>
+            <p><strong>Ruta:</strong> ../assets/PAGINA-WEB-1.jpeg</p>
+        </div>
+
+        <div class="image-test">
+            <h2>3. Imagen Individual (sin overlay)</h2>
+            <div class="image-box" style="background-image: url('../assets/PAGINA-WEB-11--scaled.jpeg');"></div>
+            <p><strong>Ruta:</strong> ../assets/PAGINA-WEB-11--scaled.jpeg</p>
+        </div>
+
+        <div class="image-test">
+            <h2>4. Slideshow con Overlay (como en el Dashboard)</h2>
+            <div class="slideshow-test">
+                <div class="bg-slide active" style="background-image: url('../assets/san-bernardo-bg-1.jpg');"></div>
+                <div class="bg-slide" style="background-image: url('../assets/PAGINA-WEB-1.jpeg');"></div>
+                <div class="bg-slide" style="background-image: url('../assets/PAGINA-WEB-11--scaled.jpeg');"></div>
+                <div class="bg-slide" style="background-image: url('../assets/PAGINA-WEB-8.jpeg');"></div>
+                <div class="bg-slide" style="background-image: url('../assets/7-scaled.jpg');"></div>
+                <div class="background-overlay"></div>
+                <div class="content">
+                    <h1>Bienvenido al Campus INFIBAGUÉ</h1>
+                    <p>Si ves las imágenes de San Bernardo detrás de este texto, ¡el slideshow funciona!</p>
+                    <p>Espera 8 segundos para ver el cambio de imagen.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initBackgroundSlideshow() {
+            const slides = document.querySelectorAll('.slideshow-test .bg-slide');
+            if (slides.length <= 1) return;
+
+            let currentSlide = 0;
+
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+                console.log('Cambiando a slide:', currentSlide);
+            }, 8000);
+        }
+
+        setTimeout(initBackgroundSlideshow, 500);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Curso - Campus Virtual</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.png">
+
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="main-wrapper">
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-container">
+                        <img src="../assets/logo-entidad.png" alt="Logo" class="logo">
+                        <h1 class="site-title">Campus Virtual - Educador</h1>
+                    </div>
+                    <nav class="nav">
+                        <a href="./dashboard.html" class="nav-link">Mi Dashboard</a>
+                        <a href="#" id="btn-cerrar-sesion" class="btn btn-outline"
+                            style="color: white; border-color: white;">Cerrar Sesión</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="container" style="max-width: 800px;">
+                <h2>Crear Nuevo Curso</h2>
+                <p class="text-secondary mb-xl">Completa la información básica del curso</p>
+
+                <form id="form-curso"
+                    style="background: white; padding: 2rem; border-radius: 1rem; box-shadow: var(--shadow-md);">
+                    <div class="form-group">
+                        <label for="titulo" class="form-label">Título del Curso *</label>
+                        <input type="text" id="titulo" class="form-input"
+                            placeholder="Ej: Introducción a la Gestión Pública" required>
+                        <span class="form-error">El título es requerido</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea id="descripcion" class="form-textarea"
+                            placeholder="Describe de qué trata este curso, qué aprenderán los funcionarios..."
+                            rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="oficina_tema" class="form-label">Oficina / Tema</label>
+                        <input type="text" id="oficina_tema" class="form-input"
+                            placeholder="Ej: Dirección de Planeación, Recursos Humanos, etc.">
+                        <span class="form-help">Esto ayudará a categorizar el curso</span>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
+                        <button type="submit" class="btn btn-primary btn-large" id="btn-submit">
+                            Crear Curso
+                        </button>
+                        <a href="./dashboard.html" class="btn btn-outline btn-large">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-bottom">
+                    <p>&copy; <span id="year"></span> Entidad Pública. Campus Virtual</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/courses.js"></script>
+
+    <script>
+        inicializarSupabase();
+        verificarRol(ROLES.EDUCADOR, '../catalogo.html');
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        document.getElementById('btn-cerrar-sesion').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await cerrarSesion();
+        });
+
+        const form = document.getElementById('form-curso');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const datos = {
+                titulo: document.getElementById('titulo').value.trim(),
+                descripcion: document.getElementById('descripcion').value.trim(),
+                oficina_tema: document.getElementById('oficina_tema').value.trim() || null
+            };
+
+            if (!datos.titulo) {
+                mostrarNotificacion('El título es requerido', 'error');
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="loading"></span> Creando curso...';
+
+            const resultado = await crearCurso(datos);
+
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = 'Crear Curso';
+
+            if (resultado.success) {
+                mostrarNotificacion('¡Curso creado exitosamente!', 'success');
+                setTimeout(() => {
+                    window.location.href = `./editar-curso.html?id=${resultado.curso.id}`;
+                }, 1000);
+            } else {
+                mostrarNotificacion('Error al crear curso', 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

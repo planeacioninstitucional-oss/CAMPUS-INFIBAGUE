@@ -1,0 +1,519 @@
+/* ==================== ATENCIÓN CIUDADANO - ENHANCED STYLES ==================== */
+
+/* Slide System - No wrapper needed */
+.slide {
+    flex: 1;
+}
+
+/* Role Cards with 3D Effects */
+.role-selection {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: var(--spacing-xl);
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: var(--spacing-lg);
+}
+
+.role-card {
+    background: white;
+    border-radius: 24px;
+    padding: var(--spacing-xl);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-slow);
+    box-shadow: var(--shadow-lg);
+    border: 0;
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--card-color, #3b82f6);
+    transition: height 0.3s;
+}
+
+/* Role Colors */
+.role-admin {
+    --card-color: #8b5cf6;
+    --icon-bg: #f3e8ff;
+}
+
+/* Purple for Admin */
+.role-operative {
+    --card-color: #ff6b00;
+    --icon-bg: #fff0e0;
+}
+
+/* Orange for Operativo */
+
+.role-card:hover::before {
+    height: 100%;
+    z-index: 0;
+}
+
+.role-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.role-card>* {
+    position: relative;
+    z-index: 1;
+}
+
+.role-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto var(--spacing-md);
+    border-radius: 50%;
+    background: var(--icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.role-icon svg {
+    width: 50px;
+    height: 50px;
+    fill: var(--card-color);
+    transition: all 0.3s;
+}
+
+.role-card:hover .role-icon {
+    background: white;
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.role-card:hover .role-icon svg {
+    fill: var(--card-color);
+}
+
+.role-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 800;
+    color: #1e293b;
+    transition: color 0.3s;
+}
+
+.role-card:hover .role-title {
+    color: white;
+}
+
+.role-subtitle {
+    font-size: var(--font-size-sm);
+    color: #64748b;
+    margin-top: var(--spacing-sm);
+    transition: color 0.3s;
+}
+
+.role-card:hover .role-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* ==================== ATTRIBUTES LIST ==================== */
+.attributes-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.attr-item {
+    background: white;
+    padding: var(--spacing-lg);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+    transition: all var(--transition-base);
+    border-left: 5px solid transparent;
+}
+
+.attr-item:hover {
+    transform: translateX(10px);
+    border-left-color: var(--icon-color, #22c55e);
+    box-shadow: var(--shadow-md);
+}
+
+.attr-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: var(--icon-bg, #dcfce7);
+    color: var(--icon-color, #16a34a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform var(--transition-bounce);
+}
+
+.attr-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.attr-item:hover .attr-icon {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.attr-content h3 {
+    color: #1e40af;
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-xs);
+}
+
+.attr-content p {
+    color: #475569;
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+}
+
+/* ==================== NAVIGATION BUTTONS ==================== */
+.nav-buttons {
+    margin-top: auto;
+    padding-top: var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.btn-nav {
+    padding: clamp(12px, 3vw, 16px) clamp(24px, 5vw, 36px);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: var(--font-size-base);
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+    min-height: 44px;
+    /* Touch-friendly */
+}
+
+.btn-nav::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width var(--transition-slow), height var(--transition-slow);
+}
+
+.btn-nav:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-nav:active {
+    transform: scale(0.96);
+}
+
+.btn-prev {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #475569;
+}
+
+.btn-prev:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    transform: translateX(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-next {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-next:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    transform: translateX(5px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+}
+
+.btn-nav:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==================== QUIZ STYLES ==================== */
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.quiz-option {
+    background: white;
+    border: 3px solid #e2e8f0;
+    padding: var(--spacing-lg);
+    border-radius: 16px;
+    margin-bottom: var(--spacing-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-base);
+    color: #334155;
+    position: relative;
+    overflow: hidden;
+}
+
+.quiz-option::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gradient-primary);
+    transform: scaleY(0);
+    transition: transform var(--transition-base);
+}
+
+.quiz-option:hover::before {
+    transform: scaleY(1);
+}
+
+.quiz-option:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    transform: translateX(8px);
+    box-shadow: var(--shadow-md);
+}
+
+.quiz-option.selected {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: #2563eb;
+    box-shadow: var(--shadow-glow);
+}
+
+.quiz-option.correct {
+    background: var(--gradient-secondary) !important;
+    color: white !important;
+    border-color: #22c55e !important;
+    animation: correctBounce 0.5s ease;
+}
+
+.quiz-option.incorrect {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    color: white !important;
+    border-color: #ef4444 !important;
+    animation: shake 0.5s ease;
+}
+
+@keyframes correctBounce {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-10px) scale(1.02);
+    }
+
+    75% {
+        transform: translateX(10px) scale(1.02);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-10px);
+    }
+
+    50% {
+        transform: translateX(10px);
+    }
+
+    75% {
+        transform: translateX(-10px);
+    }
+}
+
+/* ==================== PUZZLE GAME ==================== */
+.puzzle-container {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: var(--spacing-lg);
+}
+
+.puzzle-col {
+    flex: 1;
+    min-width: min(280px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.puzzle-item {
+    background: white;
+    padding: var(--spacing-md);
+    border: 3px solid #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all var(--transition-bounce);
+    font-weight: 600;
+}
+
+.puzzle-item:hover {
+    border-color: #3b82f6;
+    transform: scale(1.05);
+    box-shadow: var(--shadow-md);
+}
+
+.puzzle-item.selected {
+    border-color: #2563eb;
+    background: #eff6ff;
+    transform: scale(1.08);
+    box-shadow: var(--shadow-glow);
+}
+
+.puzzle-item.matched {
+    border-color: #22c55e;
+    background: #dcfce7;
+    opacity: 0.7;
+    pointer-events: none;
+    animation: matchPulse 0.6s ease;
+}
+
+@keyframes matchPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+/* ==================== RESPONSIVE BREAKPOINTS ==================== */
+@media (max-width: 768px) {
+    .module-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md);
+    }
+
+    .module-header h2 {
+        font-size: var(--font-size-lg);
+    }
+
+    .progress-indicator {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .role-selection {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+
+    .role-card {
+        padding: var(--spacing-lg);
+    }
+
+    .nav-buttons {
+        flex-direction: column-reverse;
+    }
+
+    .btn-nav {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .puzzle-container {
+        flex-direction: column;
+    }
+
+    .attr-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .attr-icon {
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .slide {
+        padding: var(--spacing-sm);
+    }
+
+    .slide-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .quiz-option {
+        padding: var(--spacing-md);
+    }
+
+    .role-icon {
+        font-size: 3rem;
+    }
+}
+
+/* ==================== UTILITIES ==================== */
+.text-center {
+    text-align: center;
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+.mb-auto {
+    margin-bottom: auto;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
