@@ -24,7 +24,7 @@ function copyStaticFiles() {
             }
 
             // Copiar carpetas críticas
-            copyDir('js', 'dist/js')
+            copyDir('public/js', 'dist/js')
             copyDir('css', 'dist/css')
             copyDir('assets', 'dist/assets')
             console.log('✅ Archivos estáticos copiados a dist/')
