@@ -442,8 +442,9 @@
                 const inscripcion = inscripciones.inscripciones?.find(i => i.curso_id === cursoId);
 
                 if (!inscripcion) {
-                    mostrarPantallaInscripcion();
-                    return;
+                    console.log('Usuario no inscrito. Iniciando auto-inscripción...');
+                    await inscribirse();
+                    return; // El recargar hará el resto
                 }
 
                 inscripcionId = inscripcion.id;

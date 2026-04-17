@@ -10,20 +10,17 @@
 -- ============================================
 
 -- ============================================
--- PASO 1: ELIMINAR TABLAS EXISTENTES (PASO PROTEGIDO)
+-- PASO 1: ELIMINAR TABLAS EXISTENTES (si existen)
 -- ============================================
--- NOTA: Se han comentado estos comandos para evitar pérdida de datos.
--- Si realmente necesitas limpiar la base de datos, descomenta las líneas siguientes:
-
--- DROP TABLE IF EXISTS public.certificados CASCADE;
--- DROP TABLE IF EXISTS public.modulos_completados CASCADE;
--- DROP TABLE IF EXISTS public.respuestas_actividades CASCADE;
--- DROP TABLE IF EXISTS public.inscripciones CASCADE;
--- DROP TABLE IF EXISTS public.preguntas CASCADE;
--- DROP TABLE IF EXISTS public.actividades CASCADE;
--- DROP TABLE IF EXISTS public.modulos CASCADE;
--- DROP TABLE IF EXISTS public.cursos CASCADE;
--- DROP TABLE IF EXISTS public.usuarios CASCADE;
+DROP TABLE IF EXISTS public.certificados CASCADE;
+DROP TABLE IF EXISTS public.modulos_completados CASCADE;
+DROP TABLE IF EXISTS public.respuestas_actividades CASCADE;
+DROP TABLE IF EXISTS public.inscripciones CASCADE;
+DROP TABLE IF EXISTS public.preguntas CASCADE;
+DROP TABLE IF EXISTS public.actividades CASCADE;
+DROP TABLE IF EXISTS public.modulos CASCADE;
+DROP TABLE IF EXISTS public.cursos CASCADE;
+DROP TABLE IF EXISTS public.usuarios CASCADE;
 
 -- ============================================
 -- PASO 2: CREAR TABLA USUARIOS (con contraseña)

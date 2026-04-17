@@ -542,6 +542,14 @@
 
                 if (inscripcion) {
                     inscripcionId = inscripcion.id;
+                } else {
+                    console.log('Iniciando auto-inscripción para Inducción...');
+                    const autoIns = await inscribirseCurso(cursoId);
+                    if (autoIns.success) {
+                        inscripcionId = autoIns.inscripcion.id;
+                    } else {
+                        console.error('Error en auto-inscripción:', autoIns.error);
+                    }
                 }
 
                 // Obtener módulos del curso

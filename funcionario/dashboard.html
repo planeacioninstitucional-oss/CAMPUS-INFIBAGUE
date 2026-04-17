@@ -442,17 +442,32 @@
                 if (inscription) {
                     currentInscriptionId = inscription.id;
 
-                    // C. Load Completed Modules (Mapping DB IDs to our logical IDs is tricky without a mapping table)
-                    // Simplified strategy: We rely on the order of modules in DB matching our list
-                    // Or we just store progress via this App mostly.
+                    // C. Cargar Módulos Completados desde el Servidor
+                    const { data: completados, error: compError } = await supabase
+                        .from('modulos_completados')
+                        .select(`
+                            modulo_id,
+                            modulos!inner(orden)
+                        `)
+                        .eq('inscripcion_id', currentInscriptionId);
 
-                    // Fetch from 'modulos_completados' table
-                    // Note: This requires knowing the specific module UUIDs from DB.
-                    // For robustness in this prototype, we'll implement a 'Logic -> DB' sync primarily.
-                    // If we wanted full DB -> Logic sync, we'd need to fetch module UUIDs.
+                    if (!compError && completados) {
+                        // Mapear los módulos de la base de datos a nuestro array local basado en el orden
+                        // El orden en la DB es 1-based (1, 2, 3, 4, 5)
+                        completados.forEach(c => {
+                            const dbIndex = c.modulos.orden - 1; // Convertir a 0-based
+                            if (dbIndex >= 0 && dbIndex < INDUCTION_MODULES.length) {
+                                const moduleId = INDUCTION_MODULES[dbIndex].id;
+                                if (!userProgress.includes(moduleId)) {
+                                    userProgress.push(moduleId);
+                                }
+                            }
+                        });
 
-                    // Let's at least update local storage if we have zero progress here but some on server logic
-                    // (Skipped for complexity, focusing on Pushing progress)
+                        // Actualizar UI con el progreso real del servidor
+                        saveLocalProgress();
+                        renderUI();
+                    }
                 }
 
             } catch (err) {
