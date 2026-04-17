@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard de Progreso</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f3f4f6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #22c55e;
+            transition: width 0.3s ease;
+        }
+
+        .center {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Mi Progreso de Inducción</h1>
+
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+        </div>
+
+        <div id="modulos"></div>
+
+        <div class="center">
+            <button id="btnCertificado" class="btn" disabled>Ver certificado</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Cliente Supabase Centralizado -->
+    <script src="../js/supabaseClient.js"></script>
+
+    <script>
+
+        const MODULOS = [
+            { nombre: "atencion_ciudadano", archivo: "induccion-atencion-ciudadano.html" },
+            { nombre: "gestion_humana", archivo: "induccion-gestion-humana.html" },
+            { nombre: "gestion_ambiental", archivo: "induccion-gestion-ambiental.html" },
+            { nombre: "sst", archivo: "induccion-sst.html" },
+            { nombre: "planeacion_estrategica", archivo: "induccion-planeacion.html" },
+        ];
+
+        async function getUser() {
+            const { data } = await supabase.auth.getUser();
+            if (!data.user) {
+                window.location.href = "/login.html";
+                return null;
+            }
+            return data.user;
+        }
+
+        async function cargarProgreso() {
+            const user = await getUser();
+            if (!user) return;
+
+            const { data } = await supabase
+                .from("progreso_modulos")
+                .select("modulo, completado")
+                .eq("user_id", user.id);
+
+            const completados = data?.filter(m => m.completado).map(m => m.modulo) || [];
+
+            const contenedor = document.getElementById("modulos");
+            contenedor.innerHTML = "";
+
+            let desbloqueado = true;
+
+            MODULOS.forEach((mod, index) => {
+                const estaCompleto = completados.includes(mod.nombre);
+
+                const card = document.createElement("div");
+                card.className = "card";
+
+                const titulo = document.createElement("span");
+                titulo.innerText = mod.nombre.replace("_", " ");
+
+                const btn = document.createElement("button");
+                btn.className = "btn";
+                btn.innerText = estaCompleto ? "Revisar" : "Entrar";
+
+                if (!desbloqueado) btn.disabled = true;
+
+                btn.onclick = () => window.location.href = mod.archivo;
+
+                if (!estaCompleto) desbloqueado = false;
+
+                card.appendChild(titulo);
+                card.appendChild(btn);
+                contenedor.appendChild(card);
+            });
+
+            const porcentaje = Math.round((completados.length / MODULOS.length) * 100);
+            document.getElementById("progressFill").style.width = porcentaje + "%";
+
+            if (porcentaje === 100) {
+                document.getElementById("btnCertificado").disabled = false;
+                document.getElementById("btnCertificado").onclick = () => {
+                    window.location.href = "certificado.html";
+                };
+            }
+        }
+
+        cargarProgreso();
+    </script>
+</body>
+
+</html>

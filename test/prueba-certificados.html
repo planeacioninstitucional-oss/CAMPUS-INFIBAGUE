@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Certificados - INFIBAGUÉ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0778f8 0%, #006633 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #003366;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .persona {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .persona:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #003366;
+        }
+
+        .persona h3 {
+            color: #003366;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .cedula {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00d8d8 0%, #006633 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.preview {
+            background: linear-gradient(135deg, #003366 0%, #006633 100%);
+        }
+
+        .nota {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .nota strong {
+            color: #f59e0b;
+        }
+
+        .status {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .status.success {
+            display: block;
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .status.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎓 Prueba de Certificados</h1>
+        <p class="subtitle">Generación de certificados de prueba - INFIBAGUÉ</p>
+
+        <div class="persona" data-nombre="Olga Mercedes Córdoba Zarta" data-cedula="65.798.524">
+            <h3>👤 Olga Mercedes Córdoba Zarta</h3>
+            <p class="cedula">📋 C.C. No. 65.798.524</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="persona" data-nombre="ESAU REYES ARIAS" data-cedula="93384902">
+            <h3>👤 Esaú Reyes Arias</h3>
+            <p class="cedula">📋 C.C. 93.384.902</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="persona" data-nombre="RUIZ RUIZ PATRICIO JAVIER" data-cedula="93372075">
+            <h3>👤 Ruiz Ruiz Patricio Javier</h3>
+            <p class="cedula">📋 C.C. 93.372.075</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <!-- Nuevos Registros Agregados -->
+        <div class="persona" data-nombre="Norma Rocio Rossell Marroquín" data-cedula="38258047">
+            <h3>👤 Norma Rocio Rossell Marroquín</h3>
+            <p class="cedula">📋 C.C. 38.258.047</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="persona" data-nombre="Sigifredo Bolívar Olaya" data-cedula="93379497">
+            <h3>👤 Sigifredo Bolívar Olaya</h3>
+            <p class="cedula">📋 C.C. 93.379.497</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="persona" data-nombre="Guillermo Alexander Olaya Pava" data-cedula="93392551">
+            <h3>👤 Guillermo Alexander Olaya Pava</h3>
+            <p class="cedula">📋 C.C. 93.392.551</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="persona" data-nombre="GERALDIN LEAL RODRIGUEZ" data-cedula="1110582370">
+            <h3>👤 Geraldin Leal Rodriguez</h3>
+            <p class="cedula">📋 C.C. 1.110.582.370</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="persona" data-nombre="JOAN STEVEN CASTRO MONTEALEGRE" data-cedula="1110539265">
+            <h3>👤 Joan Steven Castro Montealegre</h3>
+            <p class="cedula">📋 C.C. 1.110.539.265</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <div class="persona" data-nombre="CAROLINA ASTRID PADILLA MANCILLA" data-cedula="52840014">
+            <h3>👤 Carolina Astrid Padilla Mancilla</h3>
+            <p class="cedula">📋 C.C. 52.840.014</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+        <div class="persona" data-nombre="MIRYAM LUCIA GARCIA ALAVREZ" data-cedula="1110507603">
+            <h3>👤 Miryam Lucia Garcia Alavrez</h3>
+            <p class="cedula">📋 C.C. 1.110.507.603</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+        <div class="persona" data-nombre="CAMILA ANDREA HERRADA ESPINOSA" data-cedula="1110446018">
+            <h3>👤 Camila Andrea Herrada Espinosa</h3>
+            <p class="cedula">📋 C.C. 1.110.446.018</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+        <div class="persona" data-nombre="JESUS EILECER OLAYA BRAVO" data-cedula="14232281">
+            <h3>👤 Jesus Eilecer Olaya Bravo</h3>
+            <p class="cedula">📋 C.C. 14.232.281</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+        <div class="persona" data-nombre="BLANCA RUTH MODESTO VEGA" data-cedula="38247138">
+            <h3>👤 Blanca Ruth Modesto Vega</h3>
+            <p class="cedula">📋 C.C. 38.247.138</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+        <div class="persona" data-nombre="ANA AMRIA MORALES AGUILAR" data-cedula="1110471144">
+            <h3>👤 Ana Amria Morales Aguilar</h3>
+            <p class="cedula">📋 C.C. 1.110.471.144</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+        <div class="persona" data-nombre="ANA AMRIA MORALES AGUILAR" data-cedula="1110471144">
+            <h3>👤 Ana Amria Morales Aguilar</h3>
+            <p class="cedula">📋 C.C. 1.110.471.144</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+        <div class="nota">
+            <strong>⚠️ Nota:</strong> Esta es una página de prueba para verificar la generación de certificados.
+            Los certificados generados aquí NO están registrados en la base de datos.
+        </div>
+        <div id="status" class="status"></div>
+    </div>
+
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        function mostrarEstado(mensaje, tipo) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = mensaje;
+            statusDiv.className = `status ${tipo}`;
+
+            if (tipo === 'success') {
+                setTimeout(() => {
+                    statusDiv.className = 'status';
+                }, 5000);
+            }
+        }
+
+        function formatearCedula(cedula) {
+            // Remover puntos y espacios
+            return cedula.replace(/\./g, '').replace(/\s/g, '');
+        }
+
+        async function descargarCertificadoPrueba(button) {
+            const persona = button.closest('.persona');
+            const nombreCompleto = persona.dataset.nombre;
+            const cedula = formatearCedula(persona.dataset.cedula);
+
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<span class="loading"></span> Generando...';
+            button.disabled = true;
+
+            try {
+                const jsPDFLib = window.jspdf || window.jsPDF;
+                if (!jsPDFLib || !jsPDFLib.jsPDF) {
+                    throw new Error('jsPDF no está disponible');
+                }
+
+                // Función auxiliar para cargar imágenes
+                const loadImage = (src) => {
+                    return new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.src = src;
+                        img.onload = () => resolve(img);
+                        img.onerror = (e) => {
+                            console.warn(`Error cargando imagen: ${src}`, e);
+                            resolve(null);
+                        };
+                    });
+                };
+
+                // Cargar todas las imágenes necesarias
+                const [imgBg, imgFirma1, imgFirma2, imgFirma3] = await Promise.all([
+                    loadImage('../assets/Certificado-plantilla.jpeg'),
+                    loadImage('../assets/firmaplaneacioncp.png'),
+                    loadImage('../assets/gerente}.png'),
+                    loadImage('../assets/FIRMA-ADMINI.png')
+                ]);
+
+                const { jsPDF } = jsPDFLib;
+                const doc = new jsPDF('landscape', 'mm', 'a4');
+                const width = doc.internal.pageSize.getWidth();
+                const height = doc.internal.pageSize.getHeight();
+
+                // Agregar fondo
+                if (imgBg) {
+                    doc.addImage(imgBg, 'JPEG', 0, 0, width, height);
+                } else {
+                    doc.setDrawColor(0, 51, 102);
+                    doc.setLineWidth(2);
+                    doc.rect(10, 10, width - 20, height - 20);
+                }
+
+                // === CONTENIDO ===
+                const centroX = width / 2;
+                let cursorY = 45;
+
+                // 1. Título Institucional
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'normal');
+                doc.text('El Instituto de Financiamiento, Promoción y Desarrollo de Ibagué - INFIBAGUÉ', centroX, cursorY, { align: 'center' });
+
+                cursorY += 12;
+
+                // 2. Subtítulo CERTIFICA QUE:
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('CERTIFICA QUE:', centroX, cursorY, { align: 'center' });
+
+                cursorY += 12;
+
+                // 3. Texto funcionario
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('El funcionario y/o contratista', centroX, cursorY, { align: 'center' });
+
+                cursorY += 12;
+
+                // 4. Nombre (Resaltado)
+                doc.setTextColor(0, 153, 204);
+                doc.setFontSize(22);
+                doc.setFont('helvetica', 'bold');
+                doc.text(nombreCompleto.toUpperCase(), centroX, cursorY, { align: 'center' });
+
+                cursorY += 10;
+
+                // 5. Documento
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`C.C. ${cedula}`, centroX, cursorY, { align: 'center' });
+
+                cursorY += 12;
+
+                // 6. Texto Participó...
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Participó y aprobó satisfactoriamente el módulo de:', centroX, cursorY, { align: 'center' });
+
+                cursorY += 14;
+
+                // 7. Módulo
+                doc.setTextColor(0, 51, 102);
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('INDUCCIÓN Y REINDUCCIÓN I-2026', centroX, cursorY, { align: 'center' });
+
+                cursorY += 8;
+
+                // 8. Subtítulo del módulo
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Sistema Integrado de Gestión "INTEGRA"', centroX, cursorY, { align: 'center' });
+
+                // 9. Fecha
+                cursorY += 15;
+                const fecha = new Date();
+                const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+
+                doc.setFontSize(10);
+                doc.text(fechaTexto, centroX, cursorY, { align: 'center' });
+
+                // === FIRMAS ===
+                const firmasY = cursorY + 4;
+                const textoFirmasY = firmasY + 25;
+                const anchoFirma = 35;
+                const altoFirma = 22;
+                const anchoFirmaGerente = 48;
+                const altoFirmaGerente = 30;
+                const firmasYGerente = firmasY - 4;
+
+                const col1X = width * 0.22;
+                const col2X = width * 0.5;
+                const col3X = width * 0.78;
+
+                // Firmas
+                if (imgFirma1) {
+                    doc.addImage(imgFirma1, 'PNG', col1X - (anchoFirma / 2), firmasY, anchoFirma, altoFirma);
+                }
+                if (imgFirma2) {
+                    doc.addImage(imgFirma2, 'PNG', col2X - (anchoFirmaGerente / 2), firmasYGerente, anchoFirmaGerente, altoFirmaGerente);
+                }
+                if (imgFirma3) {
+                    doc.addImage(imgFirma3, 'PNG', col3X - (anchoFirma / 2), firmasY, anchoFirma, altoFirma);
+                }
+
+                // Textos de Firmas
+                doc.setFontSize(8);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont('helvetica', 'bold');
+
+                doc.text('Jefe de Oficina Asesora', col1X, textoFirmasY, { align: 'center' });
+                doc.text('de Planeación Institucional', col1X, textoFirmasY + 4, { align: 'center' });
+
+                doc.text('Gerente General', col2X, textoFirmasY, { align: 'center' });
+
+                doc.text('Director de Servicios', col3X, textoFirmasY, { align: 'center' });
+                doc.text('Administrativos', col3X, textoFirmasY + 4, { align: 'center' });
+
+                // Guardar
+                const nombreArchivo = `Certificado_${nombreCompleto.replace(/\s+/g, '_')}.pdf`;
+                doc.save(nombreArchivo);
+
+                mostrarEstado(`✅ Certificado de ${nombreCompleto} generado exitosamente`, 'success');
+
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarEstado(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }
+        }
+
+        async function previsualizarCertificadoPrueba(button) {
+            const persona = button.closest('.persona');
+            const nombreCompleto = persona.dataset.nombre;
+            const cedula = formatearCedula(persona.dataset.cedula);
+
+            const fecha = new Date();
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+
+            const ventana = window.open('', '_blank');
+            if (!ventana) {
+                mostrarEstado('❌ Por favor, permite las ventanas emergentes', 'error');
+                return;
+            }
+
+            ventana.document.write(`
+                <html>
+                <head>
+                    <title>Certificado - ${nombreCompleto}</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+                        
+                        body {
+                            font-family: 'Segoe UI', 'Inter', sans-serif;
+                            padding: 0;
+                            margin: 0;
+                            background: #f0f2f5;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                        }
+                        .certificado-container {
+                            width: 297mm;
+                            height: 210mm;
+                            background-image: url('../assets/Certificado-plantilla.jpeg');
+                            background-size: cover;
+                            background-position: center;
+                            background-color: white;
+                            position: relative;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            color: #000;
+                        }
+                        
+                        .contenido-central {
+                            width: 90%;
+                            text-align: center;
+                            margin-top: -20px;
+                        }
+
+                        h1 {
+                            font-size: 14pt;
+                            font-weight: normal;
+                            color: #3C3C3C;
+                            margin: 5px 0;
+                        }
+
+                        h2 {
+                            font-size: 18pt;
+                            font-weight: bold;
+                            color: #000;
+                            margin: 10px 0;
+                        }
+
+                        .texto-comun {
+                            font-size: 13pt;
+                            color: #3C3C3C;
+                            margin: 5px 0;
+                        }
+
+                        .nombre-destacado {
+                            font-size: 24pt;
+                            font-weight: bold;
+                            color: #0099CC;
+                            text-transform: uppercase;
+                            margin: 5px 0;
+                        }
+
+                        .cedula {
+                            font-size: 14pt;
+                            font-weight: bold;
+                            color: #000;
+                            margin: 5px 0 15px 0;
+                        }
+
+                        .modulo-titulo {
+                            font-size: 22pt;
+                            font-weight: bold;
+                            color: #003366;
+                            text-transform: uppercase;
+                            margin: 5px 0;
+                        }
+
+                        .modulo-subtitulo {
+                            font-size: 14pt;
+                            color: #3C3C3C;
+                            margin: 5px 0;
+                        }
+
+                        .fecha {
+                            font-size: 11pt;
+                            color: #3C3C3C;
+                            margin-top: 30px;
+                            margin-bottom: 20px;
+                        }
+
+                        .bloque-firmas {
+                            display: flex;
+                            justify-content: space-between;
+                            width: 90%;
+                            margin-top: 5px;
+                            margin-left: auto;
+                            margin-right: auto;
+                        }
+
+                        .columna-firma {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            width: 32%;
+                        }
+
+                        .firma-img {
+                            height: 70px;
+                            width: auto;
+                            object-fit: contain;
+                            margin-bottom: 5px;
+                        }
+
+                        .firma-cargo {
+                            font-size: 9pt;
+                            font-weight: bold;
+                            color: #000;
+                            line-height: 1.2;
+                        }
+
+                        @media print {
+                             body { background: none; margin: 0; }
+                             .certificado-container { 
+                                 box-shadow: none; 
+                                 page-break-after: always;
+                                 -webkit-print-color-adjust: exact;
+                                 print-color-adjust: exact;
+                             }
+                             .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="certificado-container">
+                        <div class="contenido-central">
+                            <h1>El Instituto de Financiamiento, Promoción y Desarrollo de Ibagué - INFIBAGUÉ</h1>
+                            
+                            <h2>CERTIFICA QUE:</h2>
+                            
+                            <p class="texto-comun">El funcionario y/o contratista</p>
+                            
+                            <div class="nombre-destacado">${nombreCompleto}</div>
+                            
+                            <div class="cedula">C.C. ${cedula}</div>
+                            
+                            <p class="texto-comun">Participó y aprobó satisfactoriamente el módulo de:</p>
+                            
+                            <div class="modulo-titulo">INDUCCIÓN Y REINDUCCIÓN I-2026</div>
+                            
+                            <div class="modulo-subtitulo">Sistema Integrado de Gestión "INTEGRA"</div>
+                            
+                            <div class="fecha">${fechaTexto}</div>
+
+                            <div class="bloque-firmas">
+                                <div class="columna-firma">
+                                    <img src="../assets/firmaplaneacioncp.png" class="firma-img" alt="Firma Planeación">
+                                    <div class="firma-cargo">Jefe de Oficina Asesora<br>de Planeación Institucional</div>
+                                </div>
+                                <div class="columna-firma">
+                                    <img src="../assets/gerente}.png" class="firma-img" alt="Firma Gerente">
+                                    <div class="firma-cargo">Gerente General</div>
+                                </div>
+                                <div class="columna-firma">
+                                    <img src="../assets/FIRMA-ADMINI.png" class="firma-img" alt="Firma Administrativa">
+                                    <div class="firma-cargo">Director de Servicios<br>Administrativos</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px;">
+                        <button onclick="window.print()" style="background: #003366; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <span>🖨️</span> Imprimir / Guardar PDF
+                        </button>
+                    </div>
+                </body>
+                </html>
+            `);
+
+            mostrarEstado(`✅ Vista previa de certificado de ${nombreCompleto} abierta`, 'success');
+        }
+    </script>
+</body>
+
+</html>

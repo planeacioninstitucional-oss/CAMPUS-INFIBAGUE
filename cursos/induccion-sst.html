@@ -1,0 +1,1080 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento Interactivo SST</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('../assets/atenci.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            touch-action: pan-y;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.90);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #658D1B;
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #4d6e12;
+            transform: scale(1.02);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        .btn-hint {
+            background-color: #eab308;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(234, 179, 8, 0.4);
+        }
+
+        .btn-hint:hover {
+            background-color: #ca8a04;
+        }
+
+        /* --- DRAG & DROP STYLES --- */
+        .draggable-item {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+            touch-action: none;
+            user-select: none;
+            z-index: 50;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.9;
+            transform: scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            position: fixed;
+            pointer-events: none;
+        }
+
+        .card-step {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .drop-zone {
+            transition: all 0.3s;
+            border: 2px dashed #cbd5e1;
+            background-color: #f8fafc;
+            position: relative;
+        }
+
+        .drop-zone.drag-over {
+            background-color: #ecfccb;
+            border-color: #658D1B;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .drop-zone.filled {
+            border-style: solid;
+            border-color: #658D1B;
+            background-color: #f0fdf4;
+        }
+
+        /* Styles para el Nivel 3 (Imágenes Mejoradas) */
+        .image-target {
+            height: 180px;
+            /* Un poco más altas para ver mejor la foto */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            /* Texto abajo */
+            text-align: center;
+            border-radius: 12px;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        /* Capa oscura para que el texto resalte si se suelta encima */
+        .image-target::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.6));
+            z-index: 0;
+        }
+
+        /* Etiqueta flotante de "Soltar aquí" */
+        .drop-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 1;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            border: 2px dashed rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .image-target.filled::before {
+            background: rgba(101, 141, 27, 0.8);
+            /* Verde al completar */
+        }
+
+        .image-target.filled .drop-label {
+            display: none;
+        }
+
+        /* Animaciones */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .glow {
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 5px #eab308;
+                border-color: #eab308;
+            }
+
+            to {
+                box-shadow: 0 0 20px #eab308;
+                border-color: #facc15;
+            }
+        }
+
+        .hidden-section {
+            display: none !important;
+        }
+    </style>
+    <!-- Supabase Clients -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabaseClient.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-4 pb-20">
+
+    <div class="max-w-4xl w-full mx-auto">
+
+        <!-- Header -->
+        <header class="text-center mb-6 fade-in">
+            <h1 class="text-2xl md:text-3xl font-bold text-[#658D1B]">SST Interactivo</h1>
+
+            <!-- Barra de Progreso -->
+            <div class="w-full bg-gray-200 rounded-full h-3 mt-4 overflow-hidden shadow-inner">
+                <div id="progress-bar" class="bg-[#658D1B] h-full transition-all duration-700 ease-out"
+                    style="width: 0%"></div>
+            </div>
+        </header>
+
+        <!-- INICIO -->
+        <section id="screen-start" class="game-card p-8 text-center fade-in">
+            <div class="mb-6 text-6xl text-[#658D1B] animate-bounce">
+                <i class="fa-solid fa-helmet-safety"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-3">Evaluación de Inducción</h2>
+            <p class="mb-8 text-gray-600">Completa los 4 módulos: Riesgos, Procedimientos, Identificación Visual y Quiz
+                Final.</p>
+            <button onclick="startGame()"
+                class="btn-primary px-10 py-3 rounded-full font-bold text-lg shadow-lg flex items-center justify-center mx-auto">
+                Iniciar Evaluación <i class="fa-solid fa-play ml-2"></i>
+            </button>
+        </section>
+
+        <!-- NIVEL 1: PELIGRO VS RIESGO -->
+        <section id="level-1" class="hidden-section fade-in">
+            <div class="bg-white p-4 rounded-xl shadow-md mb-4 border-l-4 border-yellow-400">
+                <h2 class="font-bold text-gray-800 text-lg">Nivel 1: Conceptos Básicos</h2>
+                <p class="text-sm text-gray-500">Arrastra cada tarjeta a su clasificación: ¿Es Peligro (Causa) o Riesgo
+                    (Efecto)?</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6 sticky top-2 z-10 bg-[#f3f4f6] pb-2 pt-2">
+                <!-- Zona Peligro -->
+                <div class="drop-zone p-4 rounded-xl min-h-[140px] flex flex-col items-center justify-center relative bg-white"
+                    id="zone-peligro" data-type="peligro">
+                    <i class="fa-solid fa-triangle-exclamation text-red-400 text-3xl mb-2 opacity-30"></i>
+                    <span class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded">PELIGRO</span>
+                    <div class="content-area w-full mt-2 space-y-2"></div>
+                </div>
+
+                <!-- Zona Riesgo -->
+                <div class="drop-zone p-4 rounded-xl min-h-[140px] flex flex-col items-center justify-center relative bg-white"
+                    id="zone-riesgo" data-type="riesgo">
+                    <i class="fa-solid fa-bolt text-orange-400 text-3xl mb-2 opacity-30"></i>
+                    <span class="text-xs font-bold text-orange-500 bg-orange-100 px-2 py-1 rounded">RIESGO</span>
+                    <div class="content-area w-full mt-2 space-y-2"></div>
+                </div>
+            </div>
+
+            <div id="draggables-l1" class="grid grid-cols-2 gap-3 pb-20"></div>
+        </section>
+
+        <!-- NIVEL 2: SECUENCIA ACCIDENTE -->
+        <section id="level-2" class="hidden-section fade-in">
+            <div
+                class="flex justify-between items-start mb-4 bg-white p-4 rounded-xl shadow-md border-l-4 border-blue-400">
+                <div>
+                    <h2 class="font-bold text-gray-800 text-lg">Nivel 2: Caso de Accidente</h2>
+                    <p class="text-xs text-gray-500 mt-1">Arrastra las acciones al número de paso correcto.</p>
+                </div>
+                <button onclick="giveHint()"
+                    class="btn-hint px-3 py-1 rounded-lg text-sm font-bold shadow flex items-center ml-2">
+                    <i class="fa-regular fa-lightbulb mr-1"></i> Pista
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+                <div class="drop-zone slot-zone h-36 rounded-lg flex flex-col items-center justify-center relative bg-white border-2 border-gray-200"
+                    data-index="1">
+                    <div class="text-5xl font-bold text-gray-100 absolute z-0">1</div>
+                    <div class="content-area w-full h-full z-10 p-1 flex items-center justify-center"></div>
+                </div>
+                <div class="drop-zone slot-zone h-36 rounded-lg flex flex-col items-center justify-center relative bg-white border-2 border-gray-200"
+                    data-index="2">
+                    <div class="text-5xl font-bold text-gray-100 absolute z-0">2</div>
+                    <div class="content-area w-full h-full z-10 p-1 flex items-center justify-center"></div>
+                </div>
+                <div class="drop-zone slot-zone h-36 rounded-lg flex flex-col items-center justify-center relative bg-white border-2 border-gray-200"
+                    data-index="3">
+                    <div class="text-5xl font-bold text-gray-100 absolute z-0">3</div>
+                    <div class="content-area w-full h-full z-10 p-1 flex items-center justify-center"></div>
+                </div>
+                <div class="drop-zone slot-zone h-36 rounded-lg flex flex-col items-center justify-center relative bg-white border-2 border-gray-200"
+                    data-index="4">
+                    <div class="text-5xl font-bold text-gray-100 absolute z-0">4</div>
+                    <div class="content-area w-full h-full z-10 p-1 flex items-center justify-center"></div>
+                </div>
+                <div class="drop-zone slot-zone h-36 rounded-lg flex flex-col items-center justify-center relative bg-white border-2 border-gray-200"
+                    data-index="5">
+                    <div class="text-5xl font-bold text-gray-100 absolute z-0">5</div>
+                    <div class="content-area w-full h-full z-10 p-1 flex items-center justify-center"></div>
+                </div>
+                <div class="drop-zone slot-zone h-36 rounded-lg flex flex-col items-center justify-center relative bg-white border-2 border-gray-200"
+                    data-index="6">
+                    <div class="text-5xl font-bold text-gray-100 absolute z-0">6</div>
+                    <div class="content-area w-full h-full z-10 p-1 flex items-center justify-center"></div>
+                </div>
+            </div>
+
+            <p class="text-center text-sm font-bold text-gray-400 mb-2 uppercase tracking-wide">Acciones Disponibles</p>
+            <div id="cards-pool" class="space-y-2 pb-20"></div>
+            <div id="msg-level-2"
+                class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-full shadow-xl hidden z-50 transition-opacity">
+            </div>
+        </section>
+
+        <!-- NIVEL 3: IDENTIFICACIÓN VISUAL (IMÁGENES REALES) -->
+        <section id="level-3" class="hidden-section fade-in">
+            <div class="bg-white p-4 rounded-xl shadow-md mb-4 border-l-4 border-orange-400">
+                <h2 class="font-bold text-gray-800 text-lg">Nivel 3: Identificación Visual</h2>
+                <p class="text-sm text-gray-500">Observa la imagen y arrastra la etiqueta que describe la situación.</p>
+            </div>
+
+            <!-- Grid de Imágenes (Drop Zones) Estilo Tarjetas 3D -->
+            <style>
+                .sst-visual-card {
+                    height: 200px;
+                    border-radius: 16px;
+                    position: relative;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                    transition: transform 0.2s;
+                    border: 4px solid white;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .sst-visual-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                    z-index: 10;
+                }
+
+                .sst-badge-visual {
+                    position: absolute;
+                    top: 10px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background-color: #f97316;
+                    color: white;
+                    padding: 6px 14px;
+                    border-radius: 999px;
+                    font-weight: 800;
+                    border: 2px dashed rgba(255, 255, 255, 0.8);
+                    text-transform: uppercase;
+                    font-size: 0.7rem;
+                    text-align: center;
+                    z-index: 10;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    width: 90%;
+                    pointer-events: none;
+                }
+
+                .sst-visual-card.filled .sst-badge-visual {
+                    display: none;
+                }
+
+                .sst-drop-area {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 60px;
+                    z-index: 20;
+                    display: flex;
+                    align-items: flex-end;
+                    padding: 8px;
+                    justify-content: center;
+                    background: linear-gradient(to top, rgba(0, 0, 0, 0.05), transparent);
+                }
+
+                .sst-drop-area .draggable-item {
+                    width: 100% !important;
+                    background: white !important;
+                    color: #1f2937 !important;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                    font-size: 0.8rem;
+                    border-radius: 8px;
+                    padding: 8px;
+                    border: none;
+                    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+
+                /* 3D Icons Composition */
+                .icon-3d {
+                    width: 100px;
+                    height: 100px;
+                    object-fit: contain;
+                    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.2));
+                    transition: transform 0.3s;
+                }
+
+                .sst-visual-card:hover .icon-3d {
+                    transform: scale(1.1);
+                }
+
+                .icon-overlay {
+                    position: absolute;
+                    width: 50px;
+                    height: 50px;
+                    bottom: 60px;
+                    right: 20px;
+                    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+                    animation: float 3s ease-in-out infinite;
+                }
+
+                @keyframes float {
+                    0% {
+                        transform: translateY(0px);
+                    }
+
+                    50% {
+                        transform: translateY(-5px);
+                    }
+
+                    100% {
+                        transform: translateY(0px);
+                    }
+                }
+            </style>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+
+                <!-- 1. Riesgo Eléctrico (Worker + Bolt) -->
+                <div class="drop-zone sst-visual-card bg-yellow-100" data-img-id="electrico">
+                    <div class="sst-badge-visual">¿QUÉ RIESGO ES?</div>
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Construction%20Worker.png"
+                        class="icon-3d" alt="Worker">
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/High%20Voltage.png"
+                        class="icon-overlay" style="bottom: 50px; right: 40px; width: 60px; height: 60px;"
+                        alt="Voltage">
+                    <div class="content-area sst-drop-area"></div>
+                </div>
+
+                <!-- 2. Accidente Grave (Collision/Boom) -->
+                <div class="drop-zone sst-visual-card bg-red-100" data-img-id="accidente">
+                    <div class="sst-badge-visual">¿CONSECUENCIA?</div>
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Construction%20Worker.png"
+                        class="icon-3d" style="filter: grayscale(0.5);" alt="Worker">
+                    <!-- Changed broken Collision to Ambulance (Travel and places category seems reliable) -->
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Ambulance.png"
+                        class="icon-overlay" style="width: 70px; height: 70px; bottom: 40px; right: 20px;"
+                        alt="Ambulance">
+                    <div class="content-area sst-drop-area"></div>
+                </div>
+
+                <!-- 3. Acto Inseguro (No/Stop) -->
+                <div class="drop-zone sst-visual-card bg-orange-100" data-img-id="acto">
+                    <div class="sst-badge-visual">¿QUÉ OBSERVAS?</div>
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/People/Person%20Gesturing%20No.png"
+                        class="icon-3d" alt="No">
+                    <div class="content-area sst-drop-area"></div>
+                </div>
+
+                <!-- 4. Incidente (Warning/Close) -->
+                <div class="drop-zone sst-visual-card bg-blue-100" data-img-id="incidente">
+                    <div class="sst-badge-visual">¿SITUACIÓN?</div>
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Symbols/Warning.png"
+                        class="icon-3d" alt="Warning">
+                    <!-- Sweat for 'scare' -->
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Sweat%20Droplets.png"
+                        class="icon-overlay" style="top: 40px; right: 40px;" alt="Sweat">
+                    <div class="content-area sst-drop-area"></div>
+                </div>
+
+                <!-- 5. Condición Insegura (Mess/Brick) -->
+                <div class="drop-zone sst-visual-card bg-gray-100" data-img-id="condicion">
+                    <div class="sst-badge-visual">¿ENTORNO?</div>
+                    <!-- Changed broken Brick to Construction (Barrier) -->
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Construction.png"
+                        class="icon-3d" alt="Construction">
+                    <div class="content-area sst-drop-area"></div>
+                </div>
+
+                <!-- 6. Enfermedad Laboral (Bandage/Sick) -->
+                <div class="drop-zone sst-visual-card bg-green-100" data-img-id="enfermedad">
+                    <div class="sst-badge-visual">¿CONSECUENCIA SALUD?</div>
+                    <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Head-Bandage.png"
+                        class="icon-3d" alt="Sick">
+                    <div class="content-area sst-drop-area"></div>
+                </div>
+
+            </div>
+
+            <!-- Etiquetas para arrastrar -->
+            <div id="labels-container" class="grid grid-cols-2 gap-2 pb-20"></div>
+
+            <div id="msg-level-3"
+                class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-full shadow-xl hidden z-50">
+            </div>
+        </section>
+
+
+        <!-- NIVEL 4: QUIZ FINAL -->
+        <section id="level-4" class="hidden-section fade-in w-full max-w-xl">
+            <div class="text-center mb-6">
+                <span
+                    class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Evaluación
+                    Final</span>
+                <h2 class="text-xl font-bold text-gray-800 mt-2">Pregunta <span id="q-current">1</span>/<span
+                        id="q-total">10</span></h2>
+            </div>
+
+            <div class="game-card p-6 bg-white border border-purple-100">
+                <h3 id="question-text" class="text-lg font-medium text-gray-700 mb-6 leading-relaxed">...</h3>
+                <div id="options-container" class="space-y-3"></div>
+            </div>
+        </section>
+
+        <!-- FINAL -->
+        <section id="screen-end" class="hidden-section fade-in text-center p-8 game-card w-full max-w-md">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                id="result-icon-container">
+                <i class="fa-solid fa-trophy text-4xl text-[#658D1B]" id="result-icon"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2" id="result-title">¡Evaluación Completada!</h2>
+            <p class="text-gray-500 mb-6 text-sm" id="result-msg">Has superado todos los niveles de seguridad SST.</p>
+
+            <div class="border-t border-b border-gray-100 py-4 mb-6">
+                <span class="text-gray-400 text-xs uppercase">Puntaje Total</span>
+                <div class="text-4xl font-bold text-[#658D1B]" id="final-score">0</div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button id="btn-dashboard" onclick="finalizarModulo()"
+                    class="w-full bg-[#658D1B] text-white py-3 rounded-xl font-medium shadow-lg hover:bg-[#4d6e12] transition">
+                    Finalizar y Volver al Panel
+                </button>
+                <button id="btn-next-module" onclick="window.location.href='induccion-planeacion.html'"
+                    class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium shadow-lg hover:bg-blue-800 transition">
+                    Ir a Planeación Estratégica <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+                <button id="btn-retry" onclick="location.reload()"
+                    class="w-full bg-gray-600 text-white py-3 rounded-xl font-medium shadow-lg hover:bg-gray-800 transition">
+                    Repetir Todo
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        /* --- DATOS --- */
+        const level1Data = [
+            { id: 'p1', text: 'Escalera', type: 'peligro', icon: 'fa-layer-group' },
+            { id: 'r1', text: 'Caída de altura', type: 'riesgo', icon: 'fa-person-falling' },
+            { id: 'p2', text: 'Cable pelado', type: 'peligro', icon: 'fa-plug' },
+            { id: 'r2', text: 'Electrocución', type: 'riesgo', icon: 'fa-bolt' },
+            { id: 'p3', text: 'Piso mojado', type: 'peligro', icon: 'fa-water' },
+            { id: 'r3', text: 'Resbalón', type: 'riesgo', icon: 'fa-person-skating' }
+        ];
+
+        const accidentSteps = [
+            { step: 1, text: "Notificar al jefe inmediato y a SST la ocurrencia." },
+            { step: 2, text: "SST realizará el reporte de AT a ARL POSITIVA." },
+            { step: 3, text: "Recibir primeros auxilios si la lesión es leve." },
+            { step: 4, text: "Traslado al centro asistencial más cercano." },
+            { step: 5, text: "Legalización del AT en página web ARL POSITIVA." },
+            { step: 6, text: "Radicar incapacidad y órdenes médicas en ventanilla." }
+        ];
+
+        // DATOS NIVEL 3 (VISUAL MATCHING)
+        const visualData = [
+            { id: 'lbl-elec', text: 'Riesgo Eléctrico', target: 'electrico' },
+            { id: 'lbl-grave', text: 'Accidente Grave', target: 'accidente' },
+            { id: 'lbl-acto', text: 'Acto Inseguro', target: 'acto' },
+            { id: 'lbl-inci', text: 'Incidente / Casi Accidente', target: 'incidente' },
+            { id: 'lbl-cond', text: 'Condición Insegura', target: 'condicion' },
+            { id: 'lbl-enfer', text: 'Enfermedad Laboral', target: 'enfermedad' }
+        ];
+
+        const quizQuestions = [
+            {
+                q: "1. El sistema de seguridad social está conformado por: EPS, ARL, AFP.",
+                opts: ["Verdadero", "Falso"],
+                ans: 0
+            },
+            {
+                q: "2. Es accidente de trabajo todo suceso repentino que sobrevenga por causa o con ocasión del trabajo, y que produzca en el trabajador una lesión orgánica, una perturbación funcional o psiquiátrica, una invalidez o la muerte.",
+                opts: ["Verdadero", "Falso"],
+                ans: 0
+            },
+            {
+                q: "3. El reporte de accidente a la ARL se puede realizar en cualquier momento después de haberse presentado el accidente.",
+                opts: ["Verdadero", "Falso"],
+                ans: 1
+            },
+            {
+                q: "4. El comité Paritario de la Seguridad y Salud en el Trabajo es:",
+                opts: [
+                    "a. Organismo de promoción y vigilancia de las normas de seguridad y salud en el trabajo.",
+                    "b. Organismo encargado de los procesos de contratación de bienes y servicios.",
+                    "c. Encargado de proteger contra los riesgos psicosociales.",
+                    "d. Todas las anteriores."
+                ],
+                ans: 0
+            },
+            {
+                q: "5. Es función del Comité de Convivencia:",
+                opts: [
+                    "a. Divulgar con los compañeros las quejas.",
+                    "b. Generar discordia entre las partes.",
+                    "c. Adelantar reuniones para crear espacios de diálogo y soluciones.",
+                    "d. Ninguna de las anteriores."
+                ],
+                ans: 2
+            },
+            {
+                q: "6. Es obligación de los trabajadores:",
+                opts: [
+                    "a. Participar en capacitación SST",
+                    "b. Cumplir normas de seguridad",
+                    "c. Procurar el cuidado de la salud",
+                    "d. Todas las anteriores"
+                ],
+                ans: 3
+            },
+            {
+                q: "7. Que es un acto inseguro:",
+                opts: [
+                    "a. Acto que me hace quedar como héroe.",
+                    "b. Violación a una norma o procedimiento que aumenta riesgo de accidente.",
+                    "c. Comportamiento para bien de la empresa.",
+                    "d. Dispositivo que sirve como barrera."
+                ],
+                ans: 1
+            }
+        ];
+
+        /* --- VARIABLES --- */
+        let score = 0;
+        let l1Count = 0;
+        let l2Count = 0;
+        let l3Count = 0;
+        let qIndex = 0;
+        let draggedElement = null;
+        let touchOffsetX = 0;
+        let touchOffsetY = 0;
+
+        /* --- INICIO --- */
+        function startGame() {
+            switchSection('screen-start', 'level-1');
+            updateProgress(10);
+            renderLevel1();
+        }
+
+        function switchSection(hideId, showId) {
+            document.getElementById(hideId).classList.add('hidden-section');
+            document.getElementById(showId).classList.remove('hidden-section');
+            window.scrollTo(0, 0);
+
+            if (showId === 'level-2') renderLevel2();
+            if (showId === 'level-3') renderLevel3();
+            if (showId === 'level-4') initQuiz();
+
+            if (showId === 'screen-end') {
+                document.getElementById('final-score').innerText = score;
+
+                // --- CRITERIOS DE APROBACIÓN (80%) ---
+                // Max puntaje: 118 (30 + 30 + 30 + 28)
+                const maxScore = 118;
+                const percentage = Math.round((score / maxScore) * 100);
+
+                // Mostrar puntaje y porcentaje
+                document.getElementById('final-score').innerText = `${score} pts (${percentage}%)`;
+
+                const passed = percentage >= 80;
+
+                const btnNext = document.getElementById('btn-next-module');
+                const btnRetry = document.getElementById('btn-retry');
+                const resultTitle = document.getElementById('result-title');
+                const resultMsg = document.getElementById('result-msg');
+                const iconContainer = document.getElementById('result-icon-container');
+                const icon = document.getElementById('result-icon');
+
+                if (passed) {
+                    // SCREEN: APROBADO
+                    resultTitle.innerText = "¡Excelente Trabajo!";
+                    resultTitle.classList.remove('text-red-600');
+                    resultTitle.classList.add('text-gray-800');
+
+                    resultMsg.innerText = `Has aprobado el módulo con ${percentage}%. Has demostrado gran conocimiento en seguridad.`;
+
+                    iconContainer.classList.remove('bg-red-100');
+                    iconContainer.classList.add('bg-green-100');
+                    icon.className = "fa-solid fa-trophy text-4xl text-[#658D1B]";
+
+                    // Botones
+                    btnNext.style.display = 'block';
+                    btnRetry.style.display = 'none';
+
+                    // Guardar y Notificar
+                    if (typeof guardarProgreso === 'function') {
+                        guardarProgreso('sst', percentage, true);
+                    }
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'MODULE_COMPLETED',
+                            module: 'sst',
+                            nextModule: 'planeacion'
+                        }, '*');
+
+                        // Legacy support
+                        window.parent.postMessage({
+                            type: 'MODULO_INDUCCION_COMPLETADO',
+                            data: {
+                                moduleId: 'sst',
+                                moduleName: 'Seguridad y Salud en el Trabajo',
+                                aprobado: true,
+                                fecha: new Date().toISOString()
+                            }
+                        }, '*');
+                    }
+                } else {
+                    // SCREEN: NO APROBADO
+                    resultTitle.innerText = "No Aprobado";
+                    resultTitle.classList.add('text-red-600');
+                    resultTitle.classList.remove('text-gray-800');
+
+                    resultMsg.innerText = `Obtuviste ${percentage}%. Necesitas al menos 80% para avanzar.`;
+
+                    iconContainer.classList.remove('bg-green-100');
+                    iconContainer.classList.add('bg-red-100');
+                    icon.className = "fa-solid fa-triangle-exclamation text-4xl text-red-500";
+
+                    // Botones
+                    btnNext.style.display = 'none';
+                    btnRetry.style.display = 'block';
+
+                    // Guardar como no aprobado
+                    if (typeof guardarProgreso === 'function') {
+                        guardarProgreso('sst', percentage, false);
+                    }
+                }
+            }
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progress-bar').style.width = percent + '%';
+        }
+
+        /* --- DRAG & DROP ENGINE --- */
+        function createDraggable(id, htmlContent, dataset = {}, customClass = '') {
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = `draggable-item card-step cursor-grab bg-white p-3 rounded shadow border border-gray-200 text-sm font-medium ${customClass}`;
+            div.innerHTML = htmlContent;
+
+            Object.keys(dataset).forEach(key => div.dataset[key] = dataset[key]);
+
+            div.onmousedown = startDragMouse;
+            div.ontouchstart = startDragTouch;
+
+            return div;
+        }
+
+        function startDragMouse(e) {
+            e.preventDefault();
+            draggedElement = e.currentTarget;
+            prepareDrag(e.clientX, e.clientY);
+            document.onmousemove = moveDrag;
+            document.onmouseup = endDrag;
+        }
+
+        function startDragTouch(e) {
+            draggedElement = e.currentTarget;
+            const touch = e.touches[0];
+            prepareDrag(touch.clientX, touch.clientY);
+            document.ontouchmove = moveDrag;
+            document.ontouchend = endDrag;
+        }
+
+        function prepareDrag(x, y) {
+            const rect = draggedElement.getBoundingClientRect();
+            touchOffsetX = x - rect.left;
+            touchOffsetY = y - rect.top;
+
+            const clone = draggedElement.cloneNode(true);
+            clone.id = 'drag-clone';
+            clone.style.width = rect.width + 'px';
+            clone.style.position = 'fixed';
+            clone.style.zIndex = 1000;
+            clone.style.pointerEvents = 'none';
+            clone.classList.add('dragging');
+            document.body.appendChild(clone);
+
+            draggedElement.style.opacity = '0.3';
+            updateClonePos(x, y);
+        }
+
+        function moveDrag(e) {
+            e.preventDefault();
+            const x = e.clientX || e.touches[0].clientX;
+            const y = e.clientY || e.touches[0].clientY;
+            updateClonePos(x, y);
+            checkHover(x, y);
+        }
+
+        function updateClonePos(x, y) {
+            const clone = document.getElementById('drag-clone');
+            if (clone) {
+                clone.style.left = (x - touchOffsetX) + 'px';
+                clone.style.top = (y - touchOffsetY) + 'px';
+            }
+        }
+
+        function checkHover(x, y) {
+            document.querySelectorAll('.drop-zone').forEach(d => d.classList.remove('drag-over'));
+            const clone = document.getElementById('drag-clone');
+            if (clone) clone.style.display = 'none';
+            const elemBelow = document.elementFromPoint(x, y);
+            if (clone) clone.style.display = 'block';
+
+            if (!elemBelow) return;
+            const dropZone = elemBelow.closest('.drop-zone');
+            if (dropZone && !dropZone.classList.contains('filled')) {
+                dropZone.classList.add('drag-over');
+            }
+        }
+
+        function endDrag(e) {
+            document.onmousemove = null;
+            document.onmouseup = null;
+            document.ontouchmove = null;
+            document.ontouchend = null;
+
+            const x = e.clientX || (e.changedTouches ? e.changedTouches[0].clientX : 0);
+            const y = e.clientY || (e.changedTouches ? e.changedTouches[0].clientY : 0);
+
+            const clone = document.getElementById('drag-clone');
+            if (clone) clone.remove();
+
+            const elemBelow = document.elementFromPoint(x, y);
+            const dropZone = elemBelow ? elemBelow.closest('.drop-zone') : null;
+
+            if (dropZone) {
+                handleDrop(dropZone);
+            } else {
+                draggedElement.style.opacity = '1';
+            }
+
+            document.querySelectorAll('.drop-zone').forEach(d => d.classList.remove('drag-over'));
+            draggedElement = null;
+        }
+
+        /* --- RENDERS --- */
+        function renderLevel1() {
+            const container = document.getElementById('draggables-l1');
+            const shuffled = [...level1Data].sort(() => Math.random() - 0.5);
+            shuffled.forEach(item => {
+                const el = createDraggable(item.id, `<i class="fa-solid ${item.icon} text-[#658D1B] mr-2"></i><b>${item.text}</b>`, { type: item.type, level: 1 });
+                container.appendChild(el);
+            });
+        }
+
+        function renderLevel2() {
+            const pool = document.getElementById('cards-pool');
+            pool.innerHTML = '';
+            const shuffled = [...accidentSteps].sort(() => Math.random() - 0.5);
+            shuffled.forEach(item => {
+                const el = createDraggable('step-' + item.step, `<i class="fa-solid fa-arrow-right text-[#658D1B] mr-3"></i> ${item.text}`, { step: item.step, level: 2 });
+                pool.appendChild(el);
+            });
+        }
+
+        function renderLevel3() {
+            const container = document.getElementById('labels-container');
+            container.innerHTML = '';
+            const shuffled = [...visualData].sort(() => Math.random() - 0.5);
+            shuffled.forEach(item => {
+                // Fichas pequeñas y compactas
+                const el = createDraggable(item.id,
+                    `<div class="w-full text-center font-bold text-gray-700">${item.text}</div>`,
+                    { target: item.target, level: 3 },
+                    'bg-slate-50 border-slate-300 hover:bg-white'
+                );
+                container.appendChild(el);
+            });
+        }
+
+        /* --- LOGICA DROP --- */
+        function handleDrop(zone) {
+            const level = parseInt(draggedElement.dataset.level);
+
+            if (level === 1) {
+                if (zone.dataset.type === draggedElement.dataset.type) {
+                    successDrop(zone, draggedElement);
+                    score += 5;
+                    l1Count++;
+                    if (l1Count === level1Data.length) {
+                        setTimeout(() => switchSection('level-1', 'level-2'), 1000);
+                        updateProgress(30);
+                    }
+                } else failDrop(draggedElement);
+            }
+            else if (level === 2) {
+                if (zone.querySelector('.draggable-item')) { draggedElement.style.opacity = '1'; return; }
+                if (zone.dataset.index === draggedElement.dataset.step) {
+                    successDrop(zone, draggedElement);
+                    draggedElement.classList.add('bg-green-50', 'text-green-800');
+                    draggedElement.innerHTML = `<i class="fa-solid fa-check mr-2"></i> ${draggedElement.innerText}`;
+                    draggedElement.onmousedown = null; draggedElement.ontouchstart = null;
+                    zone.classList.add('filled');
+                    score += 5;
+                    l2Count++;
+                    if (l2Count === 6) {
+                        setTimeout(() => switchSection('level-2', 'level-3'), 1500);
+                        showToast('¡Bien hecho!', 'bg-green-600', 'msg-level-2');
+                        updateProgress(60);
+                    }
+                } else { failDrop(draggedElement); showToast('Orden incorrecto', 'bg-red-500', 'msg-level-2'); }
+            }
+            else if (level === 3) {
+                if (zone.querySelector('.draggable-item')) { draggedElement.style.opacity = '1'; return; }
+                if (zone.dataset.imgId === draggedElement.dataset.target) {
+                    successDrop(zone, draggedElement);
+                    draggedElement.classList.remove('bg-slate-50', 'border-slate-300', 'hover:bg-white');
+                    draggedElement.classList.add('bg-green-100', 'text-green-800', 'border-green-400', 'shadow-lg');
+                    draggedElement.onmousedown = null; draggedElement.ontouchstart = null;
+                    zone.classList.add('filled');
+                    score += 5;
+                    l3Count++;
+                    if (l3Count === 6) {
+                        setTimeout(() => switchSection('level-3', 'level-4'), 1500);
+                        showToast('¡Identificación Correcta!', 'bg-green-600', 'msg-level-3');
+                        updateProgress(85);
+                    }
+                } else { failDrop(draggedElement); }
+            }
+        }
+
+        function successDrop(zone, element) {
+            element.style.opacity = '1';
+            zone.querySelector('.content-area').appendChild(element);
+            element.classList.add('animate-pulse');
+            setTimeout(() => element.classList.remove('animate-pulse'), 500);
+        }
+
+        function failDrop(element) {
+            element.style.opacity = '1';
+            element.classList.add('bg-red-100', 'shake');
+            setTimeout(() => element.classList.remove('bg-red-100', 'shake'), 500);
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+
+        function giveHint() {
+            const slots = document.querySelectorAll('.slot-zone');
+            let targetStep = null;
+            for (let slot of slots) { if (!slot.querySelector('.draggable-item')) { targetStep = slot.dataset.index; break; } }
+
+            if (targetStep) {
+                const cards = document.querySelectorAll('#cards-pool .draggable-item');
+                cards.forEach(card => {
+                    if (card.dataset.step === targetStep) {
+                        card.classList.add('glow');
+                        setTimeout(() => card.classList.remove('glow'), 2000);
+                        showToast(`Busca: Paso #${targetStep}`, 'bg-yellow-600', 'msg-level-2');
+                    }
+                });
+            }
+        }
+
+        function showToast(msg, bgClass, elementId) {
+            const toast = document.getElementById(elementId);
+            toast.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-2 rounded-full shadow-xl z-50 transition-opacity text-white text-sm font-bold ${bgClass}`;
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2000);
+        }
+
+        /* --- QUIZ --- */
+        function initQuiz() {
+            qIndex = 0;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (qIndex >= quizQuestions.length) {
+                updateProgress(100);
+                switchSection('level-4', 'screen-end');
+                return;
+            }
+            const q = quizQuestions[qIndex];
+            document.getElementById('q-current').innerText = qIndex + 1;
+            document.getElementById('q-total').innerText = quizQuestions.length;
+            document.getElementById('question-text').innerText = q.q;
+
+            const cont = document.getElementById('options-container');
+            cont.innerHTML = '';
+
+            q.opts.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-lg border border-gray-200 hover:bg-purple-50 hover:border-purple-300 transition-all font-medium text-gray-600 text-sm";
+                btn.innerText = opt;
+                btn.onclick = () => answerQuiz(idx, btn, q.ans);
+                cont.appendChild(btn);
+            });
+        }
+
+        function answerQuiz(selected, btn, correct) {
+            const all = document.querySelectorAll('#options-container button');
+            all.forEach(b => b.disabled = true);
+            if (selected === correct) {
+                btn.classList.add('bg-green-500', 'text-white');
+                score += 4;
+            } else {
+                btn.classList.add('bg-red-500', 'text-white');
+                all[correct].classList.add('bg-green-100', 'text-green-800', 'border-green-500');
+            }
+            setTimeout(() => { qIndex++; renderQuestion(); }, 1500);
+        }
+
+        function finalizarModulo() {
+            // Intenta redirigir al dashboard principal
+            // Si está en iframe, idealmente el mensaje 'MODULO_INDUCCION_COMPLETADO' ya activó la navegación o desbloqueo en el padre
+            // Pero como fallback:
+            if (window.parent !== window) {
+                // Estamos en iframe, tal vez el padre maneja la navegación
+                // Pero si el usuario hace click, forzamos ir al dashboard si no pasó nada
+                window.parent.location.href = '../induccion-curso.html?id=' + (new URLSearchParams(window.parent.location.search).get('id') || '');
+            } else {
+                // No iframe
+                window.location.href = '../induccion-curso.html';
+            }
+        }
+    </script>
+</body>
+
+</html>

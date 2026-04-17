@@ -1,0 +1,153 @@
+/* =========================================
+   MOBILE SIDEBAR IMPROVEMENTS
+   ========================================= */
+
+/* Overlay para cerrar el sidebar al hacer clic fuera */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 999;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+
+    /* Mejorar z-index del sidebar */
+    .sidebar {
+        z-index: 1000;
+    }
+
+    /* Mejorar transición del botón hamburguesa */
+    .btn-burger {
+        transition: transform 0.2s ease, background-color 0.2s ease;
+        border-radius: 8px;
+        padding: 0.5rem;
+    }
+
+    .btn-burger:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-burger:active {
+        transform: scale(0.95);
+    }
+
+    /* Asegurar que el sidebar abierto tenga sombra */
+    .sidebar.open {
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* =========================================
+   FIX RESPONSIVE - BLOQUE "¿Qué contempla?"
+   ========================================= */
+
+/* Evita desbordes generales */
+.slide,
+.slide * {
+    box-sizing: border-box;
+}
+
+/* Si esa sección está en 2 columnas */
+.slide-content,
+.slide-body,
+.content-grid,
+.section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+/* En celular: pasa a 1 columna */
+@media (max-width: 768px) {
+
+    .slide-content,
+    .slide-body,
+    .content-grid,
+    .section-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ===========================
+   TARJETAS (los botones)
+   =========================== */
+
+/* Contenedor de tarjetas */
+.cards,
+.cards-grid,
+.options-grid,
+.grid-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+}
+
+/* En celular: 2 columnas pero bien */
+@media (max-width: 768px) {
+
+    .cards,
+    .cards-grid,
+    .options-grid,
+    .grid-options {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* En pantallas MUY pequeñas: 1 columna */
+@media (max-width: 420px) {
+
+    .cards,
+    .cards-grid,
+    .options-grid,
+    .grid-options {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Tarjetas individuales */
+.card,
+.option-card,
+.feature-card {
+    width: 100%;
+    min-width: 0;
+    /* CLAVE para que no se corte el texto */
+    padding: 14px;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+/* Texto dentro de tarjetas */
+.card p,
+.card span,
+.option-card p,
+.option-card span,
+.feature-card p,
+.feature-card span {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Iconos dentro */
+.card i,
+.option-card i,
+.feature-card i {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
