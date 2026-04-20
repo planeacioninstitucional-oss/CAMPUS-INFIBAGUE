@@ -402,20 +402,24 @@
 
             try {
                 // A. Find the Induction Course
+                console.log('🔍 Buscando curso de inducción...');
                 let { data: courses, error: courseError } = await supabase
                     .from('cursos')
-                    .select('id')
-                    .ilike('titulo', '%Inducción%')
+                    .select('id, titulo')
+                    .or('titulo.ilike.%Inducción%,titulo.ilike.%Induccion%')
+                    .order('created_at', { ascending: false })
                     .limit(1);
 
                 if (courseError || !courses || courses.length === 0) {
-                    console.error('Curso de inducción no encontrado en DB');
+                    console.error('❌ Curso de inducción no encontrado en DB:', courseError);
                     return;
                 }
 
                 currentCourseId = courses[0].id;
+                console.log('✅ Curso encontrado:', courses[0].titulo, '(ID:', currentCourseId, ')');
 
                 // B. Check/Create Inscription (Auto-Enroll)
+                console.log('👤 Buscando inscripción para Usuario:', currentUser.id, 'en Curso:', currentCourseId);
                 let { data: inscription, error: inscError } = await supabase
                     .from('inscripciones')
                     .select('id, porcentaje_avance')
@@ -423,24 +427,36 @@
                     .eq('curso_id', currentCourseId)
                     .single();
 
+                if (inscError && inscError.code !== 'PGRST116') {
+                    console.error('❌ Error al buscar inscripción:', inscError);
+                }
+
                 if (!inscription) {
+                    console.log('🆕 Inscripción no encontrada. Inscribiendo automáticamente...');
                     // Enroll user automatically
                     const { data: newInsc, error: enrollError } = await supabase
                         .from('inscripciones')
                         .insert({
                             funcionario_id: currentUser.id,
                             curso_id: currentCourseId,
-                            fecha_inscripcion: new Date(),
-                            porcentaje_avance: 0
+                            porcentaje_avance: 0,
+                            aprobado: false
                         })
                         .select()
                         .single();
 
-                    if (newInsc) inscription = newInsc;
+                    if (enrollError) {
+                        console.error('❌ Error al inscribir usuario:', enrollError);
+                    }
+                    if (newInsc) {
+                        inscription = newInsc;
+                        console.log('✅ Auto-inscripción exitosa:', (inscription ? inscription.id : 'N/A'));
+                    }
                 }
 
                 if (inscription) {
                     currentInscriptionId = inscription.id;
+                    console.log('🎫 ID de Inscripción activa:', currentInscriptionId);
 
                     // C. Cargar Módulos Completados desde el Servidor
                     const { data: completados, error: compError } = await supabase
@@ -679,7 +695,12 @@
         }
 
         function updateProgressCircle() {
-            const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+            let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+
+            // Bypass para Jarol Santos
+            if (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL')) {
+                percent = 100;
+            }
 
             // Update Circle CSS with gradient
             const circle = document.getElementById('circular-progress');
@@ -718,7 +739,12 @@
         }
 
         function updateActionButtons() {
-            const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+            let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+
+            // Bypass para Jarol Santos
+            if (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL')) {
+                percent = 100;
+            }
 
             // Update main action button
             const mainBtn = document.getElementById('btn-cert-final');
@@ -893,10 +919,21 @@
         // CERTIFICATE (Updated to use js/certificates.js)
         // ==========================================
         async function handleCertificadoClick() {
-            if (!currentInscriptionId) {
-                alert('No se ha encontrado tu inscripción. Por favor recarga la página.');
-                return;
+            // Bypass para Jarol Santos
+            const esJarol = currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL');
+            
+            if (!currentInscriptionId && !esJarol) {
+                console.log('⚠️ ID de inscripción no encontrado. Reintentando sincronización...');
+                await syncWithServer();
+                
+                if (!currentInscriptionId) {
+                    alert('No se ha podido sincronizar tu inscripción. Por favor revisa tu conexión y recarga la página.');
+                    return;
+                }
             }
+
+            // Si es Jarol y no hay ID, usamos uno genérico para que la función no falle
+            const idParaCertificado = currentInscriptionId || 'bypass-jarol';
 
             // Get the download button (new dual button design)
             const btn = document.getElementById('btn-download-cert');
@@ -911,14 +948,20 @@
 
             try {
                 // First verify completion locally just in case
-                const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+                let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+                
+                // Bypass para Jarol Santos
+                if (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL')) {
+                    percent = 100;
+                }
+
                 if (percent < 100) {
                     alert('Debes completar todos los módulos primero.');
                     return;
                 }
 
                 // Call global function from certificates.js
-                await descargarCertificado(currentInscriptionId, 'Certificado_Induccion_2026.pdf');
+                await descargarCertificado(idParaCertificado, 'Certificado_Induccion_2026.pdf');
 
             } catch (error) {
                 console.error(error);
@@ -932,14 +975,30 @@
         // ==========================================
         // VIEW CERTIFICATE (Opens preview in new tab)
         // ==========================================
-        function viewCertificate() {
-            if (!currentInscriptionId) {
-                alert('No se ha encontrado tu inscripción. Por favor recarga la página.');
-                return;
+        async function viewCertificate() {
+            // Bypass para Jarol
+            const esJarol = currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL');
+
+            if (!currentInscriptionId && !esJarol) {
+                console.log('⚠️ ID de inscripción no encontrado. Reintentando sincronización...');
+                await syncWithServer();
+                
+                if (!currentInscriptionId) {
+                    alert('No se ha podido sincronizar tu inscripción. Por favor revisa tu conexión y recarga la página.');
+                    return;
+                }
             }
+            
+            const idParaCertificado = currentInscriptionId || 'bypass-jarol';
 
             // Verify completion
-            const percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+            let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
+            
+            // Bypass para Jarol Santos
+            if (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL SANTOS')) {
+                percent = 100;
+            }
+
             if (percent < 100) {
                 alert('Debes completar todos los módulos primero.');
                 return;
@@ -948,7 +1007,7 @@
             // Call the preview function from certificates.js
             // This will open the certificate in a new tab
             if (typeof previsualizarCertificado === 'function') {
-                previsualizarCertificado(currentInscriptionId);
+                previsualizarCertificado(idParaCertificado);
             } else {
                 console.error('La función previsualizarCertificado no está disponible');
                 alert('Error al abrir la vista previa del certificado');

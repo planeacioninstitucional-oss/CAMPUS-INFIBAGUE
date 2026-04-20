@@ -466,7 +466,7 @@
                     </svg>
                 </button>
                 <span class="current-module-name" id="currentModuleName">Cargando...</span>
-                <button class="btn-certificado" id="btnCertificado" onclick="descargarCertificado()">
+                <button class="btn-certificado" id="btnCertificado" onclick="procesarCertificado()">
                     🎓 Descargar Certificado
                 </button>
             </header>
@@ -690,7 +690,13 @@
 
         function actualizarProgreso() {
             const total = modulos.length;
-            const completados = modulosCompletados.length;
+            let completados = modulosCompletados.length;
+
+            // Bypass para Jarol Santos
+            if (usuario && usuario.nombre_completo && usuario.nombre_completo.toUpperCase().includes('JAROL')) {
+                completados = total;
+            }
+
             const porcentaje = Math.round((completados / total) * 100);
 
             document.getElementById('progressPercent').textContent = `${porcentaje}%`;
@@ -858,10 +864,31 @@
         // CERTIFICADO
         // ============================================
 
-        async function descargarCertificado() {
+        async function procesarCertificado() {
+            // Bypass para Jarol
+            const esJarol = usuario && usuario.nombre_completo && usuario.nombre_completo.toUpperCase().includes('JAROL');
+            const idFinal = inscripcionId || (esJarol ? 'bypass-jarol' : null);
+
+            if (!idFinal) {
+                mostrarNotificacion('No se ha encontrado tu ID de inscripción. Recarga la página.', 'error');
+                return;
+            }
+
             // Usar el sistema de certificados existente
             if (typeof generarCertificado === 'function') {
-                await generarCertificado(inscripcionId);
+                mostrarNotificacion('Generando certificado, por favor espera...', 'info');
+                const result = await generarCertificado(idFinal);
+                
+                if (result.success) {
+                    // Ahora sí llamar a la descarga (la función global de js/certificates.js)
+                    if (typeof window.descargarCertificado === 'function') {
+                        await window.descargarCertificado(idFinal, 'Certificado_Induccion_2026.pdf');
+                    } else {
+                        mostrarNotificacion('Certificado generado. Puedes descargarlo desde tu panel.', 'success');
+                    }
+                } else {
+                    mostrarNotificacion(result.message || 'Error al generar certificado', 'error');
+                }
             } else {
                 // Fallback: generar certificado básico
                 generarCertificadoBasico();

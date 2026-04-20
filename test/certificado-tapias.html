@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Certificado Juan Esteban Tapias - INFIBAGUÉ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0778f8 0%, #006633 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        h1 { color: #003366; margin-bottom: 20px; }
+        .data { margin-bottom: 30px; text-align: left; background: #f5f7fa; padding: 20px; border-radius: 10px; }
+        .data p { margin: 10px 0; }
+        button {
+            background: linear-gradient(135deg, #00d8d8 0%, #006633 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generar Certificado Especial</h1>
+        <div class="data">
+            <p><strong>Nombre:</strong> TAPIAS BAENA JUAN ESTEBAN</p>
+            <p><strong>Cédula:</strong> 1110552504</p>
+            <p><strong>Fecha:</strong> 17 de febrero de 2026</p>
+            <p><strong>Firma Planeación:</strong> firma-planeac</p>
+        </div>
+        <button onclick="generarYDescargar()">📥 Descargar Certificado PDF</button>
+    </div>
+
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        async function generarYDescargar() {
+            const nombreCompleto = "TAPIAS BAENA JUAN ESTEBAN";
+            const cedula = "1110552504";
+            const fechaTexto = "Expedida en Ibagué, Tolima a los 17 días del mes de febrero del 2026.";
+
+            try {
+                const jsPDFLib = window.jspdf || window.jsPDF;
+                const { jsPDF } = jsPDFLib;
+                const doc = new jsPDF('landscape', 'mm', 'a4');
+                const width = doc.internal.pageSize.getWidth();
+                const height = doc.internal.pageSize.getHeight();
+
+                const loadImage = (src) => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.src = src;
+                        img.onload = () => resolve(img);
+                        img.onerror = () => resolve(null);
+                    });
+                };
+
+                // Cargar imágenes (Firma anterior solicitada: FIRMA-PLANEAC.png)
+                const [imgBg, imgFirma1, imgFirma2, imgFirma3] = await Promise.all([
+                    loadImage('../assets/Certificado-plantilla.jpeg'),
+                    loadImage('../assets/FIRMA-PLANEAC.png'),
+                    loadImage('../assets/gerente}.png'),
+                    loadImage('../assets/FIRMA-ADMINI.png')
+                ]);
+
+                if (imgBg) doc.addImage(imgBg, 'JPEG', 0, 0, width, height);
+                
+                const centroX = width / 2;
+                let cursorY = 45;
+
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(14);
+                doc.text('El Instituto de Financiamiento, Promoción y Desarrollo de Ibagué - INFIBAGUÉ', centroX, cursorY, { align: 'center' });
+                
+                cursorY += 12;
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(16);
+                doc.setFont('helvetica', 'bold');
+                doc.text('CERTIFICA QUE:', centroX, cursorY, { align: 'center' });
+                
+                cursorY += 12;
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('El funcionario y/o contratista', centroX, cursorY, { align: 'center' });
+                
+                cursorY += 12;
+                doc.setTextColor(0, 153, 204);
+                doc.setFontSize(22);
+                doc.setFont('helvetica', 'bold');
+                doc.text(nombreCompleto, centroX, cursorY, { align: 'center' });
+                
+                cursorY += 10;
+                doc.setTextColor(0, 0, 0);
+                doc.setFontSize(12);
+                doc.text(`C.C. ${cedula}`, centroX, cursorY, { align: 'center' });
+                
+                cursorY += 12;
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Participó y aprobó satisfactoriamente el módulo de:', centroX, cursorY, { align: 'center' });
+                
+                cursorY += 14;
+                doc.setTextColor(0, 51, 102);
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.text('INDUCCIÓN Y REINDUCCIÓN I-2026', centroX, cursorY, { align: 'center' });
+                
+                cursorY += 8;
+                doc.setTextColor(60, 60, 60);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'normal');
+                doc.text('Sistema Integrado de Gestión "INTEGRA"', centroX, cursorY, { align: 'center' });
+                
+                cursorY += 15;
+                doc.setFontSize(10);
+                doc.text(fechaTexto, centroX, cursorY, { align: 'center' });
+
+                // Firmas
+                const firmasY = cursorY + 4;
+                const textoFirmasY = firmasY + 25;
+                const col1X = width * 0.22;
+                const col2X = width * 0.5;
+                const col3X = width * 0.78;
+
+                if (imgFirma1) doc.addImage(imgFirma1, 'PNG', col1X - 17.5, firmasY, 35, 22);
+                if (imgFirma2) doc.addImage(imgFirma2, 'PNG', col2X - 24, firmasY - 4, 48, 30);
+                if (imgFirma3) doc.addImage(imgFirma3, 'PNG', col3X - 17.5, firmasY, 35, 22);
+
+                doc.setFontSize(8);
+                doc.setTextColor(0, 0, 0);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Jefe de Oficina Asesora', col1X, textoFirmasY, { align: 'center' });
+                doc.text('de Planeación Institucional', col1X, textoFirmasY + 4, { align: 'center' });
+                doc.text('Gerente General', col2X, textoFirmasY, { align: 'center' });
+                doc.text('Director de Servicios', col3X, textoFirmasY, { align: 'center' });
+                doc.text('Administrativos', col3X, textoFirmasY + 4, { align: 'center' });
+
+                doc.save(`Certificado_${nombreCompleto.replace(/\s+/g, '_')}.pdf`);
+            } catch (error) {
+                console.error(error);
+                alert('Error al generar el PDF: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

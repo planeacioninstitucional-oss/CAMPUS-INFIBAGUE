@@ -366,6 +366,32 @@
                 </button>
             </div>
         </div>
+        <div class="persona" data-nombre="ANDREA DEL PILAR CHACON LEAL" data-cedula="1110490059">
+            <h3>👤 Andrea Del Pilar Chacon Leal</h3>
+            <p class="cedula">📋 C.C. 1.110.490.059</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
+
+        <!-- Registro Especial solicitado -->
+        <div class="persona" data-nombre="TAPIAS BAENA JUAN ESTEBAN" data-cedula="1110552504" data-fecha="17 de febrero de 2026" data-firma1="FIRMA-PLANEAC.png">
+            <h3>👤 TAPIAS BAENA JUAN ESTEBAN (Especial)</h3>
+            <p class="cedula">📋 C.C. 1.110.552.504</p>
+            <div class="acciones">
+                <button onclick="descargarCertificadoPrueba(this)">
+                    📥 Descargar PDF
+                </button>
+                <button class="preview" onclick="previsualizarCertificadoPrueba(this)">
+                    👁️ Previsualizar
+                </button>
+            </div>
+        </div>
         <div class="nota">
             <strong>⚠️ Nota:</strong> Esta es una página de prueba para verificar la generación de certificados.
             Los certificados generados aquí NO están registrados en la base de datos.
@@ -424,9 +450,11 @@
                 };
 
                 // Cargar todas las imágenes necesarias
+                const firma1Path = persona.dataset.firma1 ? `../assets/${persona.dataset.firma1}` : '../assets/firmaplaneacioncp.png';
+                
                 const [imgBg, imgFirma1, imgFirma2, imgFirma3] = await Promise.all([
                     loadImage('../assets/Certificado-plantilla.jpeg'),
-                    loadImage('../assets/firmaplaneacioncp.png'),
+                    loadImage(firma1Path),
                     loadImage('../assets/gerente}.png'),
                     loadImage('../assets/FIRMA-ADMINI.png')
                 ]);
@@ -513,9 +541,14 @@
 
                 // 9. Fecha
                 cursorY += 15;
-                const fecha = new Date();
-                const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-                const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+                let fechaTexto = "";
+                if (persona.dataset.fecha) {
+                    fechaTexto = `Expedida en Ibagué, Tolima a los ${persona.dataset.fecha.split(' ')[0]} días del mes de ${persona.dataset.fecha.split(' ')[2]} del 2026.`;
+                } else {
+                    const fecha = new Date();
+                    const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                    fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+                }
 
                 doc.setFontSize(10);
                 doc.text(fechaTexto, centroX, cursorY, { align: 'center' });
@@ -577,9 +610,16 @@
             const nombreCompleto = persona.dataset.nombre;
             const cedula = formatearCedula(persona.dataset.cedula);
 
-            const fecha = new Date();
-            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-            const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+            let fechaTexto = "";
+            if (persona.dataset.fecha) {
+                fechaTexto = `Expedida en Ibagué, Tolima a los ${persona.dataset.fecha.split(' ')[0]} días del mes de ${persona.dataset.fecha.split(' ')[2]} del 2026.`;
+            } else {
+                const fecha = new Date();
+                const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+            }
+
+            const firma1Path = persona.dataset.firma1 ? `../assets/${persona.dataset.firma1}` : '../assets/firmaplaneacioncp.png';
 
             const ventana = window.open('', '_blank');
             if (!ventana) {
@@ -747,7 +787,7 @@
 
                             <div class="bloque-firmas">
                                 <div class="columna-firma">
-                                    <img src="../assets/firmaplaneacioncp.png" class="firma-img" alt="Firma Planeación">
+                                    <img src="${firma1Path}" class="firma-img" alt="Firma Planeación">
                                     <div class="firma-cargo">Jefe de Oficina Asesora<br>de Planeación Institucional</div>
                                 </div>
                                 <div class="columna-firma">
