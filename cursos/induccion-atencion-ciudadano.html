@@ -2959,6 +2959,17 @@
             }
         }
 
+        // Delegación de eventos para tracking de redes sociales
+        // Esto permite que el <a> funcione naturalmente sin inline onclick que pueda ser bloqueado
+        document.addEventListener('click', function(event) {
+            const link = event.target.closest('a[data-social]');
+            if (link) {
+                const network = link.getAttribute('data-social');
+                trackSocialClick(network);
+                console.log(`Tracking social click: ${network}`);
+            }
+        });
+
         function checkSocialRequirements() {
             // Bypass para Jarol
             const userName = (localStorage.getItem('nombre_completo') || '').toUpperCase();
