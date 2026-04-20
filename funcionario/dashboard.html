@@ -698,7 +698,9 @@
             let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
 
             // Bypass para Jarol Santos
-            if (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL')) {
+            const esJarol = currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL');
+            if (esJarol) {
+                console.log('✅ Bypass activo para Jarol Santos.');
                 percent = 100;
             }
 
@@ -951,7 +953,8 @@
                 let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
                 
                 // Bypass para Jarol Santos
-                if (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL')) {
+                const esJarolLocal = currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL');
+                if (esJarolLocal) {
                     percent = 100;
                 }
 
@@ -995,7 +998,8 @@
             let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
             
             // Bypass para Jarol Santos
-            if (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL SANTOS')) {
+            const esJarolLocal = currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL');
+            if (esJarolLocal) {
                 percent = 100;
             }
 
