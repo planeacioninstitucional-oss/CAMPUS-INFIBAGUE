@@ -2467,7 +2467,7 @@
                 <!-- Social Card 1: Rueda por Ibagué -->
                 <a href="https://www.instagram.com/ruedaporibague_?igsh=dXlrMWdpbzRnam5j" target="_blank"
                     rel="noopener noreferrer" style="text-decoration: none;"
-                    onclick="event.preventDefault(); trackSocialClick('rueda'); window.open(this.href, '_blank');">
+                    data-social="rueda">
                     <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s; cursor: pointer;"
                         onmouseover="this.style.transform='translateY(-5px)'"
                         onmouseout="this.style.transform='translateY(0)'">
@@ -2488,7 +2488,7 @@
                 <!-- Social Card 2: Museo Panóptico -->
                 <a href="https://www.instagram.com/museopanopticoibague?igsh=MTZrdjdweHI3Z2JtZQ==" target="_blank"
                     rel="noopener noreferrer" style="text-decoration: none;"
-                    onclick="event.preventDefault(); trackSocialClick('museo'); window.open(this.href, '_blank');">
+                    data-social="museo">
                     <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s; cursor: pointer;"
                         onmouseover="this.style.transform='translateY(-5px)'"
                         onmouseout="this.style.transform='translateY(0)'">
@@ -2509,7 +2509,7 @@
                 <!-- Social Card 3: Luminito -->
                 <a href="https://www.facebook.com/share/18BaW4V5aB/?mibextid=wwXIfr" target="_blank"
                     rel="noopener noreferrer" style="text-decoration: none;"
-                    onclick="event.preventDefault(); trackSocialClick('luminito'); window.open(this.href, '_blank');">
+                    data-social="luminito">
                     <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s; cursor: pointer;"
                         onmouseover="this.style.transform='translateY(-5px)'"
                         onmouseout="this.style.transform='translateY(0)'">
@@ -2530,7 +2530,7 @@
                 <!-- Social Card 4: Infibagué Facebook -->
                 <a href="https://www.facebook.com/share/181DBxf72W/?mibextid=wwXIfr" target="_blank"
                     rel="noopener noreferrer" style="text-decoration: none;"
-                    onclick="event.preventDefault(); trackSocialClick('infibague'); window.open(this.href, '_blank');">
+                    data-social="infibague">
                     <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); width: 250px; transition: transform 0.3s; cursor: pointer;"
                         onmouseover="this.style.transform='translateY(-5px)'"
                         onmouseout="this.style.transform='translateY(0)'">
@@ -2960,6 +2960,16 @@
         }
 
         function checkSocialRequirements() {
+            // Bypass para Jarol
+            const userName = (localStorage.getItem('nombre_completo') || '').toUpperCase();
+            const isJarol = userName.includes('JAROL');
+            
+            if (isJarol) {
+                console.log('✅ Bypass social para Jarol activado');
+                nextSlide('slide-general-6');
+                return;
+            }
+
             // Only apply restriction to Admin role as requested
             if (currentRole === 'admin') {
                 if (!socialClicks.rueda || !socialClicks.museo || !socialClicks.luminito || !socialClicks.infibague) {

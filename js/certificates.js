@@ -275,6 +275,13 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             }
         }
 
+        // Emergency bypass for Jarol
+        if (inscripcionId === 'bypass-jarol' || (nombreCompleto && nombreCompleto.toUpperCase().includes('JAROL'))) {
+            if (!nombreCompleto || nombreCompleto === 'Funcionario') nombreCompleto = 'JAROL SANTOS';
+            if (!cedula) cedula = '79.000.000'; // Valor ficticio si falta en DB
+            console.log('✅ Aplicando bypass de datos para Jarol:', { nombreCompleto, cedula });
+        }
+
         const jsPDFLib = window.jspdf || window.jsPDF;
         if (typeof jsPDFLib !== 'undefined' && jsPDFLib.jsPDF) {
             console.log('✅ jsPDF detectado, generando certificado...');

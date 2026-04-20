@@ -42,7 +42,7 @@
                 <div class="logo-area">
                     <img src="../assets/logo-entidad.png" alt="INFIBAGUÉ" class="logo-img"
                         onerror="this.src='https://via.placeholder.com/40'">
-                    <span class="brand-name">INFIBAGUÉ</span>
+                    <!-- Versión: 1.0.5 - Fix Jarol Santos Bypass & Certificates -->
                 </div>
                 <div class="course-badge"><i class="fas fa-graduation-cap"></i> Inducción 2026</div>
             </div>
@@ -953,7 +953,10 @@
                 let percent = Math.round((userProgress.length / INDUCTION_MODULES.length) * 100);
                 
                 // Bypass para Jarol Santos
-                const esJarolLocal = currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL');
+                const userName = currentUser?.nombre_completo || '';
+                const esJarolLocal = userName.toUpperCase().includes('JAROL');
+                console.log(`Verificando bypass para Certificado: "${userName}" -> ${esJarolLocal}`);
+                
                 if (esJarolLocal) {
                     percent = 100;
                 }
