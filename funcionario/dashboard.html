@@ -34,7 +34,7 @@
         <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <!-- Toggle Button -->
-            <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
+            <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar(event)">
                 <i class="fas fa-chevron-left"></i>
             </button>
 
@@ -78,7 +78,7 @@
 
             <!-- Mobile Header -->
             <header class="mobile-header" style="justify-content: space-between; padding: 0 15px;">
-                <button id="btn-menu-header" class="btn-burger" onclick="toggleSidebar()"
+                <button id="btn-menu-header" class="btn-burger" onclick="toggleSidebar(event)"
                     style="font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #1e3a8a;">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -211,6 +211,14 @@
                                 </svg>
                                 <span>Descargar PDF</span>
                             </button>
+                            <!-- Botón Especial SST -->
+                            <button class="btn-certificate btn-sst" id="btn-download-sst"
+                                onclick="descargarCertificadoSST()" style="background: #f97316; border-color: #ea580c; display: none; order: -1;">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Certificado SST</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -273,34 +281,74 @@
 
     <script>
         // ==========================================
-        // SIDEBAR TOGGLE FUNCTIONALITY
+        // SIDEBAR TOGGLE — MOBILE & DESKTOP
         // ==========================================
+        // IMPORTANTE: toggleSidebar debe ser global (window.*) porque
+        // el HTML usa onclick="toggleSidebar()" directamente.
+        window.toggleSidebar = function (event) {
+            if (event) event.stopPropagation();
+            
+            const sidebar = document.getElementById('sidebar');
+            const btnMenuHeader = document.getElementById('btn-menu-header');
+            const overlay = document.getElementById('sidebar-overlay');
 
-        // Check saved state on load & Add Mobile Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            // Desktop State
-            const savedState = localStorage.getItem('sidebarCollapsed');
-            if (savedState === 'true') {
-                document.getElementById('sidebar').classList.add('collapsed');
-                document.querySelector('.sidebar-toggle i').style.transform = 'rotate(180deg)';
-            }
+            if (!sidebar) return;
 
-            // Mobile Listener
-            const btnMenu = document.getElementById('btn-menu');
-            if (btnMenu) {
-                btnMenu.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent immediate closing if we add document click listener
-                    toggleMobileSidebar();
-                });
-            }
+            const isMobile = window.innerWidth <= 768;
 
-            // Close sidebar when clicking main content on mobile
-            document.querySelector('.main-content').addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                    sidebar.classList.remove('open');
+            if (isMobile) {
+                const isOpen = sidebar.classList.toggle('open');
+
+                // Mostrar / ocultar overlay
+                if (overlay) {
+                    overlay.classList.toggle('active', isOpen);
                 }
-            });
+
+                // Cambiar ícono del botón hamburguesa
+                if (btnMenuHeader) {
+                    const icon = btnMenuHeader.querySelector('i');
+                    if (icon) {
+                        icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+                    }
+                }
+            } else {
+                // Desktop: colapsar / expandir
+                sidebar.classList.toggle('collapsed');
+                const sidebarToggle = document.getElementById('sidebar-toggle');
+                if (sidebarToggle) {
+                    const icon = sidebarToggle.querySelector('i');
+                    if (icon) {
+                        icon.className = sidebar.classList.contains('collapsed')
+                            ? 'fas fa-chevron-right'
+                            : 'fas fa-chevron-left';
+                    }
+                }
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+        };
+
+        // Inicialización cuando el DOM está listo
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+
+            // Restaurar estado colapsado en desktop
+            if (localStorage.getItem('sidebarCollapsed') === 'true' && window.innerWidth > 768) {
+                sidebar.classList.add('collapsed');
+                const icon = document.querySelector('.sidebar-toggle i');
+                if (icon) icon.className = 'fas fa-chevron-right';
+            }
+
+            // Crear overlay dinámico si no existe (esto maneja el cierre al hacer clic fuera)
+            if (!document.getElementById('sidebar-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.id = 'sidebar-overlay';
+                overlay.className = 'sidebar-overlay';
+                overlay.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.toggleSidebar();
+                });
+                document.body.appendChild(overlay);
+            }
         });
 
         // ==========================================
@@ -756,6 +804,18 @@
             const certActions = document.getElementById('certificate-actions');
             const btnView = document.getElementById('btn-view-cert');
             const btnDownload = document.getElementById('btn-download-cert');
+            const btnSST = document.getElementById('btn-download-sst');
+
+            // Lógica para Certificado SST (Se muestra si el módulo SST está completado)
+            const sstCompletado = userProgress.includes('sst');
+            if (btnSST) {
+                if (sstCompletado || (currentUser && currentUser.nombre_completo && currentUser.nombre_completo.toUpperCase().includes('JAROL'))) {
+                    btnSST.style.display = 'flex';
+                    if (certActions) certActions.classList.add('enabled');
+                } else {
+                    btnSST.style.display = 'none';
+                }
+            }
 
             if (percent === 100) {
                 // Enable main button
@@ -1022,69 +1082,13 @@
         }
 
         // ==========================================
-        // MOBILE MENU & SIDEBAR TOGGLE
+        // (toggleSidebar ya está definida globalmente arriba)
         // ==========================================
-        const sidebar = document.getElementById('sidebar');
-        const btnMenu = document.getElementById('btn-menu'); // Original burger button if still exists elsewhere
-        const btnMenuHeader = document.getElementById('btn-menu-header'); // New header button
-        const sidebarToggle = document.getElementById('sidebar-toggle');
 
-        // Unified toggle function
-        function toggleSidebar() {
-            const isMobile = window.innerWidth <= 768;
+        // Event listener adicional para el botón flotante si existe
+        const btnMenu = document.getElementById('btn-menu');
+        if (btnMenu) btnMenu.addEventListener('click', window.toggleSidebar);
 
-            if (isMobile) {
-                // Mobile: toggle 'open' class
-                sidebar.classList.toggle('open');
-
-                // Update header button icon if it exists
-                if (btnMenuHeader) {
-                    const icon = btnMenuHeader.querySelector('i');
-                    if (icon) {
-                        if (sidebar.classList.contains('open')) {
-                            icon.classList.remove('fa-bars');
-                            icon.classList.add('fa-times');
-                        } else {
-                            icon.classList.remove('fa-times');
-                            icon.classList.add('fa-bars');
-                        }
-                    }
-                }
-            } else {
-                // Desktop: toggle 'collapsed' class
-                sidebar.classList.toggle('collapsed');
-
-                // Update desktop toggle button icon
-                if (sidebarToggle) {
-                    const icon = sidebarToggle.querySelector('i');
-                    if (sidebar.classList.contains('collapsed')) {
-                        icon.classList.remove('fa-chevron-left');
-                        icon.classList.add('fa-chevron-right');
-                    } else {
-                        icon.classList.remove('fa-chevron-right');
-                        icon.classList.add('fa-chevron-left');
-                    }
-                }
-            }
-        }
-
-        // Event listeners (add only if element exists to avoid null errors)
-        if (btnMenu) btnMenu.addEventListener('click', toggleSidebar);
-        // Note: btnMenuHeader has onclick="toggleSidebar()" in HTML, so no duplicate listener needed here.
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-                // Check if click is outside sidebar AND outside the button
-                // Use optional chaining just in case
-                const isClickInsideSidebar = sidebar.contains(e.target);
-                const isClickOnButton = btnMenuHeader && btnMenuHeader.contains(e.target);
-
-                if (!isClickInsideSidebar && !isClickOnButton) {
-                    toggleSidebar();
-                }
-            }
-        });
 
         const btnLogout = document.getElementById('btn-logout');
         if (btnLogout) {

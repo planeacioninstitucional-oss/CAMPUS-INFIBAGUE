@@ -698,3 +698,266 @@ async function previsualizarCertificado(inscripcionId) {
         alert('Error al generar la previsualización');
     }
 }
+
+/**
+ * Descarga el certificado específico de SST (Vertical) con alta definición y soporte móvil
+ */
+async function descargarCertificadoSST(datos = null) {
+    const supabase = getSupabase();
+    const usuario = datos || obtenerUsuarioActual();
+
+    try {
+        console.log('--- Iniciando generación de certificado SST HD ---');
+        const jsPDFLib = window.jspdf || window.jsPDF;
+        if (typeof jsPDFLib === 'undefined') throw new Error('Librería jsPDF no detectada');
+
+        if (!usuario) throw new Error('Usuario no identificado');
+        let nombreCompleto = usuario.nombre_completo || usuario.user_metadata?.nombre_completo || 'Funcionario';
+        let cedula = usuario.cedula || usuario.user_metadata?.cedula || '';
+
+        // Fallback para datos faltantes
+        if (!cedula && usuario.id && !datos) {
+            const { data: userData } = await supabase.from('usuarios').select('nombre_completo, cedula').eq('id', usuario.id).single();
+            if (userData) {
+                nombreCompleto = userData.nombre_completo;
+                cedula = userData.cedula;
+            }
+        }
+
+        const { jsPDF } = jsPDFLib;
+        const doc = new jsPDF('p', 'mm', 'letter');
+        const width = doc.internal.pageSize.getWidth(); // 215.9 mm
+        const height = doc.internal.pageSize.getHeight(); // 279.4 mm
+
+        const loadImage = (src) => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.src = src;
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+            });
+        };
+
+        // Función para procesar imagen en alta resolución vía Canvas
+        const getHighResImage = (img, scale = 4) => {
+            if (!img) return null;
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth * scale;
+            canvas.height = img.naturalHeight * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/png', 1.0);
+        };
+
+        const [imgLogoRaw, imgIntegraRaw, imgFirmaJohnRaw, imgFirmaAnnyRaw] = await Promise.all([
+            loadImage('../assets/logo-entidad.png'),
+            loadImage('../assets/Logo-Integra.jpg'),
+            loadImage('../assets/FIRMA-ADMINI.png'),
+            loadImage('../assets/FIRMA-ANNY.png')
+        ]);
+
+        // Procesar logos para nitidez
+        const imgLogo = getHighResImage(imgLogoRaw, 4);
+        const imgIntegra = getHighResImage(imgIntegraRaw, 2);
+        const imgFirmaJohn = getHighResImage(imgFirmaJohnRaw, 2);
+        const imgFirmaAnny = getHighResImage(imgFirmaAnnyRaw, 2);
+
+        // Borde decorativo
+        doc.setDrawColor(212, 175, 55); 
+        doc.setLineWidth(0.5);
+        doc.rect(11, 11, width - 22, height - 22);
+
+        const centroX = width / 2;
+        const marginL = 20;
+        const textW = width - 40;
+        let cursorY = 18;
+
+        const justifiedText = (doc, text, x, y, maxWidth, lineHeight) => {
+            const lines = doc.splitTextToSize(text, maxWidth);
+            lines.forEach((line, i) => {
+                const isLast = i === lines.length - 1;
+                const trimmedLine = line.trim();
+                if (isLast || trimmedLine === '') {
+                    doc.text(trimmedLine, x, y);
+                } else {
+                    const words = trimmedLine.split(/\s+/);
+                    if (words.length <= 1) {
+                        doc.text(trimmedLine, x, y);
+                    } else {
+                        const lineWidth = doc.getTextWidth(trimmedLine);
+                        const spaceWidth = (maxWidth - lineWidth) / (words.length - 1) + doc.getTextWidth(' ');
+                        let cx = x;
+                        words.forEach((word, wi) => {
+                            doc.text(word, cx, y);
+                            if (wi < words.length - 1) cx += doc.getTextWidth(word) + spaceWidth;
+                        });
+                    }
+                }
+                y += lineHeight;
+            });
+            return y;
+        };
+
+        // Logo Header
+        const logoH = 18;
+        const logoW = imgLogoRaw ? (imgLogoRaw.naturalWidth / imgLogoRaw.naturalHeight) * logoH : 55;
+        const integraH = 22; // Un poco más grande para mejor simetría
+        const integraW = imgIntegraRaw ? (imgIntegraRaw.naturalWidth / imgIntegraRaw.naturalHeight) * integraH : 50;
+        const totalLogoW = logoW + 20 + integraW;
+        const logoStartX = centroX - totalLogoW / 2;
+
+        if (imgLogo) doc.addImage(imgLogo, 'PNG', logoStartX, cursorY, logoW, logoH, undefined, 'NONE');
+        if (imgIntegra) doc.addImage(imgIntegra, 'JPEG', logoStartX + logoW + 20, cursorY - 2, integraW, integraH, undefined, 'NONE');
+        cursorY += 30;
+
+        // Título Institucional (Negro, Negrita)
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        const institutionalTitle = 'INSTITUTO DE FINANCIAMIENTO, PROMOCIÓN Y DESARROLLO DE IBAGUÉ - INFIBAGUÉ';
+        const splitTitle = doc.splitTextToSize(institutionalTitle, textW);
+        doc.text(splitTitle, centroX, cursorY, { align: 'center' });
+        cursorY += (splitTitle.length * 6) + 6;
+
+        // Subtítulo SST (Negro)
+        doc.setFontSize(11);
+        doc.text('SEGURIDAD Y SALUD EN EL TRABAJO', centroX, cursorY, { align: 'center', charSpace: 0.5 });
+        cursorY += 8;
+
+        // CONSTANCIA DE INDUCCIÓN (Negro, Negrita, Subrayado)
+        doc.setFontSize(15);
+        doc.setFont('helvetica', 'bold');
+        doc.text('CONSTANCIA DE INDUCCIÓN / REINDUCCION', centroX, cursorY, { align: 'center' });
+        const ciW = doc.getTextWidth('CONSTANCIA DE INDUCCIÓN / REINDUCCION');
+        doc.line(centroX - ciW / 2, cursorY + 1, centroX + ciW / 2, cursorY + 1);
+        cursorY += 12;
+
+        // Hace constar que:
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.text('Hace constar que:', centroX, cursorY, { align: 'center' });
+        cursorY += 12;
+
+        // Nombre destacado (Azul)
+        doc.setTextColor(0, 153, 204);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.text(nombreCompleto.toUpperCase(), centroX, cursorY, { align: 'center' });
+        cursorY += 14;
+
+        // Texto principal
+        doc.setTextColor(0, 0, 0); 
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        const hoy = new Date();
+        const fechaStr = `${hoy.getDate()}/${hoy.getMonth() + 1}/${hoy.getFullYear()}`;
+        const mainText = `Identificado(a) con cédula de ciudadanía ${cedula} realizó el día ${fechaStr} la inducción y reinduccion en Seguridad y Salud en el Trabajo de la entidad y aprobó la respectiva evaluación. La presente constancia tiene validez para aplicación y uso al interior de la entidad, con el fin de dar cumplimiento al Decreto 1072 de 2015, Libro 2, Parte 2, Título 4, Capítulo 6, Articulo 2.2.4.6.11., Parágrafo 2.`;
+        cursorY = justifiedText(doc, mainText, marginL, cursorY, textW, 6.5);
+        cursorY += 10;
+
+        // Compromiso SST
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(15);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Compromiso SST:', marginL, cursorY);
+        const csW = doc.getTextWidth('Compromiso SST:');
+        doc.line(marginL, cursorY + 1, marginL + csW, cursorY + 1);
+        cursorY += 7;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10.5);
+        const compIntro = `Yo ${nombreCompleto.toUpperCase()} Identificado(a) con cédula de ciudadanía ${cedula} me comprometo a dar cumplimiento a las obligaciones en Seguridad y Salud en el Trabajo (Decr. 1072/2015):`;
+        cursorY = justifiedText(doc, compIntro, marginL, cursorY, textW, 5.5);
+        cursorY += 3;
+
+        const obligations = [
+            "1. Procurar el cuidado integral de mi salud. Contar con los elementos de protección personal necesarios para ejecutar la actividad contratada, para lo cual asumiré su costo.",
+            "2. Informar a los contratantes la ocurrencia de incidentes, accidentes de trabajo y enfermedades laborales.",
+            "3. Participar en las actividades de Prevención y Promoción organizadas por los contratantes, los Comités Paritarios de Seguridad y Salud en el Trabajo o Vigías Ocupacionales o la Administradora de Riesgos Laborales."
+        ];
+
+        obligations.forEach(ob => {
+            doc.setDrawColor(16, 185, 129);
+            doc.setLineWidth(0.5);
+            doc.line(marginL + 2, cursorY - 1.5, marginL + 3.5, cursorY + 0.5);
+            doc.line(marginL + 3.5, cursorY + 0.5, marginL + 6, cursorY - 2.5);
+            doc.setTextColor(0, 0, 0);
+            cursorY = justifiedText(doc, ob, marginL + 10, cursorY, textW - 10, 5);
+            cursorY += 2;
+        });
+
+        // Firmas - Ubicación dinámica con protección contra excesos, aprovechando más el espacio inferior
+        cursorY = Math.max(cursorY + 15, height - 42); 
+        const posX1 = centroX - 45;
+        const posX2 = centroX + 45;
+
+        if (imgFirmaJohn) {
+            const fH = 18;
+            const fW = (imgFirmaJohnRaw.naturalWidth / imgFirmaJohnRaw.naturalHeight) * fH;
+            doc.addImage(imgFirmaJohn, 'PNG', posX1 - fW / 2, cursorY - 22, fW, fH, undefined, 'NONE');
+        }
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.4);
+        doc.line(posX1 - 33, cursorY, posX1 + 33, cursorY);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text('JHON FERLEY AMAYA RIVERA', posX1, cursorY + 4, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('DIRECTOR DE SERVICIOS', posX1, cursorY + 8, { align: 'center' });
+        doc.text('ADMINISTRATIVOS', posX1, cursorY + 12, { align: 'center' });
+
+        if (imgFirmaAnny) {
+            const fH = 18;
+            const fW = (imgFirmaAnnyRaw.naturalWidth / imgFirmaAnnyRaw.naturalHeight) * fH;
+            doc.addImage(imgFirmaAnny, 'PNG', posX2 - fW / 2, cursorY - 22, fW, fH, undefined, 'NONE');
+        }
+        doc.line(posX2 - 33, cursorY, posX2 + 33, cursorY);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text('ANNY PAOLA GARZON', posX2, cursorY + 4, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('PROFESIONAL DE SEGURIDAD Y SALUD', posX2, cursorY + 8, { align: 'center' });
+        doc.text('EN EL TRABAJO', posX2, cursorY + 12, { align: 'center' });
+
+        // Marca de Agua
+        if (imgLogo) {
+            try {
+                doc.saveGraphicsState();
+                doc.setGState(new doc.GState({ opacity: 0.08 }));
+                doc.addImage(imgLogo, 'PNG', centroX - 45, height / 2 - 45, 90, 90, undefined, 'NONE');
+                doc.restoreGraphicsState();
+            } catch (e) {}
+        }
+
+        // Descarga
+        const fileName = `Certificado_SST_${cedula || 'INFIBAGUÉ'}.pdf`;
+        try {
+            doc.save(fileName);
+        } catch (saveError) {
+            const blob = doc.output('blob');
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Error al generar certificado:', error);
+        alert('Error al generar el certificado: ' + error.message);
+        return { success: false };
+    }
+}

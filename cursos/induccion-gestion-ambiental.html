@@ -412,8 +412,8 @@
         /* --- SLIDE 3: PIGA WHEEL --- */
         .wheel-container {
             position: relative;
-            width: 500px;
-            height: 500px;
+            width: min(500px, 90vw);
+            height: min(500px, 90vw);
             margin: 0 auto;
         }
 
@@ -667,12 +667,19 @@
             }
 
             .policy-leaf {
-                width: 140px;
-                font-size: 0.8rem;
+                width: 130px;
+                font-size: 0.75rem;
+                padding: 10px;
             }
+
+            .leaf-1 { right: -5%; }
+            .leaf-2 { left: -5%; }
+            .leaf-3 { right: -5%; }
+            .leaf-4 { left: -5%; }
 
             .puzzle-game {
                 grid-template-columns: 1fr;
+                gap: 15px;
             }
 
             .waste-bin {
@@ -680,8 +687,65 @@
                 height: 90px;
             }
 
+            .waste-items {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .waste-item {
+                font-size: 1.3rem;
+                padding: 8px;
+            }
+
+            .quiz-container {
+                padding: 15px;
+            }
+
+            .option-btn {
+                padding: 12px;
+                font-size: 0.9rem;
+            }
+
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            .slide {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             h1 {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
+            }
+
+            .wheel-selector {
+                width: 90px;
+                height: 90px;
+                font-size: 0.8rem;
+            }
+
+            .seg-icon {
+                transform: rotate(-45deg) translate(25px, 25px);
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .policy-leaf {
+                width: 100px;
+                font-size: 0.7rem;
+            }
+
+            .wheel-container {
+                width: min(320px, 85vw);
+                height: min(320px, 85vw);
+            }
+
+            h1 {
+                font-size: 1.35rem;
             }
         }
 

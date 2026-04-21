@@ -31,8 +31,9 @@
             background-size: cover;
             position: relative;
             color: var(--text);
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         body::before {
@@ -49,10 +50,11 @@
 
         .carousel-container {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             position: relative;
             background: transparent;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .slide {
@@ -60,11 +62,11 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             opacity: 0;
             visibility: hidden;
             transition: all 0.5s ease-in-out;
-            padding: 40px;
+            padding: 80px 40px 100px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -190,14 +192,15 @@
         }
 
         .nav-controls {
-            position: absolute;
-            bottom: 25px;
+            position: fixed;
+            bottom: 0;
             left: 0;
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 40px;
-            z-index: 20;
+            padding: 20px 40px;
+            background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            z-index: 100;
             pointer-events: none;
         }
 
@@ -438,8 +441,8 @@
         }
 
         .number-chip {
-            width: 70px;
-            height: 50px;
+            width: 75px;
+            height: 54px;
             background: var(--primary);
             color: white;
             border-radius: 10px;
@@ -448,9 +451,18 @@
             justify-content: center;
             font-size: 1.2rem;
             font-weight: bold;
-            cursor: grab;
+            cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 4px 10px rgba(30, 64, 175, 0.3);
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .number-chip.selected {
+            background: var(--secondary);
+            transform: scale(1.1);
+            ring: 4px solid white;
+            box-shadow: 0 0 0 3px var(--secondary);
         }
 
         .number-chip:active {
@@ -491,16 +503,97 @@
 
             .connect-game {
                 grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .connect-lines {
+                display: none;
+            }
+
+            .connect-item {
+                padding: 12px 15px;
+                font-size: 0.9rem;
             }
 
             .number-puzzle {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
 
-            h1,
-            h2 {
-                font-size: 1.8rem;
+            .puzzle-slot {
+                min-height: 55px;
+                padding: 10px 15px;
             }
+
+            .slot-label {
+                font-size: 0.9rem;
+            }
+
+            .number-bank {
+                gap: 10px;
+                margin-top: 20px;
+            }
+
+            .number-chip {
+                width: 65px;
+                height: 48px;
+                font-size: 1.1rem;
+            }
+
+            .result-card {
+                padding: 30px 20px;
+            }
+
+            .dir-card {
+                padding: 18px;
+            }
+
+            .slide {
+                padding: 100px 20px 110px;
+                position: relative;
+                height: auto;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start; /* Empieza arriba en vez de centrada */
+                align-items: center;
+                opacity: 0;
+                visibility: hidden;
+            }
+            .slide.active {
+                opacity: 1; 
+                visibility: visible;
+                display: flex;
+            }
+
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            h1, h2 {
+                font-size: 1.6rem;
+            }
+
+            .nav-controls {
+                padding: 15px;
+                background: white;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            }
+
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            h1, h2 { font-size: 1.3rem; }
+            .hero-badge { font-size: 0.75rem; padding: 6px 15px; }
+            .p { font-size: 0.95rem; }
+            .dir-card h3 { font-size: 0.9rem; }
+            .stat-number { font-size: 1.1rem; }
+            .connect-item { font-size: 0.8rem; padding: 8px 12px; }
         }
     </style>
 </head>
@@ -646,33 +739,33 @@
 
                 <div class="number-puzzle">
                     <div class="puzzle-slot" data-answer="2174" ondrop="dropNumber(event)" ondragover="allowDrop(event)"
-                        ondragleave="leaveDrop(event)">
+                        ondragleave="leaveDrop(event)" onclick="dropIntoSlot(this)">
                         <span class="slot-label">💡 Redes Mejoradas</span>
                         <div class="slot-answer" id="slot-1"></div>
                     </div>
                     <div class="puzzle-slot" data-answer="126" ondrop="dropNumber(event)" ondragover="allowDrop(event)"
-                        ondragleave="leaveDrop(event)">
+                        ondragleave="leaveDrop(event)" onclick="dropIntoSlot(this)">
                         <span class="slot-label">🌳 Parques Mantenidos</span>
                         <div class="slot-answer" id="slot-2"></div>
                     </div>
                     <div class="puzzle-slot" data-answer="8" ondrop="dropNumber(event)" ondragover="allowDrop(event)"
-                        ondragleave="leaveDrop(event)">
+                        ondragleave="leaveDrop(event)" onclick="dropIntoSlot(this)">
                         <span class="slot-label">🚲 Estaciones Bicicletas</span>
                         <div class="slot-answer" id="slot-3"></div>
                     </div>
                     <div class="puzzle-slot" data-answer="1" ondrop="dropNumber(event)" ondragover="allowDrop(event)"
-                        ondragleave="leaveDrop(event)">
+                        ondragleave="leaveDrop(event)" onclick="dropIntoSlot(this)">
                         <span class="slot-label">🏛️ Restauración Panóptico</span>
                         <div class="slot-answer" id="slot-4"></div>
                     </div>
                 </div>
 
                 <div class="number-bank" id="number-bank">
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="126">126</div>
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="2174">2,174
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="126" onclick="selectChip(this)">126</div>
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="2174" onclick="selectChip(this)">2,174
                     </div>
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="1">1</div>
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="8">8</div>
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="1" onclick="selectChip(this)">1</div>
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="8" onclick="selectChip(this)">8</div>
                 </div>
                 <div id="game2-feedback"></div>
             </div>
@@ -713,6 +806,9 @@
         let game2Completed = false;
 
         function updateSlide() {
+            // Scroll to top of body when slide changes for better mobile UX
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            
             slides.forEach((slide, index) => {
                 slide.classList.remove('active');
                 if (index === currentSlide) slide.classList.add('active');
@@ -795,7 +891,33 @@
 
         // --- GAME 2: NUMBER PUZZLE ---
         let game2Score = 0;
+        let selectedChip = null;
 
+        // Support for click-to-select (Mobile)
+        function selectChip(el) {
+            if (el.classList.contains('used')) return;
+            
+            document.querySelectorAll('.number-chip').forEach(c => c.classList.remove('selected'));
+            
+            if (selectedChip === el) {
+                selectedChip = null;
+            } else {
+                el.classList.add('selected');
+                selectedChip = el;
+            }
+        }
+
+        function dropIntoSlot(slot) {
+            if (!selectedChip) {
+                document.getElementById('game2-feedback').innerHTML = '<span style="color:#f59e0b">Selecciona un número primero</span>';
+                return;
+            }
+
+            const value = selectedChip.dataset.value;
+            processDrop(slot, value);
+        }
+
+        // Native Drag and Drop (Desktop)
         function dragNumber(ev) {
             ev.dataTransfer.setData("text", ev.target.dataset.value);
             ev.dataTransfer.setData("chipId", ev.target.id || ev.target.dataset.value);
@@ -813,22 +935,17 @@
         function dropNumber(ev) {
             ev.preventDefault();
             ev.currentTarget.classList.remove('drag-over');
+            const value = ev.dataTransfer.getData("text");
+            processDrop(ev.currentTarget, value);
+        }
 
-            const slot = ev.currentTarget;
+        function processDrop(slot, value) {
             const slotAnswer = slot.querySelector('.slot-answer');
-
             if (slotAnswer.textContent) return; // Already filled
 
-            const value = ev.dataTransfer.getData("text");
-            // Find the correct answer for this slot
-            // Note: The HTML has data-answer on the slot div.
-            // Example: <div class="puzzle-slot" data-answer="2174" ...>
             const correctAnswer = slot.dataset.answer;
-
-            // Display formatting
             const displayValue = value === '2174' ? '2,174' : value;
 
-            // Check correctness
             if (value === correctAnswer) {
                 slotAnswer.textContent = displayValue;
                 slot.classList.add('correct');
@@ -837,17 +954,26 @@
 
                 // Mark chip as used
                 document.querySelectorAll('.number-chip').forEach(chip => {
-                    if (chip.dataset.value === value) chip.classList.add('used');
+                    if (chip.dataset.value === value) {
+                        chip.classList.add('used');
+                        chip.classList.remove('selected');
+                    }
                 });
+                
+                selectedChip = null;
 
                 if (game2Score === 4) {
-                    game2Completed = true; // Mark as completed
+                    game2Completed = true;
                     document.getElementById('game2-feedback').innerHTML = '<span style="color:#10b981">¡Puzzle Completado! 🎉</span>';
-                    // Enable Next Button
                     nextBtn.style.display = 'flex';
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                 }
             } else {
                 document.getElementById('game2-feedback').innerHTML = '<span style="color:#ef4444">Ese número no es correcto ❌</span>';
+                if (selectedChip) {
+                    selectedChip.classList.remove('selected');
+                    selectedChip = null;
+                }
             }
         }
 

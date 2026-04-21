@@ -81,8 +81,8 @@
 
 /* Sidebar Overlay Fix */
 .sidebar-overlay {
-    z-index: 1001;
-    /* Above mobile header, below sidebar */
+    z-index: 1500;
+    /* Por encima del header (900), debajo del sidebar (2001) */
 }
 
 /* Mobile Specific Updates */

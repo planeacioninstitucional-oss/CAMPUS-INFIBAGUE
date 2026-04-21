@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado SST - INFIBAGUÉ - Prueba</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@700;800&display=swap');
+
+        :root {
+            --primary-blue: #003366;
+            --secondary-blue: #0099CC;
+            --text-gray: #3C3C3C;
+            --light-gray: #F5F7FA;
+            --border-gold: #D4AF37;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .certificate {
+            width: 215.9mm;
+            min-height: 279.4mm;
+            background: white;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+            position: relative;
+            padding: 2.5cm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Border */
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: 1cm;
+            left: 1cm;
+            right: 1cm;
+            bottom: 1cm;
+            border: 2px solid var(--primary-blue);
+            pointer-events: none;
+        }
+
+        .certificate::after {
+            content: '';
+            position: absolute;
+            top: 1.1cm;
+            left: 1.1cm;
+            right: 1.1cm;
+            bottom: 1.1cm;
+            border: 1px solid var(--border-gold);
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logos-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 25px;
+        }
+
+        .logo-img {
+            height: 70px;
+            width: auto;
+        }
+
+        .institutional-title {
+            color: var(--primary-blue);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin: 0;
+            max-width: 80%;
+            text-transform: uppercase;
+        }
+
+        .sst-subtitle {
+            color: var(--secondary-blue);
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+
+        .constancy-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .hace-constar {
+            font-size: 15px;
+            font-weight: 400;
+            color: black;
+            margin-bottom: 15px;
+        }
+
+        .induction-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: black;
+            text-decoration: underline;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .main-text {
+            font-size: 15.5px;
+            line-height: 1.5;
+            color: black;
+            text-align: justify;
+            margin-bottom: 20px;
+        }
+
+        .user-name {
+            color: var(--secondary-blue);
+            font-size: 30px;
+            font-weight: 800;
+            display: block;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .user-id {
+            font-weight: 700;
+            color: black;
+        }
+
+        /* Rediseño de Compromisos - Sin recuadro ni línea, flujo natural */
+        .commitment-section {
+            margin-top: 25px;
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
+            position: relative;
+        }
+
+        .commitment-title {
+            color: var(--primary-blue);
+            font-size: 19px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: underline;
+        }
+
+        .commitment-text {
+            font-size: 14px;
+            color: #475569;
+            margin-bottom: 15px;
+        }
+
+        .obligation-list {
+            list-style: none;
+            padding-left: 5px;
+        }
+
+        .obligation-list li {
+            font-size: 13.5px;
+            color: #1e293b;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .obligation-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Watermark Styles */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg);
+            width: 500px;
+            opacity: 0.12; /* Aprox 88% transparencia, detectable pero no molesto */
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .signatures-container {
+            margin-top: auto;
+            padding-top: 40px;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            width: 100%;
+        }
+
+        .signature-block {
+            text-align: center;
+            width: 45%;
+        }
+
+        .signature-img {
+            height: 60px;
+            margin-bottom: 5px;
+        }
+
+        .signature-line {
+            width: 150px;
+            height: 1px;
+            background: #000;
+            margin: 0 auto 5px;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            color: black;
+            max-width: 80%;
+            line-height: 1.4;
+            text-transform: uppercase;
+        }
+
+        .btn-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        @media print {
+            @page {
+                size: letter;
+                margin: 0;
+            }
+            body { background: none; padding: 0; }
+            .certificate { 
+                box-shadow: none; 
+                margin: 0; 
+                border: none;
+                width: 215.9mm;
+                height: 279.4mm;
+            }
+            .btn-container { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="certificate" id="certificate-target">
+        <img src="../assets/logo-entidad.png" class="watermark" alt="Watermark">
+
+        <div class="header">
+            <div class="logos-container">
+                <img src="../assets/logo-entidad.png" class="logo-img" alt="Logo INFIBAGUÉ">
+                <img src="../assets/Logo-Integra.jpg" class="logo-img" alt="Logo INTEGRA" style="height: 60px;">
+            </div>
+            <h1 class="institutional-title">Instituto de Financiamiento, Promoción y Desarrollo de Ibagué - INFIBAGUÉ</h1>
+            <div class="sst-subtitle">SEGURIDAD Y SALUD EN EL TRABAJO</div>
+        </div>
+
+        <div class="constancy-section">
+            <div class="induction-title">CONSTANCIA DE INDUCCIÓN / REINDUCCIÓN</div>
+            <div class="hace-constar">Hace constar que:</div>
+            
+            <span class="user-name">ANTONIO EDUARDO SAAMS DELAROSA</span> 
+
+            <p class="main-text">
+                Identificado(a) con cédula de ciudadanía <span class="user-id">18003115</span> realizó el día 
+                <strong>17/02/2026</strong> la inducción y reinduccion en <strong>Seguridad y Salud en el Trabajo</strong> de la entidad y aprobó la respectiva evaluación. 
+                La presente constancia tiene validez para aplicación y uso al interior de la entidad, con el fin de dar cumplimiento al 
+                Decreto 1072 de 2015, Libro 2, Parte 2, Título 4, Capítulo 6, Articulo 2.2.4.6.11., Parágrafo 2.
+            </p>
+        </div>
+
+        <div class="commitment-section">
+            <span class="commitment-title">Compromiso SST:</span>
+            <p class="commitment-text">
+                Yo <strong>ANTONIO EDUARDO SAAMS DELAROSA</strong> Identificado(a) con cédula de ciudadanía 
+                <strong>18003115</strong> me comprometo a dar cumplimiento a las obligaciones en Seguridad y 
+                Salud en el Trabajo (Decr. 1072/2015):
+            </p>
+            <ul class="obligation-list">
+                <li>1. Procurar el cuidado integral de mi salud. Contar con los elementos de protección personal necesarios para ejecutar la actividad contratada, para lo cual asumiré su costo.</li>
+                <li>2. Informar a los contratantes la ocurrencia de incidentes, accidentes de trabajo y enfermedades laborales.</li>
+                <li>3. Participar en las actividades de Prevención y Promoción organizadas por los contratantes, los Comités Paritarios de Seguridad y Salud en el Trabajo o Vigías Ocupacionales o la Administradora de Riesgos Laborales.</li>
+            </ul>
+        </div>
+
+        <div class="signatures-container">
+            <div class="signature-block">
+                <img src="../assets/FIRMA-ADMINI.png" class="signature-img" alt="Firma Director">
+                <div class="signature-line"></div>
+                <p class="footer-text">
+                    <b>JHON FERLEY AMAYA RIVERA</b><br>
+                    Director de Servicios Administrativos
+                </p>
+            </div>
+            <div class="signature-block">
+                <img src="../assets/FIRMA-ANNY.png" class="signature-img" alt="Firma Anny">
+                <div class="signature-line"></div>
+                <p class="footer-text">
+                    <b>ANNY PAOLA GARZON</b><br>
+                    Profesional de Seguridad y Salud en el Trabajo
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn" onclick="window.print()">
+            <span>🖨️</span> Imprimir / Ver PDF
+        </button>
+    </div>
+
+</body>
+</html>

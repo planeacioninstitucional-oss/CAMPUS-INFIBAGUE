@@ -1355,8 +1355,134 @@ body {
         display: flex;
     }
 
+    /* Hero title responsive fix */
     .hero-title {
-        font-size: 2rem;
+        font-size: 1.6rem;
+        word-break: break-word;
+        line-height: 1.3;
+    }
+
+    /* Hero subtitle smaller */
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+
+    /* Hero content wrapper - reduce padding */
+    .hero-content-wrapper {
+        padding: 1.5rem 1rem;
+    }
+
+    /* Video container full-width on mobile */
+    .hero-video-container {
+        max-width: 260px;
+        margin-bottom: 2rem;
+    }
+
+    /* Badge grid - smaller items on mobile */
+    .badge-grid {
+        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+        gap: 0.75rem;
+    }
+
+    /* Badge item - fix floating transform on small screens */
+    .badge-item {
+        padding: 1.25rem 0.75rem;
+    }
+
+    .badge-item.unlocked {
+        transform: translateY(-4px) scale(1.01);
+    }
+
+    /* Certificate actions - wrap properly */
+    .certificate-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .btn-certificate {
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+    }
+
+    /* Hero footer full width */
+    .hero-footer {
+        width: 100%;
+        padding: 0 1rem;
+        box-sizing: border-box;
+    }
+
+    .btn-hero {
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+    }
+
+    /* Player fixed height correction */
+    .player-container {
+        top: var(--header-height);
+        height: calc(100vh - var(--header-height));
+    }
+
+    /* Player header compact on mobile */
+    .player-header {
+        padding: 0 1rem;
+        height: 52px;
+        flex-shrink: 0;
+    }
+
+    .player-title {
+        font-size: 0.85rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 60vw;
+    }
+
+    .btn-close-player {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+        flex-shrink: 0;
+    }
+
+    /* Content frame - account for compact header */
+    .content-frame {
+        height: calc(100vh - var(--header-height) - 52px);
+    }
+
+    /* Certificate modal fix for small screens */
+    .certificate-modal {
+        padding: 0.75rem;
+        align-items: flex-end;
+    }
+
+    .certificate-modal-content {
+        border-radius: 16px 16px 0 0;
+        max-height: 92vh;
+    }
+
+    .certificate-modal-header {
+        padding: 1.25rem 1rem;
+    }
+
+    .certificate-modal-title {
+        font-size: 1.1rem;
+    }
+
+    .certificate-modal-body {
+        padding: 1rem;
+    }
+
+    .certificate-modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+    }
+
+    .certificate-modal-footer .btn-certificate {
+        width: 100%;
+        justify-content: center;
     }
 
     .btn-burger {
@@ -1366,9 +1492,42 @@ body {
         cursor: pointer;
         color: var(--text-dark);
     }
+}
 
-    .player-container {
-        top: var(--header-height);
-        height: calc(100vh - var(--header-height));
+/* Extra small phones */
+@media (max-width: 420px) {
+    .hero-title {
+        font-size: 1.35rem;
+    }
+
+    .hero-logo-large {
+        width: 70px;
+    }
+
+    .circular-progress {
+        width: 130px;
+        height: 130px;
+    }
+
+    .circular-progress::before {
+        width: 105px;
+        height: 105px;
+    }
+
+    .progress-value {
+        font-size: 2.2rem;
+    }
+
+    .badge-grid {
+        grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .badge-item {
+        padding: 1rem 0.5rem;
+    }
+
+    .badge-name {
+        font-size: 0.7rem;
     }
 }
