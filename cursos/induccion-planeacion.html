@@ -199,7 +199,7 @@
             display: flex;
             justify-content: space-between;
             padding: 20px 40px;
-            background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
             z-index: 100;
             pointer-events: none;
         }
@@ -461,7 +461,6 @@
         .number-chip.selected {
             background: var(--secondary);
             transform: scale(1.1);
-            ring: 4px solid white;
             box-shadow: 0 0 0 3px var(--secondary);
         }
 
@@ -555,13 +554,15 @@
                 min-height: 100vh;
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-start; /* Empieza arriba en vez de centrada */
+                justify-content: flex-start;
+                /* Empieza arriba en vez de centrada */
                 align-items: center;
                 opacity: 0;
                 visibility: hidden;
             }
+
             .slide.active {
-                opacity: 1; 
+                opacity: 1;
                 visibility: visible;
                 display: flex;
             }
@@ -571,14 +572,15 @@
                 height: auto;
             }
 
-            h1, h2 {
+            h1,
+            h2 {
                 font-size: 1.6rem;
             }
 
             .nav-controls {
                 padding: 15px;
                 background: white;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+                box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
             }
 
             .nav-btn {
@@ -588,12 +590,33 @@
         }
 
         @media (max-width: 420px) {
-            h1, h2 { font-size: 1.3rem; }
-            .hero-badge { font-size: 0.75rem; padding: 6px 15px; }
-            .p { font-size: 0.95rem; }
-            .dir-card h3 { font-size: 0.9rem; }
-            .stat-number { font-size: 1.1rem; }
-            .connect-item { font-size: 0.8rem; padding: 8px 12px; }
+
+            h1,
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .hero-badge {
+                font-size: 0.75rem;
+                padding: 6px 15px;
+            }
+
+            .p {
+                font-size: 0.95rem;
+            }
+
+            .dir-card h3 {
+                font-size: 0.9rem;
+            }
+
+            .stat-number {
+                font-size: 1.1rem;
+            }
+
+            .connect-item {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
         }
     </style>
 </head>
@@ -761,11 +784,15 @@
                 </div>
 
                 <div class="number-bank" id="number-bank">
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="126" onclick="selectChip(this)">126</div>
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="2174" onclick="selectChip(this)">2,174
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="126"
+                        onclick="selectChip(this)">126</div>
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="2174"
+                        onclick="selectChip(this)">2,174
                     </div>
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="1" onclick="selectChip(this)">1</div>
-                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="8" onclick="selectChip(this)">8</div>
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="1"
+                        onclick="selectChip(this)">1</div>
+                    <div class="number-chip" draggable="true" ondragstart="dragNumber(event)" data-value="8"
+                        onclick="selectChip(this)">8</div>
                 </div>
                 <div id="game2-feedback"></div>
             </div>
@@ -808,7 +835,7 @@
         function updateSlide() {
             // Scroll to top of body when slide changes for better mobile UX
             window.scrollTo({ top: 0, behavior: 'instant' });
-            
+
             slides.forEach((slide, index) => {
                 slide.classList.remove('active');
                 if (index === currentSlide) slide.classList.add('active');
@@ -896,9 +923,9 @@
         // Support for click-to-select (Mobile)
         function selectChip(el) {
             if (el.classList.contains('used')) return;
-            
+
             document.querySelectorAll('.number-chip').forEach(c => c.classList.remove('selected'));
-            
+
             if (selectedChip === el) {
                 selectedChip = null;
             } else {
@@ -959,7 +986,7 @@
                         chip.classList.remove('selected');
                     }
                 });
-                
+
                 selectedChip = null;
 
                 if (game2Score === 4) {
