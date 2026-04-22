@@ -4,699 +4,424 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Campus Virtual - Plataforma de capacitación y formación institucional">
-  <title>Campus Virtual - INFIBAGUE</title>
+  <meta name="description"
+    content="Campus INFIBAGUE - Plataforma de capacitación de inducción y reinducción institucional">
+  <title>Campus INFIBAGUE - Plataforma de Capacitación</title>
   <link rel="icon" type="image/png" href="./assets/favicon.png">
-  <!-- Estilos -->
-  <link rel="stylesheet" href="./css/main.css">
-  <link rel="stylesheet" href="./css/components.css">
 
-<!-- Google Fonts -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;700;800;900&family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Styles -->
+  <link rel="stylesheet" href="./css/landing.css">
 
-  <style>
-    /* Estilos específicos de la página de inicio */
-    .hero {
-      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-      color: white;
-      padding: 6rem 0;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
-      opacity: 0.3;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-title {
-      font-size: 3.5rem;
-      font-weight: 800;
-      margin-bottom: 1.5rem;
-      color: white;
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-    .hero-subtitle {
-      font-size: 1.5rem;
-      margin-bottom: 3rem;
-      opacity: 0.95;
-      animation: fadeInUp 0.8s ease-out 0.2s backwards;
-    }
-
-    .hero-cta {
-      animation: fadeInUp 0.8s ease-out 0.4s backwards;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .features {
-      padding: 5rem 0;
-      background: white;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .feature-card {
-      background: var(--color-gray-50);
-      padding: 2.5rem;
-      border-radius: 1rem;
-      text-align: center;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-xl);
-      border-color: var(--color-primary-light);
-      background: white;
-    }
-
-    .feature-icon {
-      font-size: 3rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .feature-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      color: var(--color-text-primary);
-    }
-
-    .feature-description {
-      color: var(--color-text-secondary);
-      line-height: 1.6;
-    }
-
-    .about-section {
-      padding: 5rem 0;
-      background: var(--color-gray-50);
-    }
-
-    .about-content {
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .cta-section {
-      background: linear-gradient(135deg, var(--color-secondary) 0%, #047857 100%);
-      color: white;
-      padding: 4rem 0;
-      text-align: center;
-    }
-
-    .cta-section h2 {
-      color: white;
-      margin-bottom: 2rem;
-    }
-
-/* Estilos Timeline Bombillas */
-    .bulb-timeline {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 0;
-      position: relative;
-    }
-
-    .bulb-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 3rem;
-      position: relative;
-      gap: 2rem;
-    }
-
-    .bulb-item:nth-child(even) {
-      flex-direction: row-reverse;
-    }
-
-    .bulb-shape {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .bulb-shape::before {
-      content: '';
-      position: absolute;
-      top: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 30px;
-      height: 15px;
-      background: inherit;
-      border-radius: 50% 50% 0 0;
-      opacity: 0.8;
-    }
-
-    .bulb-shape::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 20px;
-      height: 10px;
-      background: inherit;
-      border-radius: 0 0 50% 50%;
-      opacity: 0.6;
-    }
-
-    .bulb-yellow {
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
-      color: #92400e;
-    }
-
-    .bulb-red {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-    }
-
-    .bulb-blue {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: white;
-    }
-
-    .bulb-purple {
-      background: linear-gradient(135deg, #a855f7, #9333ea);
-      color: white;
-    }
-
-    .bulb-green {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-    }
-
-    .bulb-shape:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .bulb-icon {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .bulb-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-align: center;
-      line-height: 1.2;
-    }
-
-    .bulb-content {
-      flex: 1;
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border-left: 4px solid;
-      transition: all 0.3s ease;
-    }
-
-    .bulb-item:nth-child(1) .bulb-content {
-      border-left-color: #f59e0b;
-    }
-
-    .bulb-item:nth-child(2) .bulb-content {
-      border-left-color: #dc2626;
-    }
-
-    .bulb-item:nth-child(3) .bulb-content {
-      border-left-color: #2563eb;
-    }
-
-    .bulb-item:nth-child(4) .bulb-content {
-      border-left-color: #9333ea;
-    }
-
-    .bulb-item:nth-child(5) .bulb-content {
-      border-left-color: #059669;
-    }
-
-    .bulb-content:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .mobile-title {
-      display: none;
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      color: var(--color-text-primary);
-    }
-
-    .bulb-content ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .bulb-content li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      position: relative;
-      padding-left: 1.5rem;
-    }
-
-    .bulb-content li:last-child {
-      border-bottom: none;
-    }
-
-    .bulb-content li::before {
-      content: '✓';
-      position: absolute;
-      left: 0;
-      color: currentColor;
-      font-weight: bold;
-    }
-
-    /* Línea conectora */
-    .bulb-timeline::before {
-      content: '';
-      position: absolute;
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 3px;
-      height: calc(100% - 120px);
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
-      z-index: -1;
-    }
-
-    /* Media queries para móvil */
-    @media (max-width: 768px) {
-      .hero {
-        padding: 4rem 0;
-      }
-
-      .hero-title {
-        font-size: 2.25rem;
-        margin-bottom: 1rem;
-      }
-
-      .hero-subtitle {
-        font-size: 1.125rem;
-        margin-bottom: 2rem;
-      }
-
-      .hero-cta {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 0 1rem;
-      }
-
-      .hero-cta .btn {
-        margin-right: 0 !important;
-        width: 100%;
-      }
-
-      .features {
-        padding: 3rem 0;
-      }
-
-      .feature-card {
-        padding: 1.5rem;
-      }
-
-      /* Timeline móvil */
-      .bulb-timeline {
-        padding: 1rem 0;
-      }
-
-      .bulb-item {
-        flex-direction: column !important;
-        margin-bottom: 2rem;
-        gap: 1rem;
-        text-align: center;
-      }
-
-      .bulb-shape {
-        width: 100px;
-        height: 100px;
-        order: 2;
-      }
-
-      .bulb-content {
-        order: 1;
-        width: 100%;
-        text-align: left;
-      }
-
-      .mobile-title {
-        display: block;
-      }
-
-      .bulb-title {
-        display: none;
-      }
-
-      .bulb-timeline::before {
-        display: none;
-      }
-
-      .bulb-content li {
-        font-size: 0.9rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .bulb-shape {
-        width: 80px;
-        height: 80px;
-      }
-
-      .bulb-icon {
-        font-size: 1.5rem;
-      }
-
-      .bulb-content {
-        padding: 1.5rem;
-      }
-    }
-  </style>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-  <div class="main-wrapper">
-    <!-- Header -->
-    <header class="header">
-      <div class="container">
-        <div class="header-content">
-          <div class="logo-container">
-            <img src="./assets/logo-entidad.png" alt="Logo Entidad" class="logo" id="logo-entidad"
-              onerror="this.style.display='none'">
-            <h1 class="site-title">Campus INFIBAGUE</h1>
-          </div>
-          <nav class="nav">
-            <a href="./login.html" class="btn btn-outline" style="color: white; border-color: white;">Iniciar Sesión</a>
-            <a href="./registro.html" class="btn"
-              style="background: white; color: var(--color-primary);">Registrarse</a>
-          </nav>
-        </div>
+
+  <div class="split-container">
+    <!-- ════════════════ LEFT PANEL ════════════════ -->
+    <div class="panel-left">
+      <!-- Background slideshow -->
+      <div class="bg-slideshow" id="slideshow">
+        <div class="slide active" style="background-image:url('./assets/inicio-1.jpeg')"></div>
+        <div class="slide" style="background-image:url('./assets/inicio-2.jpg')"></div>
+        <div class="slide" style="background-image:url('./assets/inicio-3.jpeg')"></div>
+        <div class="slide" style="background-image:url('./assets/inicio-4.jpeg')"></div>
+        <div class="slide" style="background-image:url('./assets/inicio-5.jpeg')"></div>
       </div>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="container">
-        <div class="hero-content">
-          <h1 class="hero-title">Bienvenido al Campus INFIBAGUE</h1>
-          <p class="hero-subtitle">
-            Plataforma de capacitación de induccion y reinduccion
-          </p>
-          <div class="hero-cta">
-            <a href="./login.html" class="btn btn-large"
-              style="background: white; color: var(--color-primary); margin-right: 1rem;">
-              Ingresar al Campus
-            </a>
-            <a href="#about" class="btn btn-large btn-outline" style="color: white; border-color: white;">
-              Conocer Más
-            </a>
+      <!-- Floating particles -->
+      <div class="particles" id="particles"></div>
+
+      <!-- Welcome text -->
+      <div class="welcome-content">
+
+        <!-- Dual logo bar -->
+        <div class="welcome-logos">
+          <div class="wlogo-pill">
+            <img src="./assets/logo-entidad.png" alt="INFIBAGUE" class="wlogo-img" onerror="this.style.display='none'">
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features">
-      <div class="container">
-        <h2 class="text-center">¿Qué ofrece nuestro Campus INFIBAGUE?</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">📚</div>
-            <h3 class="feature-title">Capacitacion de la induccion y Reinduccion</h3>
-            <p class="feature-description">
-              Se dara induccion a nuevos funcionarios que ingresen al instituto y una Reinduccion para funcionarios
-              antiguos tanto de planta como contratista
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🎓</div>
-            <h3 class="feature-title">Certificación</h3>
-            <p class="feature-description">
-              Se emitira certificados oficiales al completar tus cursos, avalados por la entidad para respaldar tu
-              desarrollo
-              profesional y certificar tu conocimiento sobre la entidad.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3 class="feature-title">Seguimiento de Progreso</h3>
-            <p class="feature-description">
-              Se hara un monitoreo constante de los funcionarios para evaluar su desempeno y darle la retroalimentacion
-              necesaria.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">💡</div>
-            <h3 class="feature-title">Aprendizaje Flexible</h3>
-            <p class="feature-description">
-              Estudia a tu propio ritmo con contenidos disponibles 24/7 desde cualquier dispositivo con conexión a
-              internet.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">✅</div>
-            <h3 class="feature-title">Evaluaciones Interactivas</h3>
-            <p class="feature-description">
-              Demuestra tu conocimiento con cuestionarios y actividades diseñadas para reforzar el aprendizaje.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🔒</div>
-            <h3 class="feature-title">Plataforma Segura</h3>
-            <p class="feature-description">
-              Tus datos y progreso están protegidos con las más altas medidas de seguridad y privacidad.
-            </p>
-          </div>
-        </div>
-      </div>
-</section>
-
-    <!-- SLIDE ACTIVIDADES: Timeline Bombillas -->
-    <section class="features" style="background: var(--color-gray-50);">
-      <div class="container">
-        <h2 class="text-center">🌱 Actividades Infibagué</h2>
-        <p class="text-center" style="color: var(--color-text-secondary); margin-bottom: 3rem;">Líneas de acción y desarrollo urbano</p>
-
-        <div class="bulb-timeline">
-          <!-- 1. Plazas de Mercado (Yellow) -->
-          <div class="bulb-item">
-            <div class="bulb-shape bulb-yellow">
-              <i class="fas fa-store bulb-icon"></i>
-              <span class="bulb-title">Plazas de Mercado</span>
-            </div>
-            <div class="bulb-content">
-              <div class="mobile-title">Plazas de Mercado</div>
-              <ul>
-                <li>Adjudicaciones</li>
-                <li>Contratos de Uso</li>
-                <li>Recuperación Infraestructura</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- 2. Alumbrado Público (Red) -->
-          <div class="bulb-item">
-            <div class="bulb-content">
-              <div class="mobile-title">Alumbrado Público</div>
-              <ul>
-                <li>Mantenimiento</li>
-                <li>Modernización</li>
-                <li>Ampliación Cobertura</li>
-              </ul>
-            </div>
-            <div class="bulb-shape bulb-red">
-              <i class="fas fa-lightbulb bulb-icon"></i>
-              <span class="bulb-title">Alumbrado Público</span>
-            </div>
-          </div>
-
-          <!-- 3. Financiamiento (Blue) -->
-          <div class="bulb-item">
-            <div class="bulb-shape bulb-blue">
-              <i class="fas fa-hand-holding-dollar bulb-icon"></i>
-              <span class="bulb-title">Fomento y Desarrollo</span>
-            </div>
-            <div class="bulb-content">
-              <div class="mobile-title">Financiamiento y Desarrollo</div>
-              <ul>
-                <li>Captación Excedentes</li>
-                <li>Colocación Recursos</li>
-                <li>Gestión Territorial</li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- 4. Otros Proyectos (Purple) -->
-          <div class="bulb-item">
-            <div class="bulb-content">
-              <div class="mobile-title">Otros Proyectos</div>
-              <ul>
-                <li>Bicicletas Públicas</li>
-                <li>Eventos Feriales</li>
-                <li>Complejo Panóptico</li>
-                <li>Admin. Inmuebles</li>
-              </ul>
-            </div>
-            <div class="bulb-shape bulb-purple">
-              <i class="fas fa-bicycle bulb-icon"></i>
-              <span class="bulb-title">Otros Proyectos</span>
-            </div>
-          </div>
-
-          <!-- 5. Parques y Zonas Verdes (Green) -->
-          <div class="bulb-item">
-            <div class="bulb-shape bulb-green">
-              <i class="fas fa-tree bulb-icon"></i>
-              <span class="bulb-title">Parques y Zonas Verdes</span>
-            </div>
-            <div class="bulb-content">
-              <div class="mobile-title">Parques y Zonas Verdes</div>
-              <ul>
-                <li>Rocerías y Podas</li>
-                <li>Siembra Ornato</li>
-                <li>Parques Biosaludables</li>
-                <li>Mtto. Relleno Sanitario</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- About Section -->
-    <section class="about-section" id="about">
-      <div class="container">
-        <div class="about-content">
-          <h2>Acerca de INFIBAGUE</h2>
-          <p>
-            INFIBAGUÉ es una institución que promueve el desarrollo regional a través de la prestación de servicios
-            financieros y de garantía, la asesoría y asistencia técnica especializada, la participación y/o operación de
-            esquemas empresariales, la gestión y administración de proyectos y recursos estratégicos, soportados en un
-            equipo humano que genera valor, con compromiso, responsabilidad social y transparencia.
-          </p>
-          <p class="mt-xl">
-            <strong>¿Eres funcionario?</strong> Inscríbete en cursos, completa módulos y obtén certificados.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
-      <div class="container">
-        <h2>¿Listo para comenzar?</h2>
-        <p style="font-size: 1.25rem; margin-bottom: 2rem;">
-          Registrate para aprender sobre la entidad INFIBAGUE
-        </p>
-        <a href="./registro.html" class="btn btn-large" style="background: white; color: var(--color-secondary);">
-          Registrarse Ahora
-        </a>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h4>Campus INFIBAGUE</h4>
-            <p>Plataforma de formación y capacitación institucional</p>
-          </div>
-
-          <div class="footer-section">
-            <h4>Enlaces Rápidos</h4>
-            <p><a href="./login.html" style="color: var(--color-gray-400);">Iniciar Sesión</a></p>
-            <p><a href="./registro.html" style="color: var(--color-gray-400);">Registrarse</a></p>
-            <p><a href="./catalogo.html" style="color: var(--color-gray-400);">Catálogo de Cursos</a></p>
-          </div>
-
-          <div class="footer-section">
-            <h4>Atencion al funcionario </h4>
-            <p>Email: correspondencia@infibague.gov.co</p>
-            <p>Teléfono: (+57) (608) 2772348</p>
-            <p>Oficina organizadora: Oficina Asesora de Planeacion Institucional</p>
+          <div class="wlogo-divider"></div>
+          <div class="wlogo-pill">
+            <img src="./assets/Logo-Integra.jpg" alt="INTEGRA" class="wlogo-img" onerror="this.style.display='none'">
           </div>
         </div>
 
-        <div class="footer-bottom">
-          <p>&copy; <span id="year"></span> Entidad Pública. Todos los derechos reservados.</p>
-        </div>
+        <!-- Mixed-weight title -->
+        <h1 class="welcome-title">
+          <span class="welcome-title-light">Bienvenido al</span>
+          <span class="welcome-title-bold">Campus <span class="title-infi">INFI</span><span class="title-bague">BAGUE</span></span>
+        </h1>
+
+        <div class="welcome-divider"></div>
+        <p class="welcome-subtitle">Plataforma de capacitación de inducción y reinducción</p>
       </div>
-    </footer>
+    </div>
+
+    <!-- ════════════════ RIGHT PANEL ════════════════ -->
+    <div class="panel-right">
+      <!-- Brand -->
+      <div class="brand-header">
+        <img src="./assets/logo-entidad.png" alt="Logo INFIBAGUE" class="brand-logo"
+          onerror="this.style.display='none'">
+        <h2 class="brand-name">Campus INFIBAGUE</h2>
+      </div>
+
+      <!-- Tabs -->
+      <div class="auth-tabs" id="auth-tabs">
+        <button class="auth-tab active" data-tab="login" id="tab-login">Iniciar Sesión</button>
+        <button class="auth-tab" data-tab="register" id="tab-register">Registrarse</button>
+      </div>
+
+      <!-- ── LOGIN FORM ── -->
+      <div class="auth-forms">
+        <form class="auth-form active" id="form-login">
+          <div class="field-group">
+            <label class="field-label" for="login-cedula">Número de Cédula</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">🪪</span>
+              <input type="text" id="login-cedula" name="cedula" class="field-input" placeholder="Ej: 1234567890"
+                required autocomplete="username">
+            </div>
+            <div class="field-error">Por favor ingresa tu número de cédula</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="login-password">Contraseña</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">🔒</span>
+              <input type="password" id="login-password" name="password" class="field-input" placeholder="Tu contraseña"
+                required autocomplete="current-password">
+              <button type="button" class="toggle-password" onclick="togglePwd('login-password', this)">👁</button>
+            </div>
+            <div class="field-error">La contraseña es requerida</div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me"><input type="checkbox" id="remember"> Recordarme</label>
+            <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+          </div>
+
+          <button type="submit" class="btn-submit btn-login" id="btn-login">Ingresar al Campus</button>
+
+          <div class="form-footer">
+            <p>¿No tienes cuenta? <a href="#" onclick="switchTab('register');return false;">Regístrate aquí</a></p>
+          </div>
+        </form>
+
+        <!-- ── REGISTER FORM ── -->
+        <form class="auth-form" id="form-registro">
+          <div class="field-group">
+            <label class="field-label" for="reg-nombre">Nombre Completo *</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">👤</span>
+              <input type="text" id="reg-nombre" name="nombre_completo" class="field-input"
+                placeholder="Ej: Juan Pérez García" required>
+            </div>
+            <div class="field-error">Por favor ingresa tu nombre completo</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="reg-cedula">Número de Cédula *</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">🪪</span>
+              <input type="text" id="reg-cedula" name="cedula" class="field-input" placeholder="Ej: 1234567890"
+                required>
+            </div>
+            <div class="field-error">Ingresa un número de cédula válido (6-12 dígitos)</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="reg-cargo">Cargo *</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">💼</span>
+              <select id="reg-cargo" name="cargo" class="field-select" required>
+                <option value="">Selecciona tu cargo</option>
+                <option value="CONTRATISTA">CONTRATISTA</option>
+                <option value="PROFESIONAL UNIVERSITARIO">PROFESIONAL UNIVERSITARIO</option>
+                <option value="AUXILIAR ADMINISTRATIVO">AUXILIAR ADMINISTRATIVO</option>
+                <option value="CONDUCTOR MECÁNICO">CONDUCTOR MECÁNICO</option>
+                <option value="TECNICO ADMINISTRATIVO">TECNICO ADMINISTRATIVO</option>
+                <option value="TECNICO OPERATIVO">TECNICO OPERATIVO</option>
+                <option value="SECRETARIA EJECUTIVA">SECRETARIA EJECUTIVA</option>
+                <option value="PROFESIONAL ESPECIALIZADO">PROFESIONAL ESPECIALIZADO</option>
+                <option value="OPERARIO CALIFICADO">OPERARIO CALIFICADO</option>
+                <option value="OPERARIO">OPERARIO</option>
+                <option value="JEFE DE OFICINA">JEFE DE OFICINA</option>
+              </select>
+            </div>
+            <div class="field-error">Por favor selecciona tu cargo</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="reg-oficina">Oficina *</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">🏢</span>
+              <select id="reg-oficina" name="oficina" class="field-select" required>
+                <option value="">Selecciona tu oficina</option>
+                <option value="Gerencia General">Gerencia General</option>
+                <option value="Secretaría General">Secretaría General</option>
+                <option value="Dirección de servicios Administrativos">Dirección de servicios Administrativos</option>
+                <option value="Dirección Financiera">Dirección Financiera</option>
+                <option value="Dirección de proyectos y servicios financieros">Dirección de proyectos y servicios
+                  financieros</option>
+                <option value="Dirección operativa y comercial">Dirección operativa y comercial</option>
+                <option value="Oficina gestión tecnológica y transformación digital">Oficina gestión tecnológica y
+                  transformación digital</option>
+                <option value="Oficina de comunicaciones y participación ciudadana">Oficina de comunicaciones y
+                  participación ciudadana</option>
+                <option value="Oficina de control disciplinario">Oficina de control disciplinario</option>
+                <option value="Oficina de control interno">Oficina de control interno</option>
+                <option value="Oficina de recursos físicos (Almacén)">Oficina de recursos físicos (Almacén)</option>
+                <option value="Oficina asesora de planeación institucional">Oficina asesora de planeación institucional
+                </option>
+              </select>
+            </div>
+            <div class="field-error">Por favor selecciona tu oficina</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="reg-codigo">Código de Acceso (Opcional)</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">🔑</span>
+              <input type="password" id="reg-codigo" name="codigo_acceso" class="field-input"
+                placeholder="Solo para personal de Planeación">
+            </div>
+            <div class="field-help">Campo únicamente para personal de Planeación</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="reg-password">Contraseña *</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">🔒</span>
+              <input type="password" id="reg-password" name="password" class="field-input"
+                placeholder="Mínimo 6 caracteres" required minlength="6">
+              <button type="button" class="toggle-password" onclick="togglePwd('reg-password', this)">👁</button>
+            </div>
+            <div class="field-error">La contraseña debe tener al menos 6 caracteres</div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="reg-password-confirm">Confirmar Contraseña *</label>
+            <div class="field-input-wrap">
+              <span class="field-icon">🔒</span>
+              <input type="password" id="reg-password-confirm" name="password_confirm" class="field-input"
+                placeholder="Repite tu contraseña" required>
+            </div>
+            <div class="field-error">Las contraseñas no coinciden</div>
+          </div>
+
+          <button type="submit" class="btn-submit btn-register" id="btn-register">Registrarse</button>
+
+          <div class="form-footer">
+            <p>¿Ya tienes una cuenta? <a href="#" onclick="switchTab('login');return false;">Iniciar Sesión</a></p>
+          </div>
+        </form>
+      </div>
+
+      <div class="copyright">&copy; <span id="year"></span> INFIBAGUE - Instituto de Financiamiento de Ibagué</div>
+    </div>
   </div>
 
   <!-- Scripts -->
+  <script src="./js/config.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/auth.js"></script>
+
   <script>
-    // Actualizar año en footer
+    // ─── Initialize ───
+    inicializarSupabase();
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Smooth scroll para enlaces internos
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
+    // Redirect if session active
+    if (verificarSesionActiva()) {
+      const usuario = obtenerUsuarioActual();
+      redirigirSegunRol(usuario.rol);
+    }
+
+    // ─── Tab switching ───
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+
+      if (tab === 'login') {
+        document.getElementById('tab-login').classList.add('active');
+        document.getElementById('form-login').classList.add('active');
+      } else {
+        document.getElementById('tab-register').classList.add('active');
+        document.getElementById('form-registro').classList.add('active');
+      }
+    }
+
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+
+    // Check URL hash
+    if (window.location.hash === '#register') switchTab('register');
+
+    // ─── Toggle password visibility ───
+    function togglePwd(inputId, btn) {
+      const inp = document.getElementById(inputId);
+      if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+      else { inp.type = 'password'; btn.textContent = '👁'; }
+    }
+
+    // ─── Background slideshow ───
+    (function () {
+      const slides = document.querySelectorAll('.bg-slideshow .slide');
+      let current = 0;
+      setInterval(() => {
+        slides[current].classList.remove('active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+      }, 5000);
+    })();
+
+    // ─── Particles ───
+    (function () {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.width = p.style.height = (Math.random() * 4 + 2) + 'px';
+        p.style.animationDuration = (Math.random() * 12 + 8) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        container.appendChild(p);
+      }
+    })();
+
+    // ─── Field validation helper ───
+    function validarCampoSplit(input) {
+      const group = input.closest('.field-group');
+      const valor = input.value.trim();
+      group.classList.remove('error');
+
+      if (input.hasAttribute('required') && !valor) {
+        group.classList.add('error');
+        return false;
+      }
+
+      if ((input.id === 'login-cedula' || input.id === 'reg-cedula') && valor && !/^\d{6,12}$/.test(valor)) {
+        group.classList.add('error');
+        return false;
+      }
+
+      if (input.id === 'reg-password' && valor && valor.length < 6) {
+        group.classList.add('error');
+        return false;
+      }
+
+      return true;
+    }
+
+    // Real-time validation
+    document.querySelectorAll('.field-input, .field-select').forEach(input => {
+      input.addEventListener('blur', function () { validarCampoSplit(this); });
+      input.addEventListener('input', function () {
+        if (this.closest('.field-group').classList.contains('error')) validarCampoSplit(this);
+      });
+    });
+
+    // Password confirm check
+    const regPwdConfirm = document.getElementById('reg-password-confirm');
+    if (regPwdConfirm) {
+      regPwdConfirm.addEventListener('input', function () {
+        const group = this.closest('.field-group');
+        if (this.value && this.value !== document.getElementById('reg-password').value) {
+          group.classList.add('error');
+        } else {
+          group.classList.remove('error');
         }
       });
+    }
+
+    // ═══════════════════════════════════
+    // LOGIN FORM SUBMIT
+    // ═══════════════════════════════════
+    document.getElementById('form-login').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const inputs = this.querySelectorAll('.field-input');
+      let valido = true;
+      inputs.forEach(i => { if (!validarCampoSplit(i)) valido = false; });
+      if (!valido) return;
+
+      const btn = document.getElementById('btn-login');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-spinner"></span> Iniciando sesión...';
+
+      const cedula = document.getElementById('login-cedula').value.trim();
+      const password = document.getElementById('login-password').value;
+      const resultado = await iniciarSesion(cedula, password);
+
+      btn.disabled = false;
+      btn.innerHTML = 'Ingresar al Campus';
+
+      if (resultado.success) {
+        mostrarNotificacion('¡Bienvenido! Redirigiendo...', 'success');
+        setTimeout(() => redirigirSegunRol(resultado.usuario.rol), 1000);
+      } else {
+        mostrarNotificacion(resultado.message || 'Cédula o contraseña incorrectos', 'error');
+      }
+    });
+
+    // ═══════════════════════════════════
+    // REGISTER FORM SUBMIT
+    // ═══════════════════════════════════
+    document.getElementById('form-registro').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const inputs = this.querySelectorAll('.field-input, .field-select');
+      let valido = true;
+      inputs.forEach(i => { if (!validarCampoSplit(i)) valido = false; });
+
+      const password = document.getElementById('reg-password').value;
+      const passwordConfirm = document.getElementById('reg-password-confirm').value;
+      if (password !== passwordConfirm) {
+        document.getElementById('reg-password-confirm').closest('.field-group').classList.add('error');
+        valido = false;
+      }
+
+      if (!valido) {
+        mostrarNotificacion('Por favor completa todos los campos correctamente', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-register');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-spinner"></span> Registrando...';
+
+      const codigoAcceso = document.getElementById('reg-codigo').value.trim();
+      const esAdmin = codigoAcceso === 'PLANEACION2024';
+      const rolAsignado = esAdmin ? ROLES.EDUCADOR : ROLES.FUNCIONARIO;
+
+      const cargo = document.getElementById('reg-cargo').value.trim();
+      const oficina = document.getElementById('reg-oficina').value;
+
+      const datos = {
+        nombre_completo: document.getElementById('reg-nombre').value.trim(),
+        cedula: document.getElementById('reg-cedula').value.trim(),
+        oficina_cargo: `${cargo} - ${oficina}`,
+        rol: rolAsignado,
+        password: password
+      };
+
+      const resultado = await registrarUsuario(datos);
+
+      btn.disabled = false;
+      btn.innerHTML = 'Registrarse';
+
+      if (resultado.success) {
+        mostrarNotificacion('¡Registro exitoso! Redirigiendo...', 'success');
+        setTimeout(() => redirigirSegunRol(datos.rol), 1500);
+      } else {
+        mostrarNotificacion(resultado.message || 'Error al registrar usuario', 'error');
+      }
     });
   </script>
 </body>
