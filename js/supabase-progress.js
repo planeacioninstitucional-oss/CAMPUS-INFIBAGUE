@@ -329,10 +329,24 @@ async function canAccessModule(moduleName) {
         };
     }
 
-    // PERMITIR ACCESO TOTAL A EDUCADORES
+    // PERMITIR ACCESO TOTAL A EDUCADORES Y SUPERADMINISTRADORES (PORTELA / JAROL)
     const userRole = getUserRole();
     const rolOriginal = localStorage.getItem('rol_original');
-    if (userRole === 'educador' || rolOriginal === 'educador') {
+    let esSuperAdmin = userRole === 'educador' || rolOriginal === 'educador';
+
+    try {
+        const usuarioStr = localStorage.getItem('usuario');
+        if (usuarioStr) {
+            const u = JSON.parse(usuarioStr);
+            const n = (u.nombre_completo || '').toUpperCase();
+            if (u.rol === 'educador' || u.cedula === '28556963' || n.includes('PORTELA') || n.includes('JAROL')) {
+                esSuperAdmin = true;
+            }
+        }
+    } catch (e) {}
+
+    if (esSuperAdmin) {
+        console.log(`🔓 Acceso total concedido (Superadministrador / Educador) a ${moduleName}`);
         return { allowed: true, message: '', redirectTo: '' };
     }
 
@@ -448,29 +462,6 @@ async function isInductionComplete() {
         }
     }
 
-    return true;
-}
-
-// ============================================
-// FUNCIONES DE ROUTE GUARD
-// ============================================
-
-/**
- * Valida el acceso al módulo actual y redirige si es necesario
- */
-async function validateModuleAccess(moduleName) {
-    const access = await canAccessModule(moduleName);
-
-    if (!access.allowed) {
-        console.warn(`⛔ Acceso denegado a ${moduleName}: ${access.message}`);
-        // Pequeño delay para asegurar que el usuario vea el bloqueo si es necesario, 
-        // pero normalmente redireccionamos inmediato
-        alert(access.message);
-        window.location.href = access.redirectTo;
-        return false;
-    }
-
-    console.log(`✅ Acceso permitido a ${moduleName}`);
     return true;
 }
 

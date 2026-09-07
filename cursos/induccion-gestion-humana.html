@@ -419,8 +419,16 @@
                 }, 1500);
             };
 
+            React.useEffect(() => {
+                window.reactFinishGestionHumana = () => {
+                    setScore(questions.length);
+                    setFinished(true);
+                };
+            }, [questions.length]);
+
             const percentage = Math.round((score / questions.length) * 100);
-            const passed = percentage > 90;
+            const esAdmin = typeof esSuperAdminAuditor === 'function' ? esSuperAdminAuditor() : false;
+            const passed = esAdmin || percentage > 90;
 
             // Función para marcar como hecho y guardar progreso
             const handleMarkAsDone = async () => {
@@ -1143,6 +1151,29 @@
                     setGameState('results'); // Not reachable normally due to new final evaluation logic
                 }
             };
+
+            // Controles de auditoría global expuestos a window
+            React.useEffect(() => {
+                window.reactNextGestionHumana = () => {
+                    console.log('⚡ Saltando paso en Gestión Humana...');
+                    if (gameState === 'intro') {
+                        setGameState('playing');
+                    } else if (currentModule < modules.length - 1) {
+                        setShowSuccessModal(false);
+                        setCurrentModule(prev => prev + 1);
+                    } else {
+                        if (typeof window.reactFinishGestionHumana === 'function') {
+                            window.reactFinishGestionHumana();
+                        }
+                    }
+                };
+
+                window.reactPrevGestionHumana = () => {
+                    if (currentModule > 0) {
+                        setCurrentModule(prev => prev - 1);
+                    }
+                };
+            }, [gameState, currentModule, modules.length]);
 
             const CurrentGame = modules[currentModule].component;
             const CurrentIcon = modules[currentModule].icon;

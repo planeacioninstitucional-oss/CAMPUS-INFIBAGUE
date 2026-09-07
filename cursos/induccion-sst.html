@@ -786,7 +786,8 @@
                 // Mostrar solo porcentaje limpio
                 document.getElementById('final-score').innerText = `${percentage}%`;
 
-                const passed = percentage >= 80;
+                const esAdmin = typeof esSuperAdminAuditor === 'function' ? esSuperAdminAuditor() : false;
+                const passed = esAdmin || percentage >= 80;
 
                 const btnNext = document.getElementById('btn-next-module');
                 const btnRetry = document.getElementById('btn-retry');
@@ -807,17 +808,17 @@
                     iconContainer.classList.add('bg-green-100');
                     icon.className = "fa-solid fa-trophy text-4xl text-[#658D1B]";
 
-                    // Mostrar certificado SST y ocultar siguiente módulo inicialmente
+                    // Mostrar certificado SST
                     const btnCert = document.getElementById('btn-cert-sst');
                     if (btnCert) btnCert.classList.remove('hidden-section');
 
-                    // Ocultar siguiente módulo hasta descargar certificado
-                    btnNext.classList.add('hidden-section');
-                    btnNext.style.display = '';
+                    // Mostrar siguiente módulo directamente si es superadmin o tras certificado
+                    btnNext.classList.remove('hidden-section');
+                    btnNext.style.display = 'inline-flex';
 
-                    // Ocultar dashboard hasta descargar
+                    // Mostrar dashboard
                     const btnDash = document.getElementById('btn-dashboard');
-                    if (btnDash) btnDash.classList.add('hidden-section');
+                    if (btnDash) btnDash.classList.remove('hidden-section');
 
                     // Ocultar retry
                     btnRetry.style.display = 'none';
@@ -872,6 +873,38 @@
                 }
             }
         }
+
+        // ==========================================
+        // FUNCIONES GLOBALES DE AUDITORÍA (SST)
+        // ==========================================
+        window.sstNextLevel = function() {
+            console.log('⚡ Saltando nivel en SST...');
+            const sections = ['screen-start', 'level-1', 'level-2', 'level-3', 'level-4', 'screen-end'];
+            for (let i = 0; i < sections.length; i++) {
+                const el = document.getElementById(sections[i]);
+                if (el && !el.classList.contains('hidden-section')) {
+                    if (i < sections.length - 1) {
+                        switchSection(sections[i], sections[i + 1]);
+                        return;
+                    } else {
+                        if (typeof volverAlCurso === 'function') volverAlCurso();
+                        return;
+                    }
+                }
+            }
+            switchSection('screen-start', 'level-1');
+        };
+
+        window.sstFinishModule = function() {
+            console.log('⚡ Finalizando y aprobando módulo SST...');
+            score = 118;
+            const sections = ['screen-start', 'level-1', 'level-2', 'level-3', 'level-4'];
+            const visible = sections.find(id => {
+                const el = document.getElementById(id);
+                return el && !el.classList.contains('hidden-section');
+            }) || 'screen-start';
+            switchSection(visible, 'screen-end');
+        };
 
         function updateProgress(percent) {
             document.getElementById('progress-bar').style.width = percent + '%';

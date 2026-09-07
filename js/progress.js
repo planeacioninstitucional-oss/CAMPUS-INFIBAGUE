@@ -322,3 +322,204 @@ async function obtenerProgresoDetallado(inscripcionId) {
         };
     }
 }
+
+// ============================================
+// SISTEMA DE AUDITORÍA Y BYPASS SUPERADMINISTRADOR
+// ============================================
+// Permite a Camila Andrea Portela Cortés, directivos y educadores
+// saltar diapositivas, omitir evaluaciones y auditar cualquier contenido sin bloqueos.
+
+function esSuperAdminAuditor() {
+    try {
+        const rolOriginal = localStorage.getItem('rol_original');
+        if (rolOriginal === 'educador') return true;
+        const uStr = localStorage.getItem('usuario');
+        if (!uStr) return false;
+        const u = JSON.parse(uStr);
+        const nom = (u.nombre_completo || '').toUpperCase();
+        return u.rol === 'educador' || 
+               u.rol === 'admin' ||
+               u.cedula === '28556963' || 
+               nom.includes('PORTELA') || 
+               nom.includes('JAROL');
+    } catch (e) {
+        return false;
+    }
+}
+
+// Función global para saltar al siguiente paso/diapositiva
+window.bypassNextStep = function() {
+    console.log('⚡ Ejecutando bypass de siguiente paso/diapositiva...');
+
+    // 1. Gestión Humana (React Component)
+    if (typeof window.reactNextGestionHumana === 'function') {
+        window.reactNextGestionHumana();
+        return;
+    }
+
+    // 2. Seguridad y Salud en el Trabajo (SST)
+    if (typeof window.sstNextLevel === 'function') {
+        window.sstNextLevel();
+        return;
+    }
+
+    // 3. Atención al Ciudadano
+    if (typeof visitedLinks !== 'undefined' && visitedLinks.add) {
+        visitedLinks.add('rueda');
+        visitedLinks.add('panoptico');
+        visitedLinks.add('luminito');
+        visitedLinks.add('infibague');
+        visitedLinks.add('link-rueda');
+        visitedLinks.add('link-panoptico');
+        visitedLinks.add('link-luminito');
+        visitedLinks.add('link-infibague');
+    }
+
+    if (typeof currentPath !== 'undefined' && typeof currentIndex !== 'undefined' && typeof showSlide === 'function') {
+        if (currentIndex < currentPath.length - 1) {
+            currentIndex++;
+            showSlide(currentPath[currentIndex]);
+            return;
+        } else if (typeof finishModule === 'function') {
+            if (typeof totalQuestions !== 'undefined') window.quizScore = totalQuestions;
+            finishModule();
+            return;
+        }
+    }
+
+    // 4. Planeación Estratégica
+    if (typeof currentSlide !== 'undefined' && typeof updateSlide === 'function') {
+        if (typeof slides !== 'undefined' && currentSlide < slides.length - 1) {
+            currentSlide++;
+            updateSlide();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+    }
+
+    // 5. Fallback en SST por elementos DOM
+    const sstSections = ['screen-start', 'level-1', 'level-2', 'level-3', 'level-4', 'screen-end'];
+    for (let i = 0; i < sstSections.length; i++) {
+        const el = document.getElementById(sstSections[i]);
+        if (el && !el.classList.contains('hidden-section')) {
+            if (i < sstSections.length - 1 && typeof switchSection === 'function') {
+                switchSection(sstSections[i], sstSections[i + 1]);
+                return;
+            }
+        }
+    }
+
+    // 6. Búsqueda y activación de cualquier botón "Siguiente" o "Continuar" visible o bloqueado
+    const candidateSelectors = [
+        '.btn-next',
+        '#btnNext',
+        '#nextBtn',
+        '#btn-next-module',
+        '.nav-btn.next',
+        '[onclick*="nextSlide"]',
+        '#btn-continuar',
+        '#btn-marcar-hecho',
+        '.btn-primary'
+    ];
+
+    for (const sel of candidateSelectors) {
+        const elements = document.querySelectorAll(sel);
+        for (const el of elements) {
+            el.disabled = false;
+            el.classList.remove('hidden', 'hidden-section', 'disabled');
+            if (el.style.display === 'none') el.style.display = 'inline-flex';
+            if (el.offsetParent !== null) { // Está visible
+                el.click();
+                return;
+            }
+        }
+    }
+
+    // 7. Fallback a funciones de siguiente módulo si existen
+    if (typeof nextSlide === 'function') {
+        try { nextSlide(); return; } catch (e) {}
+    }
+    if (typeof nextModule === 'function') {
+        try { nextModule(); return; } catch (e) {}
+    }
+};
+
+// Función global para saltar y aprobar la evaluación
+window.bypassEvaluation = function() {
+    console.log('⚡ Ejecutando bypass de evaluación...');
+
+    // 1. Gestión Humana (React)
+    if (typeof window.reactFinishGestionHumana === 'function') {
+        window.reactFinishGestionHumana();
+        setTimeout(() => {
+            const btnHecho = document.getElementById('btn-marcar-hecho');
+            if (btnHecho) btnHecho.click();
+        }, 300);
+        return;
+    }
+
+    // 2. SST
+    if (typeof window.sstFinishModule === 'function') {
+        window.sstFinishModule();
+        return;
+    }
+
+    // 3. Atención al Ciudadano
+    if (typeof finishModule === 'function') {
+        if (typeof totalQuestions !== 'undefined') {
+            window.quizScore = totalQuestions;
+        }
+        finishModule();
+        return;
+    }
+
+    // 4. Planeación
+    if (typeof finishModule === 'function') {
+        finishModule();
+        return;
+    }
+
+    // 5. Notificar al padre directamente
+    if (window.parent !== window) {
+        window.parent.postMessage({
+            type: 'MODULO_INDUCCION_COMPLETADO',
+            data: { aprobado: true, score: 100, total: 100, percentage: 100 }
+        }, '*');
+    }
+};
+
+// Escuchar mensajes del Dashboard padre
+window.addEventListener('message', (event) => {
+    if (!event.data) return;
+    if (event.data.type === 'FORCE_NEXT_SLIDE') {
+        window.bypassNextStep();
+    } else if (event.data.type === 'BYPASS_EVALUATION') {
+        window.bypassEvaluation();
+    }
+});
+
+// Inyectar barra flotante de auditoría si el usuario es Superadministrador / Educador
+document.addEventListener('DOMContentLoaded', () => {
+    if (!esSuperAdminAuditor()) return;
+
+    if (document.getElementById('superadmin-quick-bar')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'superadmin-quick-bar';
+    bar.style.cssText = 'position: fixed; bottom: 18px; right: 18px; z-index: 999999; display: flex; align-items: center; gap: 8px; background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(8px); padding: 8px 14px; border-radius: 9999px; box-shadow: 0 10px 25px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.25); font-family: system-ui, -apple-system, sans-serif;';
+
+    bar.innerHTML = `
+        <span style="color: #fbbf24; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">
+            🛡️ Auditor
+        </span>
+        <button type="button" onclick="window.bypassNextStep()" style="background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(37,99,235,0.4); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            Saltar Diapositiva ⏩
+        </button>
+        <button type="button" onclick="window.bypassEvaluation()" style="background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(5,150,105,0.4); transition: transform 0.15s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+            Aprobar Evaluación ⚡
+        </button>
+    `;
+
+    document.body.appendChild(bar);
+});
+

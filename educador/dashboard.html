@@ -4,36 +4,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Educador - Campus Virtual</title>
+    <title>Panel de Administración y Seguimiento — Campus INFIBAGUÉ</title>
     <link rel="icon" type="image/png" href="../assets/favicon.png">
 
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/components.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
 
-            .main-content .container>div:first-child {
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-hero {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.75rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-grid-admin {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card-pro {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .stat-number {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .stat-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* Sección de Programas de Inducción */
+        .programs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .program-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .program-card.active-period {
+            border: 2px solid #2563eb;
+            background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+        }
+
+        .program-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-current {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-archived {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .module-mini-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .module-mini-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.35rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 0.88rem;
+        }
+
+        /* Tabla de Funcionarios */
+        .table-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2.5rem;
+        }
+
+        .table-header-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .search-input {
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            width: 300px;
+            max-width: 100%;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .admin-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .admin-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .admin-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .cert-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .cert-emitted {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .cert-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-export {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-export:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .admin-hero {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 1rem;
             }
-
-            .main-content .container>div:first-child>div {
+            .search-input {
                 width: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
             }
         }
     </style>
@@ -43,174 +255,429 @@
     <div class="main-wrapper">
         <header class="header">
             <div class="container">
-                <div class="header-content">
-                    <div class="logo-container">
-                        <img src="../assets/logo-entidad.png" alt="Logo" class="logo">
-                        <h1 class="site-title">Campus Virtual - Educador</h1>
+                <div class="header-content" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
+                    <div class="logo-container" style="display: flex; align-items: center; gap: 1rem;">
+                        <img src="../assets/logo-entidad.png" alt="INFIBAGUÉ" class="logo" style="height: 44px; filter: brightness(0) invert(1);">
+                        <h1 class="site-title" style="font-size: 1.25rem; color: white; margin: 0; font-weight: 700;">
+                            Panel de Administración y Seguimiento
+                        </h1>
                     </div>
-                    <nav class="nav">
-                        <a href="../catalogo.html" class="nav-link">Catálogo</a>
-                        <a href="./dashboard.html" class="nav-link active">Mi Dashboard</a>
-                        <a href="#" id="btn-cerrar-sesion" class="btn btn-outline"
-                            style="color: white; border-color: white;">Cerrar Sesión</a>
+                    <nav class="nav" style="display: flex; align-items: center; gap: 1rem;">
+                        <a href="../funcionario/dashboard.html" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.6);">
+                            👁️ Ir a Vista Funcionario
+                        </a>
+                        <a href="#" id="btn-cerrar-sesion" class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.6);">
+                            Cerrar Sesión
+                        </a>
                     </nav>
                 </div>
             </div>
         </header>
 
-        <main class="main-content">
+        <main class="main-content" style="padding: 2rem 0;">
             <div class="container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <!-- Banner de bienvenida institucional -->
+                <div class="admin-hero">
                     <div>
-                        <h2>Bienvenido, <span id="user-nombre"></span></h2>
-                        <p class="text-secondary">Panel de control del educador</p>
+                        <h2 style="margin: 0; color: #0f172a; font-size: 1.6rem; font-weight: 800;">
+                            Bienvenido, <span id="user-nombre">Administrador</span>
+                        </h2>
+                        <p style="margin: 0.35rem 0 0; color: #64748b; font-size: 0.95rem;">
+                            Instituto de Financiamiento, Promoción y Desarrollo de Ibagué — INFIBAGUÉ
+                        </p>
                     </div>
-                    <div style="display: flex; gap: 1rem;">
-                        <button onclick="cambiarVistaAFuncionario()" class="btn btn-outline"
-                            title="Ver el catálogo como lo ven los funcionarios">
-                            👁️ Ver como Funcionario
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button onclick="cambiarVistaAFuncionario()" class="btn btn-primary" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🎓</span> Acceder al Campus de Inducción
                         </button>
-                        <a href="./crear-curso.html" class="btn btn-primary btn-large">
-                            + Crear Nuevo Curso
-                        </a>
                     </div>
                 </div>
 
-                <!-- Estadísticas -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-value" id="total-cursos">0</div>
-                        <div class="stat-card-label">Cursos Creados</div>
-                    </div>
-                    <div class="stat-card" style="border-left-color: var(--color-secondary);">
-                        <div class="stat-card-value" style="color: var(--color-secondary);" id="total-estudiantes">0
+                <!-- Estadísticas Globales Reales -->
+                <div class="stats-grid-admin">
+                    <div class="stat-card-pro" style="border-left-color: #3b82f6;">
+                        <div class="stat-icon" style="background: #eff6ff; color: #2563eb;">👥</div>
+                        <div>
+                            <div class="stat-number" id="total-funcionarios">...</div>
+                            <div class="stat-title">Funcionarios Registrados</div>
                         </div>
-                        <div class="stat-card-label">Estudiantes Inscritos</div>
                     </div>
-                    <div class="stat-card" style="border-left-color: var(--color-success);">
-                        <div class="stat-card-value" style="color: var(--color-success);" id="total-aprobados">0</div>
-                        <div class="stat-card-label">Estudiantes Aprobados</div>
+                    <div class="stat-card-pro" style="border-left-color: #10b981;">
+                        <div class="stat-icon" style="background: #ecfdf5; color: #059669;">🏆</div>
+                        <div>
+                            <div class="stat-number" id="total-certificados">...</div>
+                            <div class="stat-title">Certificados Emitidos</div>
+                        </div>
+                    </div>
+                    <div class="stat-card-pro" style="border-left-color: #8b5cf6;">
+                        <div class="stat-icon" style="background: #f5f3ff; color: #7c3aed;">✅</div>
+                        <div>
+                            <div class="stat-number" id="total-aprobados">...</div>
+                            <div class="stat-title">Inducciones Finalizadas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card-pro" style="border-left-color: #f59e0b;">
+                        <div class="stat-icon" style="background: #fffbeb; color: #d97706;">⚡</div>
+                        <div>
+                            <div class="stat-number" id="total-en-progreso">...</div>
+                            <div class="stat-title">En Progreso</div>
+                        </div>
                     </div>
                 </div>
 
-                <h3 class="mt-2xl mb-lg">Mis Cursos</h3>
+                <!-- Programas de Inducción (2026-I y 2026-II) -->
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>📚</span> Programas de Inducción Institucional
+                </h3>
+                <div class="programs-grid">
+                    <!-- Programa 2026-II (Activo) -->
+                    <div class="program-card active-period">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                            <div>
+                                <span class="program-badge badge-current">⭐ Semestre II (Vigente)</span>
+                                <h4 style="margin: 0.5rem 0 0.25rem; font-size: 1.15rem; color: #0f172a; font-weight: 800;">
+                                    Inducción y Reinducción 2026-II
+                                </h4>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">
+                            Programa actualizado para el segundo semestre institucional. Cuenta con 5 módulos y certificación automática.
+                        </p>
+                        <ul class="module-mini-list">
+                            <li class="module-mini-item">
+                                <span>🤝 1. Atención al Ciudadano</span>
+                                <a href="../cursos/induccion-atencion-ciudadano.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
+                            </li>
+                            <li class="module-mini-item">
+                                <span>👥 2. Gestión Humana</span>
+                                <a href="../cursos/induccion-gestion-humana.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
+                            </li>
+                            <li class="module-mini-item">
+                                <span>🌿 3. Gestión Ambiental</span>
+                                <a href="../cursos/induccion-gestion-ambiental.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
+                            </li>
+                            <li class="module-mini-item">
+                                <span>⛑️ 4. Seguridad y Salud (SST)</span>
+                                <a href="../cursos/induccion-sst.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
+                            </li>
+                            <li class="module-mini-item">
+                                <span>📈 5. Planeación Estratégica</span>
+                                <a href="../cursos/induccion-planeacion.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
+                            </li>
+                        </ul>
+                    </div>
 
-                <!-- Lista de Cursos -->
-                <div id="cursos-container"></div>
-
-                <!-- Estado vacío -->
-                <div id="empty-state" class="empty-state hidden">
-                    <div class="empty-state-icon">📚</div>
-                    <h3 class="empty-state-title">No has creado cursos aún</h3>
-                    <p class="empty-state-description mb-xl">
-                        Comienza creando tu primer curso para compartir conocimiento
-                    </p>
-                    <a href="./crear-curso.html" class="btn btn-primary btn-large">
-                        Crear Mi Primer Curso
-                    </a>
+                    <!-- Programa 2026-I (Semestre I) -->
+                    <div class="program-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                            <div>
+                                <span class="program-badge badge-archived">📁 Semestre I (Completado)</span>
+                                <h4 style="margin: 0.5rem 0 0.25rem; font-size: 1.15rem; color: #0f172a; font-weight: 800;">
+                                    Inducción Institucional 2026-I
+                                </h4>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">
+                            Histórico del primer semestre del año. Todos los registros y certificaciones correspondientes a este periodo.
+                        </p>
+                        <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 1.25rem; text-align: center; color: #64748b; font-size: 0.88rem; margin-top: 1.5rem;">
+                            <span>✅ Periodo culminado satisfactoriamente.</span>
+                            <br>Los certificados emitidos permanecen disponibles para consulta.
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Tabla de Seguimiento de Funcionarios -->
+                <div class="table-card">
+                    <div class="table-header-tools">
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a;">
+                                📋 Seguimiento Individual de Funcionarios
+                            </h3>
+                            <p style="margin: 0.25rem 0 0; color: #64748b; font-size: 0.85rem;">
+                                Listado completo con estado de progreso y certificados emitidos
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <input type="text" id="buscador-funcionarios" class="search-input" placeholder="🔍 Buscar por nombre, cédula o cargo...">
+                            <button onclick="exportarReporteCSV()" class="btn-export">
+                                <span>📥</span> Exportar a Excel / CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Cédula</th>
+                                    <th>Nombre del Funcionario</th>
+                                    <th>Oficina / Cargo</th>
+                                    <th>Progreso Inducción</th>
+                                    <th>Estado Certificado</th>
+                                    <th>Fecha / Cód.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-funcionarios-body">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
+                                        <span class="loading"></span> Cargando información de funcionarios desde la base de datos...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </main>
 
-        <footer class="footer">
+        <footer class="footer" style="background: white; border-top: 1px solid #e2e8f0; padding: 1.5rem 0; text-align: center;">
             <div class="container">
-                <div class="footer-bottom">
-                    <p>&copy; <span id="year"></span> Entidad Pública. Campus Virtual</p>
-                </div>
+                <p style="margin: 0; color: #64748b; font-size: 0.88rem;">
+                    &copy; <span id="year"></span> Instituto de Financiamiento, Promoción y Desarrollo de Ibagué — INFIBAGUÉ
+                </p>
             </div>
         </footer>
     </div>
 
+    <!-- Scripts -->
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/courses.js"></script>
 
     <script>
         inicializarSupabase();
-        verificarRol(ROLES.EDUCADOR, '../catalogo.html');
 
-        const usuario = obtenerUsuarioActual();
-        document.getElementById('user-nombre').textContent = usuario.nombre_completo;
-        document.getElementById('year').textContent = new Date().getFullYear();
+        // Lista en memoria de funcionarios
+        let listaFuncionarios = [];
+        let listaCertificados = [];
+        let listaProgreso = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const usuario = obtenerUsuarioActual();
+
+            // Verificación de rol o superadministrador (Portela / Jarol)
+            const esAdmin = usuario && (
+                usuario.rol === 'educador' ||
+                usuario.cedula === '28556963' ||
+                (usuario.nombre_completo && (usuario.nombre_completo.toUpperCase().includes('PORTELA') || usuario.nombre_completo.toUpperCase().includes('JAROL')))
+            );
+
+            if (!usuario || (!esAdmin && usuario.rol !== 'educador')) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            document.getElementById('user-nombre').textContent = usuario.nombre_completo;
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // Cargar datos reales
+            await cargarDatosAdmin();
+
+            // Buscador
+            const buscador = document.getElementById('buscador-funcionarios');
+            if (buscador) {
+                buscador.addEventListener('input', (e) => {
+                    filtrarTabla(e.target.value);
+                });
+            }
+        });
 
         document.getElementById('btn-cerrar-sesion').addEventListener('click', async (e) => {
             e.preventDefault();
             await cerrarSesion();
         });
 
-        // Cargar datos
-        async function cargarDashboard() {
-            mostrarLoader('cursos-container');
+        async function cargarDatosAdmin() {
+            const supabase = getSupabase();
 
-            const resultado = await obtenerCursosEducador();
+            try {
+                // 1. Obtener todos los funcionarios registrados
+                const { data: usuarios, error: errUsers } = await supabase
+                    .from('usuarios')
+                    .select('id, cedula, nombre_completo, oficina_cargo, rol')
+                    .order('nombre_completo', { ascending: true });
 
-            if (resultado.success) {
-                const cursos = resultado.cursos;
+                // 2. Obtener certificados emitidos
+                const { data: certs, error: errCerts } = await supabase
+                    .from('certificados')
+                    .select('*');
 
-                if (cursos.length === 0) {
-                    document.getElementById('cursos-container').innerHTML = '';
-                    document.getElementById('empty-state').classList.remove('hidden');
-                    return;
+                // 3. Obtener progreso de módulos
+                const { data: progress, error: errProg } = await supabase
+                    .from('user_module_progress')
+                    .select('*');
+
+                listaFuncionarios = usuarios || [];
+                listaCertificados = certs || [];
+                listaProgreso = progress || [];
+
+                // Calcular estadísticas
+                const totalFunc = listaFuncionarios.filter(u => u.rol === 'funcionario').length;
+                const totalCerts = listaCertificados.length;
+
+                // Conteo de aprobados (tienen certificado o 5 módulos aprobados)
+                const mapaCerts = {};
+                listaCertificados.forEach(c => {
+                    mapaCerts[c.cedula] = c;
+                    if (c.usuario_id) mapaCerts[c.usuario_id] = c;
+                });
+
+                const mapaProgreso = {};
+                listaProgreso.forEach(p => {
+                    if (p.status === 'approved') {
+                        if (!mapaProgreso[p.user_id]) mapaProgreso[p.user_id] = 0;
+                        mapaProgreso[p.user_id]++;
+                    }
+                });
+
+                let completados = 0;
+                let enProgreso = 0;
+
+                listaFuncionarios.forEach(u => {
+                    const cantMod = mapaProgreso[u.id] || 0;
+                    const tieneCert = !!mapaCerts[u.cedula] || !!mapaCerts[u.id];
+                    if (tieneCert || cantMod >= 5) {
+                        completados++;
+                    } else if (cantMod > 0) {
+                        enProgreso++;
+                    }
+                });
+
+                document.getElementById('total-funcionarios').textContent = totalFunc;
+                document.getElementById('total-certificados').textContent = totalCerts;
+                document.getElementById('total-aprobados').textContent = completados;
+                document.getElementById('total-en-progreso').textContent = enProgreso;
+
+                renderizarTabla(listaFuncionarios, mapaCerts, mapaProgreso);
+
+            } catch (error) {
+                console.error('Error cargando datos de administración:', error);
+                document.getElementById('tabla-funcionarios-body').innerHTML = `
+                    <tr><td colspan="6" style="text-align: center; color: #ef4444; padding: 1.5rem;">
+                        Ocurrió un error al cargar la información. Revisa la conexión con la base de datos.
+                    </td></tr>
+                `;
+            }
+        }
+
+        function renderizarTabla(usuarios, mapaCerts, mapaProgreso) {
+            const tbody = document.getElementById('tabla-funcionarios-body');
+            tbody.innerHTML = '';
+
+            const soloFuncionarios = usuarios.filter(u => u.rol === 'funcionario');
+
+            if (soloFuncionarios.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">No se encontraron registros de funcionarios.</td></tr>`;
+                return;
+            }
+
+            soloFuncionarios.forEach(u => {
+                const cert = mapaCerts[u.cedula] || mapaCerts[u.id];
+                const modCount = mapaProgreso[u.id] || 0;
+                const porcentaje = Math.min(100, Math.round((modCount / 5) * 100));
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: #334155;">${u.cedula}</td>
+                    <td style="font-weight: 600; color: #0f172a;">${u.nombre_completo}</td>
+                    <td style="font-size: 0.82rem; color: #475569;">${u.oficina_cargo || 'General'}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="flex: 1; height: 7px; background: #e2e8f0; border-radius: 4px; overflow: hidden; min-width: 70px;">
+                                <div style="height: 100%; width: ${cert ? 100 : porcentaje}%; background: ${cert || porcentaje === 100 ? '#10b981' : '#3b82f6'};"></div>
+                            </div>
+                            <span style="font-size: 0.78rem; font-weight: 700; color: #475569;">${cert ? '100%' : `${porcentaje}%`}</span>
+                        </div>
+                    </td>
+                    <td>
+                        ${cert ? `
+                            <span class="cert-status-badge cert-emitted">
+                                <span>✓</span> Certificado
+                            </span>
+                        ` : `
+                            <span class="cert-status-badge cert-pending">
+                                <span>⏳</span> ${porcentaje > 0 ? 'En curso' : 'Pendiente'}
+                            </span>
+                        `}
+                    </td>
+                    <td style="font-size: 0.8rem; color: #64748b;">
+                        ${cert ? `
+                            <strong>${cert.codigo_verificacion || 'Emitido'}</strong>
+                            <br><span style="font-size: 0.75rem;">${new Date(cert.fecha_generacion).toLocaleDateString('es-CO')}</span>
+                        ` : '<span style="color: #94a3b8;">—</span>'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filtrarTabla(query) {
+            const q = query.toLowerCase().trim();
+            const mapaCerts = {};
+            listaCertificados.forEach(c => {
+                mapaCerts[c.cedula] = c;
+                if (c.usuario_id) mapaCerts[c.usuario_id] = c;
+            });
+            const mapaProgreso = {};
+            listaProgreso.forEach(p => {
+                if (p.status === 'approved') {
+                    if (!mapaProgreso[p.user_id]) mapaProgreso[p.user_id] = 0;
+                    mapaProgreso[p.user_id]++;
                 }
+            });
 
-                document.getElementById('empty-state').classList.add('hidden');
-                document.getElementById('total-cursos').textContent = cursos.length;
+            const filtrados = listaFuncionarios.filter(u => 
+                (u.nombre_completo && u.nombre_completo.toLowerCase().includes(q)) ||
+                (u.cedula && u.cedula.toLowerCase().includes(q)) ||
+                (u.oficina_cargo && u.oficina_cargo.toLowerCase().includes(q))
+            );
 
-                // TODO: Calcular estadísticas reales de inscripciones
-                // Por ahora mostramos placeholders
-
-                mostrarCursos(cursos);
-            } else {
-                mostrarContenido('cursos-container', '<div class="alert alert-error">Error al cargar cursos</div>');
-            }
+            renderizarTabla(filtrados, mapaCerts, mapaProgreso);
         }
 
-        function mostrarCursos(cursos) {
-            const html = cursos.map(curso => `
-        <div class="card-curso" style="margin-bottom: 1.5rem;">
-          <div class="card-curso-imagen" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-            📚
-          </div>
-          <div class="card-curso-body">
-            <h3 class="card-curso-titulo">${escaparHTML(curso.titulo)}</h3>
-            <p class="card-curso-descripcion">${escaparHTML(curso.descripcion || 'Sin descripción')}</p>
-            <div class="card-curso-meta">
-              ${curso.oficina_tema ? `<span class="card-curso-meta-item">📋 ${escaparHTML(curso.oficina_tema)}</span>` : ''}
-              <span class="card-curso-meta-item">
-                ${curso.activo ? '<span class="badge badge-success">Activo</span>' : '<span class="badge badge-error">Inactivo</span>'}
-              </span>
-            </div>
-          </div>
-          <div class="card-curso-footer">
-            <a href="./editar-curso.html?id=${curso.id}" class="btn btn-primary btn-small">
-              Editar Curso
-            </a>
-            <a href="./seguimiento.html?id=${curso.id}" class="btn btn-secondary btn-small">
-              Ver Seguimiento
-            </a>
-            <button class="btn btn-outline btn-small" onclick="toggleActivo('${curso.id}', ${!curso.activo})">
-              ${curso.activo ? 'Desactivar' : 'Activar'}
-            </button>
-          </div>
-        </div>
-      `).join('');
+        function exportarReporteCSV() {
+            const mapaCerts = {};
+            listaCertificados.forEach(c => {
+                mapaCerts[c.cedula] = c;
+                if (c.usuario_id) mapaCerts[c.usuario_id] = c;
+            });
+            const mapaProgreso = {};
+            listaProgreso.forEach(p => {
+                if (p.status === 'approved') {
+                    if (!mapaProgreso[p.user_id]) mapaProgreso[p.user_id] = 0;
+                    mapaProgreso[p.user_id]++;
+                }
+            });
 
-            document.getElementById('cursos-container').innerHTML = '<div class="cursos-grid">' + html + '</div>';
+            const soloFuncionarios = listaFuncionarios.filter(u => u.rol === 'funcionario');
+
+            let csv = "Cedula,Nombre Completo,Oficina y Cargo,Progreso Porcentaje,Certificado Estado,Codigo Verificacion,Fecha Emision\n";
+
+            soloFuncionarios.forEach(u => {
+                const cert = mapaCerts[u.cedula] || mapaCerts[u.id];
+                const modCount = mapaProgreso[u.id] || 0;
+                const porcentaje = cert ? 100 : Math.min(100, Math.round((modCount / 5) * 100));
+                const estadoCert = cert ? "Emitido" : (porcentaje > 0 ? "En Curso" : "No Iniciado");
+                const codigo = cert ? (cert.codigo_verificacion || "Si") : "";
+                const fecha = cert ? new Date(cert.fecha_generacion).toISOString().split('T')[0] : "";
+
+                const nombreLimpio = `"${(u.nombre_completo || '').replace(/"/g, '""')}"`;
+                const cargoLimpio = `"${(u.oficina_cargo || '').replace(/"/g, '""')}"`;
+
+                csv += `${u.cedula},${nombreLimpio},${cargoLimpio},${porcentaje}%,${estadoCert},${codigo},${fecha}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Reporte_Induccion_INFIBAGUE_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
-
-        async function toggleActivo(cursoId, nuevoEstado) {
-            const resultado = await actualizarCurso(cursoId, { activo: nuevoEstado });
-
-            if (resultado.success) {
-                mostrarNotificacion(`Curso ${nuevoEstado ? 'activado' : 'desactivado'}`, 'success');
-                cargarDashboard();
-            } else {
-                mostrarNotificacion('Error al actualizar curso', 'error');
-            }
-        }
-
-        cargarDashboard();
     </script>
 </body>
 

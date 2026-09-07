@@ -151,6 +151,88 @@ async function iniciarSesion(cedula, password) {
 }
 
 /**
+ * Busca un usuario por su número de cédula para verificar identidad
+ * @param {string} cedula - Cédula a buscar
+ * @returns {Promise<Object>} Resultado con datos básicos del usuario
+ */
+async function buscarUsuarioPorCedula(cedula) {
+    const supabase = getSupabase();
+    try {
+        const { data: usuario, error } = await supabase
+            .from('usuarios')
+            .select('id, cedula, nombre_completo, oficina_cargo, rol')
+            .eq('cedula', cedula.trim())
+            .single();
+
+        if (error || !usuario) {
+            return {
+                success: false,
+                message: 'No se encontró ningún funcionario con este número de cédula'
+            };
+        }
+
+        return {
+            success: true,
+            usuario: usuario
+        };
+    } catch (error) {
+        console.error('Error al buscar usuario:', error);
+        return {
+            success: false,
+            message: 'Error al consultar la base de datos'
+        };
+    }
+}
+
+/**
+ * Restablece o actualiza la contraseña de un usuario por su cédula
+ * @param {string} cedula - Número de cédula
+ * @param {string} nuevaPassword - Nueva contraseña en texto plano
+ * @returns {Promise<Object>} Resultado de la actualización
+ */
+async function recuperarOActualizarPassword(cedula, nuevaPassword) {
+    const supabase = getSupabase();
+    try {
+        if (!nuevaPassword || nuevaPassword.length < 6) {
+            return {
+                success: false,
+                message: 'La contraseña debe contener al menos 6 caracteres'
+            };
+        }
+
+        // Hashear la nueva contraseña
+        const passwordHash = await hashPassword(nuevaPassword);
+
+        // Actualizar en Supabase
+        const { data: usuario, error } = await supabase
+            .from('usuarios')
+            .update({ password_hash: passwordHash })
+            .eq('cedula', cedula.trim())
+            .select('id, cedula, nombre_completo, oficina_cargo, rol')
+            .single();
+
+        if (error || !usuario) {
+            return {
+                success: false,
+                message: 'No se pudo actualizar la contraseña. Verifica que la cédula sea correcta.'
+            };
+        }
+
+        return {
+            success: true,
+            message: '¡Contraseña actualizada exitosamente! Ya puedes iniciar sesión.',
+            usuario: usuario
+        };
+    } catch (error) {
+        console.error('Error al actualizar contraseña:', error);
+        return {
+            success: false,
+            message: 'Ocurrió un error al actualizar la contraseña'
+        };
+    }
+}
+
+/**
  * Cierra la sesión del usuario actual
  * @returns {Object} Resultado
  */

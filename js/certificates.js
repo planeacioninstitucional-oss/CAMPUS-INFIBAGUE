@@ -304,7 +304,7 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             const [imgBg, imgFirma1, imgFirma2, imgFirma3] = await Promise.all([
                 loadImage('../assets/Certificado-plantilla.jpeg'),
                 loadImage('../assets/firmaplaneacioncp.png'),
-                loadImage('../assets/gerente}.png'),
+                loadImage('../assets/gerente.png'),
                 loadImage('../assets/FIRMA-ADMINI.png')
             ]);
 
@@ -448,7 +448,49 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             doc.text('Director de Servicios', col3X, textoFirmasY, { align: 'center' });
             doc.text('Administrativos', col3X, textoFirmasY + 4, { align: 'center' });
 
-            doc.save(nombreArchivo);
+            // Código de verificación institucional y persistencia en Supabase
+            const anioActual = fecha.getFullYear();
+            const codigoVerificacion = 'INF-' + anioActual + '-IND-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+            doc.setFontSize(7.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(110, 110, 110);
+            doc.text(`Cód. Verificación: ${codigoVerificacion}`, width - 15, height - 8, { align: 'right' });
+            doc.text(`Válido institucionalmente — INFIBAGUÉ ${anioActual}`, 15, height - 8, { align: 'left' });
+
+            if (supabase) {
+                try {
+                    await supabase.from('certificados').insert({
+                        usuario_id: usuario.id || null,
+                        cedula: cedula || '',
+                        nombre_funcionario: nombreCompleto,
+                        tipo_certificado: 'INDUCCION_GENERAL',
+                        codigo_verificacion: codigoVerificacion,
+                        inscripcion_id: (inscripcionId && inscripcionId !== 'bypass-jarol') ? inscripcionId : null,
+                        fecha_generacion: new Date().toISOString()
+                    });
+                    console.log('✅ Certificado guardado en base de datos Supabase:', codigoVerificacion);
+                } catch (dbErr) {
+                    console.warn('Advertencia al registrar certificado en Supabase:', dbErr);
+                }
+            }
+
+            // Descarga segura con soporte para móviles
+            try {
+                doc.save(nombreArchivo);
+            } catch (saveErr) {
+                const blob = doc.output('blob');
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = nombreArchivo;
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
             console.log('✅ Certificado generado exitosamente');
             if (typeof mostrarNotificacion === 'function') {
                 mostrarNotificacion('Certificado descargado exitosamente', 'success');
@@ -673,7 +715,7 @@ async function previsualizarCertificado(inscripcionId) {
                                 <div class="firma-cargo">Jefe de Oficina Asesora<br>de Planeación Institucional</div>
                             </div>
                             <div class="columna-firma">
-                                <img src="../assets/gerente}.png" class="firma-img" alt="Firma Gerente">
+                                <img src="../assets/gerente.png" class="firma-img" alt="Firma Gerente">
                                 <div class="firma-cargo">Gerente General</div>
                             </div>
                             <div class="columna-firma">
@@ -933,6 +975,32 @@ async function descargarCertificadoSST(datos = null) {
                 doc.addImage(imgLogo, 'PNG', centroX - 45, height / 2 - 45, 90, 90, undefined, 'NONE');
                 doc.restoreGraphicsState();
             } catch (e) {}
+        }
+
+        // Código de verificación institucional SST y persistencia en Supabase
+        const anioSST = hoy.getFullYear();
+        const codigoVerificacionSST = 'INF-' + anioSST + '-SST-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(110, 110, 110);
+        doc.text(`Cód. Verificación: ${codigoVerificacionSST}`, width - marginL, height - 7, { align: 'right' });
+        doc.text(`Válido institucionalmente — INFIBAGUÉ ${anioSST}`, marginL, height - 7, { align: 'left' });
+
+        if (supabase) {
+            try {
+                await supabase.from('certificados').insert({
+                    usuario_id: usuario.id || null,
+                    cedula: cedula || '',
+                    nombre_funcionario: nombreCompleto,
+                    tipo_certificado: 'SST',
+                    codigo_verificacion: codigoVerificacionSST,
+                    fecha_generacion: new Date().toISOString()
+                });
+                console.log('✅ Certificado SST guardado en base de datos Supabase:', codigoVerificacionSST);
+            } catch (dbErr) {
+                console.warn('Advertencia al registrar certificado SST en Supabase:', dbErr);
+            }
         }
 
         // Descarga

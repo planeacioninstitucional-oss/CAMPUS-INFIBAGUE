@@ -147,7 +147,11 @@
                         <span class="form-error">La contraseña es requerida</span>
                     </div>
 
-
+                    <div class="forgot-password" style="text-align: right; margin-top: -0.5rem; margin-bottom: 1.25rem;">
+                        <a href="javascript:void(0)" id="link-recuperar-password" style="font-size: 0.9rem; color: #2563eb; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            🔑 ¿Olvidaste tu contraseña?
+                        </a>
+                    </div>
 
                     <button type="submit" class="btn btn-primary btn-block btn-large mt-lg" id="btn-submit">
                         Iniciar Sesión
@@ -167,10 +171,62 @@
         </div>
     </div>
 
+    <!-- MODAL RESTABLECER CONTRASEÑA -->
+    <div id="modal-recuperar" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(4px);">
+        <div style="background: white; border-radius: 1.25rem; max-width: 440px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); overflow: hidden;">
+            <div style="background: #1e3a8a; color: white; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>🔑</span> Restablecer Contraseña
+                </h3>
+                <button type="button" id="btn-cerrar-modal" style="background: none; border: none; color: white; font-size: 1.75rem; cursor: pointer; line-height: 1; padding: 0 0.5rem;">&times;</button>
+            </div>
+            <div style="padding: 1.5rem;">
+                <!-- PASO 1: Ingreso de cédula -->
+                <div id="step-1-cedula">
+                    <p style="color: #475569; font-size: 0.95rem; margin-bottom: 1.25rem; line-height: 1.5;">
+                        Ingresa tu número de cédula para verificar tu cuenta y definir una nueva contraseña de acceso.
+                    </p>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label for="recuperar-cedula" class="form-label">Número de Cédula</label>
+                        <input type="text" id="recuperar-cedula" class="form-input" placeholder="Ej: 1234567890" inputmode="numeric">
+                        <span id="error-recuperar-cedula" style="display: none; color: #ef4444; font-size: 0.85rem; margin-top: 0.35rem;"></span>
+                    </div>
+                    <button type="button" id="btn-verificar-cedula" class="btn btn-primary btn-block btn-large">
+                        Verificar Cédula
+                    </button>
+                </div>
+
+                <!-- PASO 2: Nueva contraseña -->
+                <div id="step-2-password" style="display: none;">
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem; padding: 0.85rem; margin-bottom: 1.25rem;">
+                        <span style="font-size: 0.75rem; color: #166534; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Funcionario Verificado</span>
+                        <div id="recuperar-nombre" style="font-weight: 700; color: #14532d; font-size: 1.05rem; margin-top: 0.15rem;"></div>
+                        <div id="recuperar-cargo" style="font-size: 0.82rem; color: #15803d;"></div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="recuperar-nueva-clave" class="form-label">Nueva Contraseña</label>
+                        <input type="password" id="recuperar-nueva-clave" class="form-input" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1.25rem;">
+                        <label for="recuperar-confirmar-clave" class="form-label">Confirmar Contraseña</label>
+                        <input type="password" id="recuperar-confirmar-clave" class="form-input" placeholder="Repite tu contraseña">
+                        <span id="error-recuperar-clave" style="display: none; color: #ef4444; font-size: 0.85rem; margin-top: 0.35rem;"></span>
+                    </div>
+                    <button type="button" id="btn-guardar-nueva-clave" class="btn btn-primary btn-block btn-large">
+                        Actualizar Contraseña
+                    </button>
+                </div>
+
+                <!-- Mensaje de estado -->
+                <div id="recuperar-mensaje" style="display: none; margin-top: 1rem; padding: 0.75rem; border-radius: 0.5rem; font-size: 0.9rem; text-align: center;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
-    <script src="../js/config.js"></script>
-    <script src="../js/utils.js"></script>
-    <script src="../js/auth.js"></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/auth.js"></script>
 
     <script>
         // Inicializar Supabase
@@ -268,6 +324,161 @@
             }
 
             return true;
+        }
+
+        // ==========================================
+        // LÓGICA DE RECUPERACIÓN DE CONTRASEÑA
+        // ==========================================
+        const modalRecuperar = document.getElementById('modal-recuperar');
+        const linkRecuperar = document.getElementById('link-recuperar-password');
+        const btnCerrarModal = document.getElementById('btn-cerrar-modal');
+        const step1 = document.getElementById('step-1-cedula');
+        const step2 = document.getElementById('step-2-password');
+        const inputRecuperarCedula = document.getElementById('recuperar-cedula');
+        const btnVerificarCedula = document.getElementById('btn-verificar-cedula');
+        const errorRecuperarCedula = document.getElementById('error-recuperar-cedula');
+        const txtNombre = document.getElementById('recuperar-nombre');
+        const txtCargo = document.getElementById('recuperar-cargo');
+        const inputNuevaClave = document.getElementById('recuperar-nueva-clave');
+        const inputConfirmarClave = document.getElementById('recuperar-confirmar-clave');
+        const btnGuardarClave = document.getElementById('btn-guardar-nueva-clave');
+        const errorClave = document.getElementById('error-recuperar-clave');
+        const msgRecuperar = document.getElementById('recuperar-mensaje');
+
+        let cedulaVerificada = '';
+
+        function mostrarMensajeRecuperar(texto, tipo) {
+            msgRecuperar.style.display = 'block';
+            msgRecuperar.textContent = texto;
+            if (tipo === 'success') {
+                msgRecuperar.style.background = '#dcfce7';
+                msgRecuperar.style.color = '#15803d';
+                msgRecuperar.style.border = '1px solid #86efac';
+            } else {
+                msgRecuperar.style.background = '#fee2e2';
+                msgRecuperar.style.color = '#b91c1c';
+                msgRecuperar.style.border = '1px solid #fca5a5';
+            }
+        }
+
+        function resetearModalRecuperar() {
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+            msgRecuperar.style.display = 'none';
+            errorRecuperarCedula.style.display = 'none';
+            errorClave.style.display = 'none';
+            inputRecuperarCedula.value = '';
+            inputNuevaClave.value = '';
+            inputConfirmarClave.value = '';
+            btnVerificarCedula.disabled = false;
+            btnVerificarCedula.innerHTML = 'Verificar Cédula';
+            btnGuardarClave.disabled = false;
+            btnGuardarClave.innerHTML = 'Actualizar Contraseña';
+            cedulaVerificada = '';
+        }
+
+        if (linkRecuperar) {
+            linkRecuperar.addEventListener('click', () => {
+                resetearModalRecuperar();
+                // Si el usuario ya había escrito su cédula en el login, precargarla
+                const cedulaActual = document.getElementById('cedula').value.trim();
+                if (cedulaActual) {
+                    inputRecuperarCedula.value = cedulaActual;
+                }
+                modalRecuperar.style.display = 'flex';
+            });
+        }
+
+        if (btnCerrarModal) {
+            btnCerrarModal.addEventListener('click', () => {
+                modalRecuperar.style.display = 'none';
+            });
+        }
+
+        // Cerrar tocando el fondo oscuro en móviles y desktop
+        if (modalRecuperar) {
+            modalRecuperar.addEventListener('click', (e) => {
+                if (e.target === modalRecuperar) {
+                    modalRecuperar.style.display = 'none';
+                }
+            });
+        }
+
+        // Paso 1: Verificar Cédula
+        if (btnVerificarCedula) {
+            btnVerificarCedula.addEventListener('click', async () => {
+                const cedula = inputRecuperarCedula.value.trim();
+                errorRecuperarCedula.style.display = 'none';
+                msgRecuperar.style.display = 'none';
+
+                if (!cedula || !/^\d{5,12}$/.test(cedula)) {
+                    errorRecuperarCedula.textContent = 'Ingresa un número de cédula válido (solo números)';
+                    errorRecuperarCedula.style.display = 'block';
+                    return;
+                }
+
+                btnVerificarCedula.disabled = true;
+                btnVerificarCedula.innerHTML = '<span class="loading"></span> Verificando...';
+
+                const res = await buscarUsuarioPorCedula(cedula);
+                btnVerificarCedula.disabled = false;
+                btnVerificarCedula.innerHTML = 'Verificar Cédula';
+
+                if (res.success && res.usuario) {
+                    cedulaVerificada = cedula;
+                    txtNombre.textContent = res.usuario.nombre_completo || 'Funcionario';
+                    txtCargo.textContent = res.usuario.oficina_cargo || 'INFIBAGUÉ';
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                    inputNuevaClave.focus();
+                } else {
+                    errorRecuperarCedula.textContent = res.message || 'Cédula no encontrada en el sistema';
+                    errorRecuperarCedula.style.display = 'block';
+                }
+            });
+        }
+
+        // Paso 2: Guardar Nueva Contraseña
+        if (btnGuardarClave) {
+            btnGuardarClave.addEventListener('click', async () => {
+                const nuevaClave = inputNuevaClave.value;
+                const confirmarClave = inputConfirmarClave.value;
+                errorClave.style.display = 'none';
+                msgRecuperar.style.display = 'none';
+
+                if (!nuevaClave || nuevaClave.length < 6) {
+                    errorClave.textContent = 'La contraseña debe tener al menos 6 caracteres';
+                    errorClave.style.display = 'block';
+                    return;
+                }
+
+                if (nuevaClave !== confirmarClave) {
+                    errorClave.textContent = 'Las contraseñas no coinciden';
+                    errorClave.style.display = 'block';
+                    return;
+                }
+
+                btnGuardarClave.disabled = true;
+                btnGuardarClave.innerHTML = '<span class="loading"></span> Guardando...';
+
+                const res = await recuperarOActualizarPassword(cedulaVerificada, nuevaClave);
+                btnGuardarClave.disabled = false;
+                btnGuardarClave.innerHTML = 'Actualizar Contraseña';
+
+                if (res.success) {
+                    mostrarMensajeRecuperar('¡Contraseña actualizada con éxito! Preparando inicio de sesión...', 'success');
+                    // Precargar en el formulario principal
+                    document.getElementById('cedula').value = cedulaVerificada;
+                    document.getElementById('password').value = nuevaClave;
+
+                    setTimeout(() => {
+                        modalRecuperar.style.display = 'none';
+                        mostrarNotificacion('Contraseña actualizada. Puedes ingresar ahora.', 'success');
+                    }, 1400);
+                } else {
+                    mostrarMensajeRecuperar(res.message || 'Error al actualizar contraseña', 'error');
+                }
+            });
         }
     </script>
 </body>
