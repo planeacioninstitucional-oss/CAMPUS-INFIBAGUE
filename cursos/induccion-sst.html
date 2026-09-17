@@ -318,12 +318,9 @@
     <!-- Supabase Clients -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabaseClient.js"></script>
-    <!-- Auth & Config (needed for certificate generation) -->
-    <script src="../js/config.js"></script>
-    <script src="../js/auth.js"></script>
-    <!-- jsPDF & Certificates System -->
+    <!-- jsPDF (config.js, auth.js y certificates.js se cargan una sola vez, al
+         final del body, junto con progress.js y supabase-progress.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="../js/certificates.js"></script>
 </head>
 
 <body class="min-h-screen flex flex-col items-center p-4 pb-20">
@@ -648,10 +645,7 @@
             </div>
 
             <div class="flex flex-col gap-3">
-                <button id="btn-cert-sst" onclick="descargarCertificadoSSTyHabilitar()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition flex items-center justify-center gap-2 hidden-section">
-                    <i class="fa-solid fa-file-certificate"></i> Descargar Certificado SST
-                </button>
-                <button id="btn-next-module" onclick="finalizarModulo()" 
+                <button id="btn-next-module" onclick="finalizarModulo()"
                     class="w-full bg-[#658D1B] text-white py-3 rounded-xl font-medium shadow-lg hover:bg-[#4d6e12] transition hidden-section">
                     Ir al Siguiente Módulo <i class="fa-solid fa-arrow-right ml-2"></i>
                 </button>
@@ -810,17 +804,13 @@
                     resultTitle.classList.remove('text-red-600');
                     resultTitle.classList.add('text-gray-800');
 
-                    resultMsg.innerText = `Has aprobado el módulo con ${percentage}%. Descarga tu certificado SST para continuar.`;
+                    resultMsg.innerText = `Has aprobado el módulo con ${percentage}%. Tu certificado SST estará disponible en el panel principal.`;
 
                     iconContainer.classList.remove('bg-red-100');
                     iconContainer.classList.add('bg-green-100');
                     icon.className = "fa-solid fa-trophy text-4xl text-[#658D1B]";
 
-                    // Mostrar certificado SST
-                    const btnCert = document.getElementById('btn-cert-sst');
-                    if (btnCert) btnCert.classList.remove('hidden-section');
-
-                    // Mostrar siguiente módulo directamente si es superadmin o tras certificado
+                    // Mostrar siguiente módulo directamente
                     btnNext.classList.remove('hidden-section');
                     btnNext.style.display = 'inline-flex';
 
@@ -871,9 +861,7 @@
                     // Botones: solo retry
                     btnNext.style.display = 'none';
                     btnRetry.style.display = 'block';
-                    
-                    const btnCert = document.getElementById('btn-cert-sst');
-                    if (btnCert) btnCert.classList.add('hidden-section');
+
                     const btnDash = document.getElementById('btn-dashboard');
                     if (btnDash) btnDash.classList.add('hidden-section');
 
@@ -1210,45 +1198,6 @@
             });
         });
 
-        async function descargarCertificadoSSTyHabilitar() {
-            const btnCert = document.getElementById('btn-cert-sst');
-            const originalHTML = btnCert.innerHTML;
-
-            try {
-                // Estado visual de carga
-                btnCert.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDF...';
-                btnCert.disabled = true;
-
-                console.log('Solicitando descarga de certificado HD...');
-                const result = await descargarCertificadoSST();
-                
-                if (result && result.success) {
-                    // Habilitar los botones de navegación después de descargar
-                    const btnNext = document.getElementById('btn-next-module');
-                    const btnDash = document.getElementById('btn-dashboard');
-                    
-                    if (btnNext) btnNext.classList.remove('hidden-section');
-                    if (btnDash) btnDash.classList.remove('hidden-section');
-
-                    btnCert.innerHTML = '<i class="fa-solid fa-check-circle"></i> Certificado Descargado ✓';
-                    btnCert.classList.remove('bg-orange-600', 'hover:bg-orange-700');
-                    btnCert.classList.add('bg-green-600', 'hover:bg-green-700');
-                } else {
-                    btnCert.innerHTML = originalHTML;
-                    btnCert.disabled = false;
-                    alert('No se pudo generar el certificado. Por favor intenta de nuevo.');
-                }
-            } catch (err) {
-                console.error('Error al descargar certificado SST:', err);
-                btnCert.innerHTML = originalHTML;
-                btnCert.disabled = false;
-                alert('Error al procesar el certificado: ' + err.message);
-                
-                // Fallback: habilitar de todos modos para no bloquear al usuario
-                const btnNext = document.getElementById('btn-next-module');
-                if (btnNext) btnNext.classList.remove('hidden-section');
-            }
-        }
         function volverAlCurso() {
             if (window.parent && window.parent !== window) {
                 window.parent.location.href = '../induccion-curso.html?id=' + (new URLSearchParams(window.parent.location.search).get('id') || '');
@@ -1259,8 +1208,6 @@
     </script>
 
         <!-- Scripts de Aplicación Centralizados -->
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="../js/config.js"></script>
         <script src="../js/auth.js"></script>
         <script src="../js/progress.js"></script>
