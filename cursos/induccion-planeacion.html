@@ -548,7 +548,10 @@
             }
 
             .slide {
-                padding: 100px 20px 40px;
+                /* padding-bottom deja espacio para que el nav-controls fijo
+                   (Anterior/Siguiente, ~70px sólido en móvil) no tape las
+                   últimas líneas del contenido. */
+                padding: 100px 20px 100px;
             }
 
             /* Solo la diapositiva activa pasa a flujo normal (position:relative);

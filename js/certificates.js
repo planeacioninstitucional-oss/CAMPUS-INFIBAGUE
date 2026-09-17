@@ -273,6 +273,17 @@ async function verificarCertificado(codigo) {
 }
 
 /**
+ * Periodo institucional del certificado: enero-junio -> "I-<año>",
+ * julio-diciembre -> "II-<año>".
+ * @returns {string} Ej: "II-2026"
+ */
+function obtenerPeriodoTexto() {
+    const fecha = new Date();
+    const semestre = fecha.getMonth() < 6 ? 'I' : 'II';
+    return `${semestre}-${fecha.getFullYear()}`;
+}
+
+/**
  * Formatea la fecha en estilo institucional: "a los [día] días del mes de [mes] de [año]"
  * @returns {string} Fecha formateada
  */
@@ -425,7 +436,7 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             doc.setTextColor(0, 51, 102); // Azul oscuro institucional
             doc.setFontSize(20);
             doc.setFont('helvetica', 'bold');
-            doc.text('INDUCCIÓN Y REINDUCCIÓN I-2026', centroX, cursorY, { align: 'center' });
+            doc.text(`INDUCCIÓN Y REINDUCCIÓN ${obtenerPeriodoTexto()}`, centroX, cursorY, { align: 'center' });
 
             cursorY += 8;
 
@@ -439,7 +450,7 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             cursorY += 15; // Espaciado ajustado (más arriba)
             const fecha = new Date();
             const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-            const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+            const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del ${fecha.getFullYear()}.`;
 
             doc.setFontSize(10);
             doc.text(fechaTexto, centroX, cursorY, { align: 'center' });
@@ -474,21 +485,28 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
                 doc.addImage(imgFirma3, 'PNG', col3X - (anchoFirma / 2), firmasY, anchoFirma, altoFirma);
             }
 
-            // Textos de Firmas
+            // Nombres bajo cada firma
             doc.setFontSize(8);
             doc.setTextColor(0, 0, 0);
             doc.setFont('helvetica', 'bold');
+            doc.text('CAMILA ANDREA PORTELA CORTES', col1X, textoFirmasY, { align: 'center' });
+            doc.text('EDILBERTO PAVA CEBALLOS', col2X, textoFirmasY, { align: 'center' });
+            doc.text('SONIA ALEJANDRA VILLANUEVA ARENAS', col3X, textoFirmasY, { align: 'center' });
+
+            // Cargos bajo cada nombre
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
 
             // Columna 1
-            doc.text('Jefe de Oficina Asesora', col1X, textoFirmasY, { align: 'center' });
-            doc.text('de Planeación Institucional', col1X, textoFirmasY + 4, { align: 'center' });
+            doc.text('Jefe de Oficina Asesora', col1X, textoFirmasY + 4, { align: 'center' });
+            doc.text('de Planeación Institucional', col1X, textoFirmasY + 8, { align: 'center' });
 
             // Columna 2
-            doc.text('Gerente General', col2X, textoFirmasY, { align: 'center' });
+            doc.text('Gerente General', col2X, textoFirmasY + 4, { align: 'center' });
 
             // Columna 3
-            doc.text('Director de Servicios', col3X, textoFirmasY, { align: 'center' });
-            doc.text('Administrativos', col3X, textoFirmasY + 4, { align: 'center' });
+            doc.text('Directora de Servicios', col3X, textoFirmasY + 4, { align: 'center' });
+            doc.text('Administrativos', col3X, textoFirmasY + 8, { align: 'center' });
 
             // Código de verificación institucional y persistencia en Supabase
             const anioActual = fecha.getFullYear();
@@ -581,7 +599,7 @@ async function previsualizarCertificado(inscripcionId) {
 
         const fecha = new Date();
         const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-        const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del 2026.`;
+        const fechaTexto = `Expedida en Ibagué, Tolima a los ${fecha.getDate()} días del mes de ${meses[fecha.getMonth()]} del ${fecha.getFullYear()}.`;
 
         const ventana = window.open('', '_blank');
         if (!ventana) {
@@ -715,9 +733,17 @@ async function previsualizarCertificado(inscripcionId) {
                         margin-bottom: 5px;
                     }
 
-                    .firma-cargo {
+                    .firma-nombre {
                         font-size: 9pt;
                         font-weight: bold;
+                        color: #000;
+                        text-transform: uppercase;
+                        line-height: 1.2;
+                    }
+
+                    .firma-cargo {
+                        font-size: 8pt;
+                        font-weight: normal;
                         color: #000;
                         line-height: 1.2;
                     }
@@ -749,24 +775,27 @@ async function previsualizarCertificado(inscripcionId) {
                         
                         <p class="texto-comun">Participó y aprobó satisfactoriamente el módulo de:</p>
                         
-                        <div class="modulo-titulo">INDUCCIÓN Y REINDUCCIÓN I-2026</div>
-                        
+                        <div class="modulo-titulo">INDUCCIÓN Y REINDUCCIÓN ${obtenerPeriodoTexto()}</div>
+
                         <div class="modulo-subtitulo">Sistema Integrado de Gestión "INTEGRA"</div>
-                        
+
                         <div class="fecha">${fechaTexto}</div>
 
                         <div class="bloque-firmas">
                             <div class="columna-firma">
                                 <img src="../assets/firmaplaneacioncp.png" class="firma-img" alt="Firma Planeación">
+                                <div class="firma-nombre">CAMILA ANDREA PORTELA CORTES</div>
                                 <div class="firma-cargo">Jefe de Oficina Asesora<br>de Planeación Institucional</div>
                             </div>
                             <div class="columna-firma">
                                 <img src="../assets/gerente.png" class="firma-img" alt="Firma Gerente">
+                                <div class="firma-nombre">EDILBERTO PAVA CEBALLOS</div>
                                 <div class="firma-cargo">Gerente General</div>
                             </div>
                             <div class="columna-firma">
                                 <img src="../assets/FIRMA-ADMINI.png" class="firma-img" alt="Firma Administrativa">
-                                <div class="firma-cargo">Director de Servicios<br>Administrativos</div>
+                                <div class="firma-nombre">SONIA ALEJANDRA VILLANUEVA ARENAS</div>
+                                <div class="firma-cargo">Directora de Servicios<br>Administrativos</div>
                             </div>
                         </div>
                     </div>
@@ -993,10 +1022,10 @@ async function descargarCertificadoSST(datos = null) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9);
         doc.setTextColor(0, 0, 0);
-        doc.text('JHON FERLEY AMAYA RIVERA', posX1, cursorY + 4, { align: 'center' });
+        doc.text('SONIA ALEJANDRA VILLANUEVA ARENAS', posX1, cursorY + 4, { align: 'center' });
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');
-        doc.text('DIRECTOR DE SERVICIOS', posX1, cursorY + 8, { align: 'center' });
+        doc.text('DIRECTORA DE SERVICIOS', posX1, cursorY + 8, { align: 'center' });
         doc.text('ADMINISTRATIVOS', posX1, cursorY + 12, { align: 'center' });
 
         if (imgFirmaAnny) {

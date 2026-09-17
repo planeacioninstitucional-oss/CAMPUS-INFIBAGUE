@@ -250,18 +250,21 @@
                         <span id="current-module-title">Nombre del Módulo</span>
                     </div>
                     <div id="admin-player-toolbar" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <span style="background: rgba(37,99,235,0.1); color: #1d4ed8; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; border: 1px solid rgba(37,99,235,0.25); display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fas fa-shield-alt"></i> Modo Auditor
-                        </span>
-                        <button type="button" onclick="adminNextSlide()" title="Saltar a Siguiente Diapositiva o Pregunta sin responder" style="background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            ⏩ Siguiente / Saltar
+                        <button type="button" id="btn-toggle-auditor" onclick="toggleAuditorToolbar()"
+                            style="background: rgba(37,99,235,0.1); color: #1d4ed8; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px; border: 1px solid rgba(37,99,235,0.25); display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+                            <i class="fas fa-shield-alt"></i> Modo Auditor <i id="auditor-toggle-icon" class="fas fa-chevron-down" style="font-size: 0.65rem;"></i>
                         </button>
-                        <button type="button" onclick="adminSkipActivity()" title="Omitir Evaluación o Actividad" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            ⚡ Saltar Evaluación
-                        </button>
-                        <button type="button" onclick="adminApproveAndNextModule()" title="Marcar este módulo como completado y pasar al siguiente" style="background: #dcfce7; color: #166534; border: 1px solid #86efac; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                            ✅ Aprobar y Siguiente ⏭️
-                        </button>
+                        <div id="admin-player-buttons" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" onclick="adminNextSlide()" title="Saltar a Siguiente Diapositiva o Pregunta sin responder" style="background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                ⏩ Siguiente / Saltar
+                            </button>
+                            <button type="button" onclick="adminSkipActivity()" title="Omitir Evaluación o Actividad" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                ⚡ Saltar Evaluación
+                            </button>
+                            <button type="button" onclick="adminApproveAndNextModule()" title="Marcar este módulo como completado y pasar al siguiente" style="background: #dcfce7; color: #166534; border: 1px solid #86efac; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                ✅ Aprobar y Siguiente ⏭️
+                            </button>
+                        </div>
                     </div>
                     <button class="btn-close-player" onclick="closePlayer()">
                         ✕ Volver al Inicio
@@ -1108,6 +1111,14 @@
         // ==========================================
         // FUNCIONES DE CONTROL AUDITOR / SUPERADMIN
         // ==========================================
+        function toggleAuditorToolbar() {
+            const buttons = document.getElementById('admin-player-buttons');
+            const icon = document.getElementById('auditor-toggle-icon');
+            const isOpen = buttons.style.display !== 'none';
+            buttons.style.display = isOpen ? 'none' : 'flex';
+            icon.className = isOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+        }
+
         function adminNextSlide() {
             const iframe = document.getElementById('content-frame');
             if (iframe && iframe.contentWindow) {

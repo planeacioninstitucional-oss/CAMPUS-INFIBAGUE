@@ -1355,6 +1355,13 @@ body {
         display: flex;
     }
 
+    /* Cuando el reproductor de módulo está abierto, su propio botón
+       "✕ Volver a Inicio" ya cierra el módulo - ocultar el ícono de casa
+       del header global evita el "doble Volver a Inicio" en móvil. */
+    .main-content:has(.player-container.active) .btn-back-home-header {
+        display: none;
+    }
+
     /* Hero title responsive fix */
     .hero-title {
         font-size: 1.6rem;
