@@ -15,6 +15,7 @@ const MODULOS_ORDEN = [
     'gestion_ambiental',
     'sst',
     'planeacion_estrategica',
+    'control_interno',
     'gestion_documental'
 ];
 
@@ -27,6 +28,7 @@ const MODULOS_URLS = {
     'gestion_ambiental': 'induccion-gestion-ambiental.html',
     'sst': 'induccion-sst.html',
     'planeacion_estrategica': 'induccion-planeacion.html',
+    'control_interno': 'induccion-control-interno.html',
     'gestion_documental': 'induccion-gestion-documental.html'
 };
 
@@ -39,6 +41,7 @@ const MODULOS_NOMBRES = {
     'gestion_ambiental': 'Gestión Ambiental',
     'sst': 'Seguridad y Salud en el Trabajo',
     'planeacion_estrategica': 'Planeación Estratégica',
+    'control_interno': 'Control Interno de Gestión',
     'gestion_documental': 'Gestión Documental'
 };
 

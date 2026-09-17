@@ -341,7 +341,7 @@
                             </div>
                         </div>
                         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">
-                            Programa actualizado para el segundo semestre institucional. Cuenta con 5 módulos y certificación automática.
+                            Programa actualizado para el segundo semestre institucional. Cuenta con 7 módulos y certificación automática.
                         </p>
                         <ul class="module-mini-list">
                             <li class="module-mini-item">
@@ -363,6 +363,14 @@
                             <li class="module-mini-item">
                                 <span>📈 5. Planeación Estratégica</span>
                                 <a href="../cursos/induccion-planeacion.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
+                            </li>
+                            <li class="module-mini-item">
+                                <span>🛡️ 6. Control Interno de Gestión</span>
+                                <a href="../cursos/induccion-control-interno.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
+                            </li>
+                            <li class="module-mini-item">
+                                <span>📂 7. Gestión Documental</span>
+                                <a href="../cursos/induccion-gestion-documental.html" target="_blank" style="color: #2563eb; font-weight: 600;">Auditar ↗</a>
                             </li>
                         </ul>
                     </div>
@@ -538,7 +546,7 @@
                 listaFuncionarios.forEach(u => {
                     const cantMod = mapaProgreso[u.id] || 0;
                     const tieneCert = !!mapaCerts[u.cedula] || !!mapaCerts[u.id];
-                    if (tieneCert || cantMod >= 5) {
+                    if (tieneCert || cantMod >= 7) {
                         completados++;
                     } else if (cantMod > 0) {
                         enProgreso++;

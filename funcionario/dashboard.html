@@ -22,9 +22,6 @@
     <!-- Supabase & PDF -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- Certificate Generation -->
-    <script src="../js/certificates.js"></script>
 </head>
 
 <body>
@@ -412,7 +409,9 @@
                     { id: 'humana', title: 'Gestión Humana', icon: '👥', path: '../cursos/induccion-gestion-humana.html', badgeTitle: 'Talento Humano' },
                     { id: 'ambiental', title: 'Gestión Ambiental', icon: '🌿', path: '../cursos/induccion-gestion-ambiental.html', badgeTitle: 'Gestor Ambiental' },
                     { id: 'sst', title: 'Seguridad y Salud (SST)', icon: '⛑️', path: '../cursos/induccion-sst.html', badgeTitle: 'Seguridad Total' },
-                    { id: 'planeacion', title: 'Planeación Estratégica', icon: '📈', path: '../cursos/induccion-planeacion.html', badgeTitle: 'Estratega' }
+                    { id: 'planeacion', title: 'Planeación Estratégica', icon: '📈', path: '../cursos/induccion-planeacion.html', badgeTitle: 'Estratega' },
+                    { id: 'control_interno', title: 'Control Interno de Gestión', icon: '🛡️', path: '../cursos/induccion-control-interno.html', badgeTitle: 'Control Interno' },
+                    { id: 'documental', title: 'Gestión Documental', icon: '📂', path: '../cursos/induccion-gestion-documental.html', badgeTitle: 'Gestor Documental' }
                 ]
             }
         };
@@ -633,7 +632,9 @@
                         'gestion_humana': 'humana',
                         'gestion_ambiental': 'ambiental',
                         'sst': 'sst',
-                        'planeacion_estrategica': 'planeacion'
+                        'planeacion_estrategica': 'planeacion',
+                        'control_interno': 'control_interno',
+                        'gestion_documental': 'documental'
                     };
                     const { data: umpData, error: umpError } = await supabase
                         .from('user_module_progress')
@@ -672,7 +673,9 @@
                 'humana': 'gestion_humana',
                 'ambiental': 'gestion_ambiental',
                 'sst': 'sst',
-                'planeacion': 'planeacion_estrategica'
+                'planeacion': 'planeacion_estrategica',
+                'control_interno': 'control_interno',
+                'documental': 'gestion_documental'
             };
             const fullModName = mapShortToFull[moduleId] || moduleId;
 
