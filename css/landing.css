@@ -27,6 +27,8 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -34,6 +36,12 @@ body {
   min-height: 100vh;
   background: var(--primary-dark);
   -webkit-font-smoothing: antialiased;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+a, button, [role="button"] {
+  touch-action: manipulation;
 }
 
 /* ── SPLIT LAYOUT ── */

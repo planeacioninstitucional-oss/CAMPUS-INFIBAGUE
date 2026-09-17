@@ -1016,10 +1016,10 @@
                 console.log('Iniciando proceso de finalización...');
 
                 // 1. Guardar progreso en Supabase (con timeout para no bloquear)
-                if (window.completeModule) {
+                if (window.SupabaseProgress) {
                     try {
                         await Promise.race([
-                            window.completeModule('planeacion_estrategica'),
+                            window.SupabaseProgress.approveModule('planeacion_estrategica', 1, 1),
                             new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout guardar')), 5000))
                         ]);
                         console.log('✅ Progreso guardado');
@@ -1042,34 +1042,14 @@
                     }, '*');
                 }
 
-                // 3. Generar certificado (con timeout)
-                if (typeof generarCertificado === 'function' && typeof obtenerUsuarioActual === 'function') {
+                // 3. Generar y descargar el certificado de inducción completa (con timeout)
+                if (typeof descargarCertificado === 'function') {
                     try {
-                        const user = obtenerUsuarioActual();
-                        if (user && window.supabase) {
-                            const { data: curso } = await window.supabase
-                                .from('cursos')
-                                .select('id')
-                                .eq('modulo', 'planeacion_estrategica')
-                                .maybeSingle();
-
-                            if (curso) {
-                                const { data: inscripcion } = await window.supabase
-                                    .from('inscripciones')
-                                    .select('id')
-                                    .eq('funcionario_id', user.id)
-                                    .eq('curso_id', curso.id)
-                                    .maybeSingle();
-
-                                if (inscripcion) {
-                                    await Promise.race([
-                                        generarCertificado(inscripcion.id),
-                                        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout certificado')), 5000))
-                                    ]);
-                                    console.log('✅ Certificado generado');
-                                }
-                            }
-                        }
+                        await Promise.race([
+                            descargarCertificado(null, 'Certificado_Induccion_INFIBAGUE.pdf'),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout certificado')), 8000))
+                        ]);
+                        console.log('✅ Certificado de inducción generado');
                     } catch (e) {
                         console.warn('⚠️ Generación de certificado falló o tardó:', e);
                     }
@@ -1107,6 +1087,7 @@
     <script src="../js/config.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/progress.js"></script>
+    <script src="../js/supabase-progress.js"></script>
     <script src="../js/certificates.js"></script>
 
     <script>

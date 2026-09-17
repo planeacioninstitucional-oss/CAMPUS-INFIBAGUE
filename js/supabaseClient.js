@@ -1,13 +1,15 @@
 // ============================================
-// CONFIGURACIÓN GLOBAL SUPABASE - INFIBAGUÉ
+// CLIENTE LEGACY SUPABASE - usado por guardarProgreso()
 // ============================================
-const SUPABASE_URL = "https://bsonmzabqkkeoqnlgthe.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzb25temFicWtrZW9xbmxndGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2OTA4OTEsImV4cCI6MjA4NTI2Njg5MX0.Utt46LUI20nuT3NZDnS_jgyhgBcr3llgFBRCVdJRIgs";
-
-// Cliente Supabase global
-const supabase = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
+// NOTA: no se llama "supabase" - ese nombre ya lo usa el global que crea
+// el propio SDK CDN (@supabase/supabase-js), y un const con el mismo
+// nombre en otro <script> revienta TODA la página con
+// "SyntaxError: Identifier 'supabase' has already been declared".
+// Reutiliza las credenciales de config.js si ya está cargado (mismo
+// proyecto Supabase) para no redeclarar SUPABASE_URL/SUPABASE_ANON_KEY.
+const supabaseClientLegacy = window.supabase.createClient(
+    typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : "https://bsonmzabqkkeoqnlgthe.supabase.co",
+    typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzb25temFicWtrZW9xbmxndGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2OTA4OTEsImV4cCI6MjA4NTI2Njg5MX0.Utt46LUI20nuT3NZDnS_jgyhgBcr3llgFBRCVdJRIgs"
 );
 
 // ============================================
@@ -16,7 +18,7 @@ const supabase = window.supabase.createClient(
 async function guardarProgreso(modulo, porcentaje, aprobado) {
     try {
         // 1. Intentar obtener usuario desde Auth de Supabase (si se usa Auth nativo)
-        const { data: authData } = await supabase.auth.getUser();
+        const { data: authData } = await supabaseClientLegacy.auth.getUser();
         const user = authData?.user;
         
         // 2. Fallback: Obtener desde localStorage (nuestro sistema de auth personalizado)
@@ -24,7 +26,7 @@ async function guardarProgreso(modulo, porcentaje, aprobado) {
         const usuarioId = user ? user.id : (localData.id || null);
         const cedula = user ? user.email : (localData.cedula || "demo_invitado");
 
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClientLegacy
             .from("progreso_modulos")
             .upsert([
                 {
@@ -34,9 +36,10 @@ async function guardarProgreso(modulo, porcentaje, aprobado) {
                     porcentaje: porcentaje,
                     aprobado: aprobado,
                     completado: porcentaje === 100,
+                    periodo: typeof getPeriodoActual === 'function' ? getPeriodoActual() : null,
                     actualizado_en: new Date()
                 }
-            ], { onConflict: 'usuario, modulo' });
+            ], { onConflict: 'usuario, modulo, periodo' });
 
         if (error) {
             console.error("❌ Error guardando progreso:", error);
@@ -52,7 +55,8 @@ async function guardarProgreso(modulo, porcentaje, aprobado) {
 }
 
 // Exportar para uso global
+// NOTA: no reasignar window.supabase aquí - lo usa config.js/getSupabase()
+// como referencia al SDK de @supabase/supabase-js para crear su propio cliente.
 if (typeof window !== 'undefined') {
-    window.supabase = supabase;
     window.guardarProgreso = guardarProgreso;
 }

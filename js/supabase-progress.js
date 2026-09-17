@@ -99,7 +99,8 @@ async function getAllProgressFromSupabase() {
         const { data, error } = await supabase
             .from('user_module_progress')
             .select('*')
-            .eq('user_id', userId);
+            .eq('user_id', userId)
+            .eq('periodo', typeof getPeriodoActual === 'function' ? getPeriodoActual() : null);
 
         if (error) throw error;
 
@@ -130,6 +131,7 @@ async function getModuleProgress(moduleName) {
             .select('*')
             .eq('user_id', userId)
             .eq('module_name', moduleName)
+            .eq('periodo', typeof getPeriodoActual === 'function' ? getPeriodoActual() : null)
             .single();
 
         if (error) {
@@ -183,6 +185,7 @@ async function saveModuleProgress(moduleName, progressData) {
     const dbData = {
         user_id: userId,
         module_name: moduleName,
+        periodo: typeof getPeriodoActual === 'function' ? getPeriodoActual() : null,
         last_activity: new Date().toISOString(),
         ...progressData
     };
@@ -200,7 +203,7 @@ async function saveModuleProgress(moduleName, progressData) {
     try {
         const { data, error } = await supabase
             .from('user_module_progress')
-            .upsert(dbData, { onConflict: 'user_id, module_name' })
+            .upsert(dbData, { onConflict: 'user_id, module_name, periodo' })
             .select();
 
         if (error) throw error;

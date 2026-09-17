@@ -13,10 +13,12 @@
     <!-- Babel para interpretar JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Sistema de Progreso -->
-    <script src="../js/progress.js"></script>
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
+    <!-- Sistema de Progreso -->
+    <script src="../js/progress.js"></script>
+    <script src="../js/supabase-progress.js"></script>
     <script src="../js/supabaseClient.js"></script>
 
     <!-- Tailwind CSS para estilos -->
@@ -1188,12 +1190,11 @@
 
             if (gameState === 'intro') {
                 return (
-                    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col items-center justify-center p-4">
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4">
                         <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 max-w-4xl w-full text-center relative overflow-hidden fade-in border border-white/50">
                             <div className="mb-8 flex justify-center relative z-10">
-                                <div className="bg-gradient-to-r from-infi-blue to-blue-700 text-white p-6 rounded-2xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                                    <h1 className="text-4xl font-black tracking-widest">INFIBAGUÉ</h1>
-                                    <p className="text-[10px] tracking-[0.2em] opacity-80 mt-1">INSTITUTO DE FINANCIAMIENTO</p>
+                                <div className="bg-gradient-to-r from-infi-blue to-blue-700 p-6 rounded-2xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                                    <img src="../assets/logo-entidad.png" alt="INFIBAGUÉ" className="h-16 w-auto" />
                                 </div>
                             </div>
                             <h2 className="text-3xl md:text-5xl font-black text-gray-800 mb-4 tracking-tight relative z-10">Inducción Gestión Humana</h2>
@@ -1207,7 +1208,7 @@
             }
 
             return (
-                <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+                <div className="min-h-screen flex flex-col font-sans">
                     <header className="bg-white shadow-sm sticky top-0 z-30 border-b border-gray-100">
                         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                             <div className="flex items-center gap-3">

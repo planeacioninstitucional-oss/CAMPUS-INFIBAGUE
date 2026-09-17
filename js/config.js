@@ -119,6 +119,18 @@ async function logout() {
   window.location.href = '/login.html';
 }
 
+/**
+ * Periodo actual de inducción/reinducción (semestre).
+ * Ene-Jun -> "<año>-1", Jul-Dic -> "<año>-2".
+ * Se usa para que el progreso y los certificados de cada semestre
+ * queden registrados por separado sin mover ningún archivo del sitio.
+ */
+function getPeriodoActual() {
+  const now = new Date();
+  const semestre = now.getMonth() < 6 ? 1 : 2;
+  return `${now.getFullYear()}-${semestre}`;
+}
+
 // Nombres de las tablas en Supabase
 const TABLAS = {
   USUARIOS: 'usuarios',
@@ -165,7 +177,8 @@ const APP_CONFIG = {
 // Buckets de Storage
 const STORAGE_BUCKETS = {
   IMAGENES_CURSOS: 'imagenes-cursos',
-  MATERIALES_CURSO: 'materiales-curso'
+  MATERIALES_CURSO: 'materiales-curso',
+  CERTIFICADOS: 'certificados'
 };
 
 /**

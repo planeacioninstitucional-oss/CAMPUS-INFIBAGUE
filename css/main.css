@@ -89,6 +89,8 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -99,6 +101,15 @@ body {
   background-color: var(--color-gray-50);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Navegadores stock de Android antiguos (muy comunes en celulares de bajo costo)
+   añaden ~300ms de retraso al tap y a veces "pierden" el primer toque en
+   botones/links. touch-action:manipulation lo elimina sin afectar el scroll. */
+a, button, input, select, textarea, [role="button"], .btn, .btn-nav {
+  touch-action: manipulation;
 }
 
 /* Tipografía */
