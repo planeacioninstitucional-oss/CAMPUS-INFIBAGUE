@@ -7,6 +7,7 @@
     <title>Inducción Gestión Documental - INFIBAGUÉ</title>
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Tipografía institucional -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -481,9 +482,31 @@
                         document.getElementById('result-title').textContent = aprobado
                             ? '¡Excelente! Evaluación aprobada'
                             : 'Revisa el material y vuelve a intentarlo';
+                        // Restaurar el botón de finalizar a su estado por defecto
+                        // (pudo quedar en "Reintentar" de un intento anterior)
+                        const finBtn = document.querySelector('#q-end .nav-btn');
+                        if (finBtn) {
+                            finBtn.disabled = false;
+                            finBtn.textContent = 'Finalizar Módulo ✅';
+                            finBtn.onclick = finishModule;
+                        }
                     }
                 }
             }, 800);
+        }
+
+        function retryQuiz() {
+            correctas = 0;
+            respondidas = 0;
+            document.querySelectorAll('.question-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('correct', 'incorrect');
+            });
+            // Reconstruir los onclick originales (se anulaban tras responder)
+            document.querySelectorAll('#q1 .option-btn').forEach((b, i) => b.onclick = () => checkAnswer(1, i === 2, b));
+            document.querySelectorAll('#q2 .option-btn').forEach((b, i) => b.onclick = () => checkAnswer(2, i === 2, b));
+            document.querySelectorAll('#q3 .option-btn').forEach((b, i) => b.onclick = () => checkAnswer(3, i === 1, b));
+            document.getElementById('q1').classList.add('active');
         }
 
         async function finishModule() {
@@ -503,13 +526,26 @@
             }
 
             if (!aprobado) {
-                if (btn) { btn.disabled = false; btn.textContent = 'Reintentar 🔁'; btn.onclick = () => location.reload(); }
+                if (btn) { btn.disabled = false; btn.textContent = 'Reintentar 🔁'; btn.onclick = retryQuiz; }
                 return;
             }
 
-            // Último módulo del curso: avisar al padre para que marque el curso
-            // completo y redirija al dashboard, en vez de navegar aquí dentro del
-            // iframe (eso carga el dashboard completo ANIDADO dentro del iframe).
+            // Último módulo del curso: generar el certificado de inducción completa
+            if (typeof descargarCertificado === 'function') {
+                if (btn) btn.textContent = 'Generando certificado...';
+                try {
+                    await Promise.race([
+                        descargarCertificado(null, 'Certificado_Induccion_INFIBAGUE.pdf'),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout certificado')), 8000))
+                    ]);
+                } catch (e) {
+                    console.warn('⚠️ Generación de certificado falló o tardó:', e);
+                }
+            }
+
+            // Avisar al padre para que marque el curso completo y redirija al
+            // dashboard, en vez de navegar aquí dentro del iframe (eso carga el
+            // dashboard completo ANIDADO dentro del iframe).
             if (window.parent !== window) {
                 window.parent.postMessage({
                     type: 'MODULO_INDUCCION_COMPLETADO',
@@ -539,6 +575,7 @@
     <script src="../js/auth.js"></script>
     <script src="../js/supabase-progress.js"></script>
     <script src="../js/supabaseClient.js"></script>
+    <script src="../js/certificates.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', async function () {
