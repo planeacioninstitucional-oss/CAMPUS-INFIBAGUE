@@ -13,12 +13,13 @@ const CERTIFICADO_BG = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYS
  * @param {object} usuario - Usuario actual ({id, cedula, ...})
  * @param {string} fileName - Nombre de archivo a usar en Storage
  */
-async function subirCertificadoStorage(doc, tipo, usuario, fileName) {
+async function subirCertificadoStorage(doc, tipo, usuario, fileName, periodoOverride) {
     try {
         const supabase = getSupabase();
         if (!supabase || !usuario?.id) return null;
 
-        const periodo = typeof getPeriodoActual === 'function' ? getPeriodoActual() : 'sin-periodo';
+        const periodo = periodoOverride
+            || (typeof getPeriodoActual === 'function' ? getPeriodoActual() : 'sin-periodo');
         const blob = doc.output('blob');
         const path = `${periodo}/${usuario.id}/${tipo}_${Date.now()}.pdf`;
 
@@ -275,9 +276,18 @@ async function verificarCertificado(codigo) {
 /**
  * Periodo institucional del certificado: enero-junio -> "I-<año>",
  * julio-diciembre -> "II-<año>".
+ * @param {string} [periodo] - Periodo explícito en formato "AAAA-1"/"AAAA-2"
+ *   (el mismo que usa getPeriodoActual()/el selector del dashboard). Si se
+ *   omite, se calcula con la fecha de hoy - úsese SOLO quien esté generando
+ *   el certificado del periodo que está cursando ahora mismo, nunca para
+ *   certificar un periodo distinto al que el usuario realmente completó.
  * @returns {string} Ej: "II-2026"
  */
-function obtenerPeriodoTexto() {
+function obtenerPeriodoTexto(periodo) {
+    if (periodo && /^\d{4}-[12]$/.test(periodo)) {
+        const [anio, sem] = periodo.split('-');
+        return `${sem === '1' ? 'I' : 'II'}-${anio}`;
+    }
     const fecha = new Date();
     const semestre = fecha.getMonth() < 6 ? 'I' : 'II';
     return `${semestre}-${fecha.getFullYear()}`;
@@ -304,8 +314,13 @@ function obtenerFechaTexto() {
  * Descarga un certificado en formato PDF
  * @param {string} inscripcionId - ID de la inscripción
  * @param {string} nombreArchivo - Nombre del archivo PDF
+ * @param {string} [periodo] - Periodo a certificar en formato "AAAA-1"/"AAAA-2"
+ *   (p.ej. periodoActual del dashboard). Si se omite, usa la fecha de hoy -
+ *   pásalo siempre que exista la posibilidad de generar el certificado de
+ *   un periodo distinto al actual (p.ej. al ver un semestre archivado),
+ *   para que el PDF no diga "II-2026" cuando en realidad es de otro periodo.
  */
-async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_INFIBAGUE.pdf') {
+async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_INFIBAGUE.pdf', periodo) {
     const supabase = getSupabase();
     const usuario = obtenerUsuarioActual();
 
@@ -436,7 +451,7 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             doc.setTextColor(0, 51, 102); // Azul oscuro institucional
             doc.setFontSize(20);
             doc.setFont('helvetica', 'bold');
-            doc.text(`INDUCCIÓN Y REINDUCCIÓN ${obtenerPeriodoTexto()}`, centroX, cursorY, { align: 'center' });
+            doc.text(`INDUCCIÓN Y REINDUCCIÓN ${obtenerPeriodoTexto(periodo)}`, centroX, cursorY, { align: 'center' });
 
             cursorY += 8;
 
@@ -559,7 +574,7 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             // Esperar la subida a Storage - si el llamador navega a otra página
             // justo después (como pasa al terminar el curso), un fetch en curso
             // sin esperar se cancela a medias con "Failed to fetch".
-            await subirCertificadoStorage(doc, 'induccion_completa', usuario, nombreArchivo);
+            await subirCertificadoStorage(doc, 'induccion_completa', usuario, nombreArchivo, periodo);
             if (typeof mostrarNotificacion === 'function') {
                 mostrarNotificacion('Certificado descargado exitosamente', 'success');
             }
@@ -822,8 +837,11 @@ async function previsualizarCertificado(inscripcionId) {
 
 /**
  * Descarga el certificado específico de SST (Vertical) con alta definición y soporte móvil
+ * @param {object} [datos] - Usuario opcional (si no se pasa, se toma el de la sesión)
+ * @param {string} [periodo] - Periodo a certificar en formato "AAAA-1"/"AAAA-2".
+ *   Ver nota en descargarCertificado() sobre por qué es importante pasarlo.
  */
-async function descargarCertificadoSST(datos = null) {
+async function descargarCertificadoSST(datos = null, periodo) {
     const supabase = getSupabase();
     const usuario = datos || obtenerUsuarioActual();
 
@@ -1102,7 +1120,7 @@ async function descargarCertificadoSST(datos = null) {
 
         // Esperar la subida a Storage - si el llamador navega justo después,
         // un fetch en curso sin esperar se cancela a medias.
-        await subirCertificadoStorage(doc, 'sst', usuario, fileName);
+        await subirCertificadoStorage(doc, 'sst', usuario, fileName, periodo);
 
         return { success: true };
 

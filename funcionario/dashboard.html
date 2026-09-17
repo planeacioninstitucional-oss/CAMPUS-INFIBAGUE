@@ -231,7 +231,7 @@
                             </button>
                             <!-- Botón Especial SST -->
                             <button class="btn-certificate btn-sst" id="btn-download-sst"
-                                onclick="descargarCertificadoSST()" style="background: #f97316; border-color: #ea580c; display: none; order: -1;">
+                                onclick="handleDescargarCertificadoSST()" style="background: #f97316; border-color: #ea580c; display: none; order: -1;">
                                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
@@ -990,10 +990,15 @@
             const btnDownload = document.getElementById('btn-download-cert');
             const btnSST = document.getElementById('btn-download-sst');
 
-            // Lógica para Certificado SST (Se muestra si el módulo SST está completado o si es superadmin o en Semestre I)
+            // Lógica para Certificado SST (Se muestra solo si el módulo SST está
+            // realmente completado en el periodo que se está viendo, o si es
+            // superadmin/educador auditando). Antes había un bypass que siempre
+            // mostraba el botón en 2026-1, permitiendo descargar un certificado
+            // que en realidad quedaba fechado con el periodo actual (2026-2) -
+            // "certificarse" sin haber cursado el semestre real.
             const sstCompletado = userProgress.includes('sst');
             if (btnSST) {
-                if (sstCompletado || esAdmin || periodoActual === '2026-1') {
+                if (sstCompletado || esAdmin) {
                     btnSST.style.display = 'flex';
                     if (certActions) certActions.classList.add('enabled');
                 } else {
@@ -1327,8 +1332,11 @@
                     return;
                 }
 
-                // Call global function from certificates.js
-                await descargarCertificado(idParaCertificado, 'Certificado_Induccion_2026.pdf');
+                // Call global function from certificates.js - se pasa el periodo que
+                // se está viendo (2026-1/2026-2) para que el PDF diga el semestre
+                // correcto y nunca "el de hoy" cuando se está viendo un periodo
+                // archivado (evita certificar un semestre que no se cursó).
+                await descargarCertificado(idParaCertificado, 'Certificado_Induccion_2026.pdf', periodoActual);
 
             } catch (error) {
                 console.error(error);
@@ -1336,6 +1344,22 @@
             } finally {
                 btn.innerHTML = originalHTML;
                 btn.disabled = false;
+            }
+        }
+
+        async function handleDescargarCertificadoSST() {
+            const btn = document.getElementById('btn-download-sst');
+            if (btn) { btn.disabled = true; }
+            try {
+                // Se pasa periodoActual para que el certificado y su registro en
+                // Storage queden fechados con el semestre que se está viendo, no
+                // con la fecha de hoy.
+                await descargarCertificadoSST(null, periodoActual);
+            } catch (error) {
+                console.error(error);
+                alert('Error al generar el certificado SST: ' + (error.message || 'Error desconocido'));
+            } finally {
+                if (btn) { btn.disabled = false; }
             }
         }
 
