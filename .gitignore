@@ -7,3 +7,9 @@ build/
 *.log
 .env
 js/config.js
+.agents/
+.claude/
+.hermes/
+.mcp.json
+skills-lock.json
+*.pptx
