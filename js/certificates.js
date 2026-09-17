@@ -456,8 +456,10 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             doc.text(fechaTexto, centroX, cursorY, { align: 'center' });
 
             // === FIRMAS ===
-            // Subida ~8pt para que el cargo (2 líneas) no quede tan pegado
-            // a la esquina decorativa inferior del certificado.
+            // Espacio extra tras la fecha para que la firma del Gerente (más
+            // grande, arranca 4pt más arriba que las otras) no choque con el
+            // texto "Expedida en Ibagué...".
+            cursorY += 6;
             const firmasY = cursorY - 4;
             const textoFirmasY = firmasY + 25; // Posición Y para los nombres/cargos
             const anchoFirma = 35; // Ancho aproximado
