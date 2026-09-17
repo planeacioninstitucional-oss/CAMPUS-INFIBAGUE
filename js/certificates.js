@@ -456,7 +456,9 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
             doc.text(fechaTexto, centroX, cursorY, { align: 'center' });
 
             // === FIRMAS ===
-            const firmasY = cursorY + 4; // Posición Y ajustada
+            // Subida ~8pt para que el cargo (2 líneas) no quede tan pegado
+            // a la esquina decorativa inferior del certificado.
+            const firmasY = cursorY - 4;
             const textoFirmasY = firmasY + 25; // Posición Y para los nombres/cargos
             const anchoFirma = 35; // Ancho aproximado
             const altoFirma = 22; // Alto aproximado
