@@ -1058,11 +1058,13 @@
                 // 4. Redirección final (Fallback robusto)
                 setTimeout(() => {
                     console.log('Redirigiendo...');
+                    const siguienteUrl = (window.SupabaseProgress && window.SupabaseProgress.getNextModule('planeacion_estrategica'))
+                        ? window.SupabaseProgress.getNextModule('planeacion_estrategica').url
+                        : '../funcionario/dashboard.html';
                     if (window.parent !== window) {
-                        // Intentar ir al detalle del curso o dashboard en el padre
-                        window.parent.location.href = '../funcionario/dashboard.html';
+                        window.parent.location.href = siguienteUrl;
                     } else {
-                        window.location.href = '../funcionario/dashboard.html';
+                        window.location.href = siguienteUrl;
                     }
                 }, 1000);
 

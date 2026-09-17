@@ -320,6 +320,131 @@
             );
         };
 
+        // --- MÓDULO: PLAN ESTRATÉGICO DE GESTIÓN HUMANA (Reinducción) ---
+        const ModuleStrategicPlan = ({ onComplete }) => {
+            const [slide, setSlide] = useState(0);
+            const slides = [
+                {
+                    title: "Plan Estratégico de Gestión Humana",
+                    icon: LayersIcon,
+                    content: (
+                        <div className="space-y-4 text-left">
+                            <p className="text-gray-700 leading-relaxed">
+                                La Oficina de Gestión Humana estructura su trabajo institucional a través de tres planes:
+                            </p>
+                            <ul className="space-y-3">
+                                <li className="bg-blue-50 p-3 rounded-lg border-l-4 border-infi-blue font-semibold text-infi-blue">Plan Institucional de Capacitación (PIC)</li>
+                                <li className="bg-green-50 p-3 rounded-lg border-l-4 border-infi-green font-semibold text-green-700">Plan de Bienestar</li>
+                                <li className="bg-amber-50 p-3 rounded-lg border-l-4 border-infi-yellow font-semibold text-amber-700">Plan de Estímulos e Incentivos</li>
+                            </ul>
+                        </div>
+                    )
+                },
+                {
+                    title: "Plan Institucional de Capacitación",
+                    icon: BookIcon,
+                    content: (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                            <div className="bg-blue-100 text-blue-900 p-4 rounded-xl font-semibold text-sm">EJE 1: Gestión del conocimiento y de la innovación</div>
+                            <div className="bg-amber-100 text-amber-900 p-4 rounded-xl font-semibold text-sm">EJE 2: Creación de valor de lo público</div>
+                            <div className="bg-orange-100 text-orange-900 p-4 rounded-xl font-semibold text-sm">EJE 3: Transformación digital</div>
+                            <div className="bg-green-100 text-green-900 p-4 rounded-xl font-semibold text-sm">EJE 4: Probidad y ética de lo público</div>
+                        </div>
+                    )
+                },
+                {
+                    title: "Plan de Bienestar",
+                    icon: StarIcon,
+                    content: (
+                        <div className="space-y-4 text-center">
+                            <div className="bg-gray-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-2 text-infi-green">
+                                <StarIcon size={40} />
+                            </div>
+                            <p className="text-gray-700 leading-relaxed">
+                                Fomentar, a través de diferentes actividades, el bienestar y motivación en el ambiente laboral, propiciando un mejoramiento de la calidad de vida de los funcionarios y sus familias, logrando a su vez un desempeño institucional con mayor eficiencia y eficacia.
+                            </p>
+                        </div>
+                    )
+                },
+                {
+                    title: "Plan de Estímulos e Incentivos",
+                    icon: TrophyIcon,
+                    content: (
+                        <div className="text-left space-y-2 max-h-[280px] overflow-y-auto pr-2">
+                            {[
+                                "Compensatorios para servidores públicos de ventanillas únicas o áreas de atención al ciudadano.",
+                                "Compensatorios para quienes participan en comités (SIAR, brigadistas, convivencia, COPASST).",
+                                "Compensatorios para servidores públicos con hijos menores de 10 años.",
+                                "Compensatorios para funcionarios que participan en proyectos del Sistema Integrado de Gestión (ambientales, SST, calidad).",
+                                "Compensatorios en el día del cumpleaños del funcionario.",
+                                "Reconocimiento a la antigüedad laboral (incentivo).",
+                                "Estímulo por efectiva gestión pública (Certificación ISO 9001, ISO 14001 y 45001)."
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-start gap-2 bg-amber-50 p-3 rounded-lg text-sm text-gray-700">
+                                    <TrophyIcon size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                                    {item}
+                                </div>
+                            ))}
+                        </div>
+                    )
+                },
+                {
+                    title: "Funciones del Cargo Específico",
+                    icon: ClipboardCheckIcon,
+                    content: (
+                        <div className="space-y-3 text-left">
+                            <p className="text-gray-700 leading-relaxed">
+                                Todo funcionario nuevo recibe el <span className="font-bold text-infi-blue">manual de funciones y competencias laborales</span> correspondiente a su cargo, el cual describe:
+                            </p>
+                            <ul className="list-disc pl-5 space-y-2 text-gray-600">
+                                <li>Propósito principal del cargo.</li>
+                                <li>Descripción de funciones esenciales.</li>
+                                <li>Denominación del empleo, código y grado.</li>
+                                <li>Asignación de usuarios, contraseñas y demás herramientas necesarias para el desarrollo de sus funciones.</li>
+                            </ul>
+                        </div>
+                    )
+                }
+            ];
+
+            return (
+                <div className="flex flex-col items-center w-full max-w-3xl mx-auto text-center h-full justify-center">
+                    <div className="mb-6 flex space-x-2">
+                        {slides.map((_, i) => (
+                            <div key={i} className={`h-2 w-8 rounded-full transition-colors ${i === slide ? 'bg-infi-blue' : 'bg-gray-200'}`} />
+                        ))}
+                    </div>
+
+                    <div className="bg-white p-8 rounded-3xl shadow-xl w-full relative overflow-hidden min-h-[400px] flex flex-col slide-left">
+                        <div className="absolute top-0 right-0 p-6 opacity-5">
+                            {React.createElement(slides[slide].icon, { size: 150, className: "text-infi-blue" })}
+                        </div>
+
+                        <h2 className="text-2xl md:text-3xl font-bold text-infi-blue mb-8 flex items-center justify-center gap-3">
+                            {React.createElement(slides[slide].icon, { size: 32 })}
+                            {slides[slide].title}
+                        </h2>
+
+                        <div className="flex-1 flex flex-col justify-center relative z-10">
+                            {slides[slide].content}
+                        </div>
+
+                        <div className="mt-8 flex justify-end">
+                            {slide < slides.length - 1 ? (
+                                <Button onClick={() => setSlide(s => s + 1)}>
+                                    Siguiente <ArrowRightIcon size={20} />
+                                </Button>
+                            ) : (
+                                <Button variant="success" onClick={() => onComplete(100)}>
+                                    Ir a la Evaluación <PlayIcon size={20} />
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         // --- MÓDULO DE EVALUACIÓN (Integrado con progress.js) ---
         const ModuleEvaluation = ({ onComplete }) => {
             const [currentQ, setCurrentQ] = useState(0);
@@ -399,6 +524,16 @@
                         "Todas las anteriores (incluye Operativa y Comercial)"
                     ],
                     correct: 3
+                },
+                {
+                    q: "¿Cuáles son los ejes del Plan Institucional de Capacitación (PIC)?",
+                    options: [
+                        "Gestión del conocimiento, Creación de valor de lo público, Transformación digital, Probidad y ética",
+                        "Liderazgo, Trabajo en equipo y Comunicación",
+                        "Salud, Seguridad y Bienestar",
+                        "Planeación, Ejecución y Control"
+                    ],
+                    correct: 0
                 }
             ];
 
@@ -1123,7 +1258,8 @@
                 { id: 3, title: "Estructura Org.", component: GameStructure, icon: ActivityIcon },
                 { id: 4, title: "Valores", component: GameValues, icon: StarIcon },
                 { id: 5, title: "Mapa de Procesos", component: GameProcessPuzzle, icon: PuzzleIcon },
-                { id: 6, title: "Evaluación Final", component: ModuleEvaluation, icon: ClipboardCheckIcon }
+                { id: 6, title: "Plan Estratégico GH", component: ModuleStrategicPlan, icon: TrophyIcon },
+                { id: 7, title: "Evaluación Final", component: ModuleEvaluation, icon: ClipboardCheckIcon }
             ];
 
             const handleModuleComplete = async (score) => {

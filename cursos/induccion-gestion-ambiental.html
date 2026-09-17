@@ -9,6 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Tipografía institucional (misma que Atención al Ciudadano) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- Main CSS -->
     <link rel="stylesheet" href="../css/main.css">
     <style>
@@ -26,6 +29,10 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        h1, h2, h3, h4, .quiz-container, .option-btn {
+            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
@@ -627,13 +634,15 @@
             max-width: 600px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 0;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         .question-card {
             display: none;
+            padding: 28px;
         }
 
         .question-card.active {
@@ -641,22 +650,36 @@
             animation: fadeIn 0.5s;
         }
 
+        .question-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 18px;
+            line-height: 1.4;
+        }
+
         .option-btn {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             width: 100%;
-            padding: 15px;
+            padding: 14px 18px;
             margin: 10px 0;
             border: 2px solid #e5e7eb;
-            border-radius: 10px;
+            border-radius: 14px;
             background: white;
             text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .option-btn:hover {
-            background: #f9fafb;
+            background: #f0fdf4;
             border-color: var(--primary);
+            transform: translateX(4px);
         }
 
         .option-btn.correct {
@@ -665,10 +688,22 @@
             color: var(--primary-dark);
         }
 
+        .option-btn.correct::after {
+            content: '✔';
+            margin-left: auto;
+            font-weight: 800;
+        }
+
         .option-btn.incorrect {
             background: #fee2e2;
             border-color: #ef4444;
             color: #991b1b;
+        }
+
+        .option-btn.incorrect::after {
+            content: '✖';
+            margin-left: auto;
+            font-weight: 800;
         }
 
         @media (max-width: 768px) {
@@ -2408,6 +2443,10 @@
             } else {
                 alert('Módulo completado. Recuerda pasar al módulo de SST.');
             }
+
+            if (window.SupabaseProgress) {
+                await window.SupabaseProgress.approveModule('gestion_ambiental', 100, 100);
+            }
         }
 
         // initGame(); removed
@@ -2779,9 +2818,7 @@
         };
     </script>
 
-    <script src="../js/config.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/progress.js"></script>
     <script src="../js/certificates.js"></script>
 
     <!-- Inicializar Supabase y validar acceso al cargar -->

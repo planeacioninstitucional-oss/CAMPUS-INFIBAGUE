@@ -14,7 +14,8 @@ const MODULOS_ORDEN = [
     'gestion_humana',
     'gestion_ambiental',
     'sst',
-    'planeacion_estrategica'
+    'planeacion_estrategica',
+    'gestion_documental'
 ];
 
 /**
@@ -25,7 +26,8 @@ const MODULOS_URLS = {
     'gestion_humana': 'induccion-gestion-humana.html',
     'gestion_ambiental': 'induccion-gestion-ambiental.html',
     'sst': 'induccion-sst.html',
-    'planeacion_estrategica': 'induccion-planeacion.html'
+    'planeacion_estrategica': 'induccion-planeacion.html',
+    'gestion_documental': 'induccion-gestion-documental.html'
 };
 
 /**
@@ -36,7 +38,8 @@ const MODULOS_NOMBRES = {
     'gestion_humana': 'Gestión Humana',
     'gestion_ambiental': 'Gestión Ambiental',
     'sst': 'Seguridad y Salud en el Trabajo',
-    'planeacion_estrategica': 'Planeación Estratégica'
+    'planeacion_estrategica': 'Planeación Estratégica',
+    'gestion_documental': 'Gestión Documental'
 };
 
 /**
