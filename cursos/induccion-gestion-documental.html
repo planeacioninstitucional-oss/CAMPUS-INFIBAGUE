@@ -201,6 +201,14 @@
             z-index: 30;
         }
 
+        .info-img {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border: 6px solid white;
+        }
+
         .quiz-container {
             text-align: left;
             max-width: 600px;
@@ -342,7 +350,26 @@
                 <h1>Inducción Gestión Documental</h1>
                 <p>Conoce los lineamientos básicos de archivo y gestión documental de INFIBAGUÉ antes de responder la
                     evaluación.</p>
-                <button class="nav-btn" style="margin: 0 auto;" onclick="startQuiz()">Iniciar Evaluación 🚀</button>
+                <button class="nav-btn" style="margin: 0 auto;" onclick="nextTheorySlide()">Comenzar 🚀</button>
+            </div>
+        </div>
+
+        <!-- SLIDE TEORÍA 1 -->
+        <div class="slide" id="slide-teoria-1">
+            <div class="slide-content">
+                <img class="info-img" src="../assets/gestion-documental-1.png" loading="lazy"
+                    alt="Gestión Documental: Ley 594 de 2000, tres archivos, inventarios, TRD">
+                <button class="nav-btn" style="margin: 20px auto 0;" onclick="nextTheorySlide()">Siguiente ➡</button>
+            </div>
+        </div>
+
+        <!-- SLIDE TEORÍA 2 -->
+        <div class="slide" id="slide-teoria-2">
+            <div class="slide-content">
+                <img class="info-img" src="../assets/gestion-documental-2.png" loading="lazy"
+                    alt="Gestión Documental: confidencialidad, información pública/clasificada/reservada, artículos 14 y 15">
+                <button class="nav-btn" style="margin: 20px auto 0;" onclick="startQuiz()">Iniciar Evaluación
+                    📝</button>
             </div>
         </div>
 
@@ -415,9 +442,15 @@
             progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
         }
 
+        function nextTheorySlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
         function startQuiz() {
-            currentSlide = 1;
-            updateSlide();
+            nextTheorySlide();
             if (window.SupabaseProgress) {
                 window.SupabaseProgress.startModule('gestion_documental');
             }
@@ -474,7 +507,23 @@
                 return;
             }
 
-            window.location.href = '../funcionario/dashboard.html';
+            // Último módulo del curso: avisar al padre para que marque el curso
+            // completo y redirija al dashboard, en vez de navegar aquí dentro del
+            // iframe (eso carga el dashboard completo ANIDADO dentro del iframe).
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'MODULO_INDUCCION_COMPLETADO',
+                    data: {
+                        moduleId: 'gestion_documental',
+                        moduleName: 'gestion_documental',
+                        aprobado: true,
+                        ultimoModulo: true,
+                        fecha: new Date().toISOString()
+                    }
+                }, '*');
+            } else {
+                window.location.href = '../funcionario/dashboard.html';
+            }
         }
 
         function goBackHome() {

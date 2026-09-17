@@ -380,7 +380,18 @@
                 console.warn('Error guardando progreso de control interno:', e);
             }
 
-            window.location.href = '../funcionario/dashboard.html';
+            // Si estamos embebidos en induccion-curso.html, avisar al padre para que
+            // avance el iframe al siguiente módulo (nunca navegar aquí directamente,
+            // eso carga el dashboard completo DENTRO del iframe).
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'MODULE_COMPLETED',
+                    module: 'control_interno',
+                    nextModule: 'documental'
+                }, '*');
+            } else {
+                window.location.href = '../funcionario/dashboard.html';
+            }
         }
 
         function goBackHome() {
