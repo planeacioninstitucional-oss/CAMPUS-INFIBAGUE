@@ -392,15 +392,20 @@
                 console.warn('Error guardando progreso de control interno (legacy):', e);
             }
 
-            // Si estamos embebidos en induccion-curso.html, avisar al padre para que
-            // avance el iframe al siguiente módulo (nunca navegar aquí directamente,
-            // eso carga el dashboard completo DENTRO del iframe).
+            // Si estamos embebidos (induccion-curso.html o funcionario/dashboard.html),
+            // avisar al padre para que avance al siguiente módulo - nunca navegar aquí
+            // directamente, eso carga el dashboard completo DENTRO del iframe.
+            // Se usa el helper compartido porque manda los dos mensajes que cada
+            // posible contenedor padre necesita para avanzar correctamente.
             if (window.parent !== window) {
-                window.parent.postMessage({
-                    type: 'MODULE_COMPLETED',
-                    module: 'control_interno',
-                    nextModule: 'documental'
-                }, '*');
+                if (window.SupabaseProgress && window.SupabaseProgress.notifyModuleCompleted) {
+                    window.SupabaseProgress.notifyModuleCompleted('control_interno', true, 100, 100);
+                } else {
+                    window.parent.postMessage({
+                        type: 'MODULO_INDUCCION_COMPLETADO',
+                        data: { moduleId: 'control_interno', moduleName: 'control_interno', aprobado: true, ultimoModulo: false }
+                    }, '*');
+                }
             } else {
                 window.location.href = '../funcionario/dashboard.html';
             }

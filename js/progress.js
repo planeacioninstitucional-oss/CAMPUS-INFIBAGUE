@@ -502,6 +502,11 @@ window.addEventListener('message', (event) => {
 document.addEventListener('DOMContentLoaded', () => {
     if (!esSuperAdminAuditor()) return;
 
+    // Si el módulo está embebido en un iframe (induccion-curso.html o
+    // funcionario/dashboard.html), el contenedor padre ya muestra sus propios
+    // controles de auditor - evita duplicar la barra flotante encima.
+    if (window.parent !== window) return;
+
     if (document.getElementById('superadmin-quick-bar')) return;
 
     const bar = document.createElement('div');

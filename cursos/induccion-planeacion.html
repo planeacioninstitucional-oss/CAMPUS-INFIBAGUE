@@ -548,17 +548,23 @@
             }
 
             .slide {
-                padding: 100px 20px 110px;
+                padding: 100px 20px 40px;
+            }
+
+            /* Solo la diapositiva activa pasa a flujo normal (position:relative);
+               las demás siguen "position:absolute" (fuera del flujo) como en
+               desktop. Antes esta regla aplicaba a TODAS las diapositivas por
+               igual, así que aunque estuvieran ocultas (opacity:0) seguían
+               sumando su altura al documento -> scroll interminable en móvil. */
+            .slide.active {
                 position: relative;
                 height: auto;
-                min-height: 100vh;
+                min-height: auto;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
                 /* Empieza arriba en vez de centrada */
                 align-items: center;
-                opacity: 0;
-                visibility: hidden;
             }
 
             .slide.active {
@@ -1028,21 +1034,22 @@
                     }
                 }
 
-                // 2. Notificar al contenedor principal (iframe) para que avance al
-                // siguiente módulo (Control Interno). Planeación YA NO es el último
-                // módulo del curso, así que no se marca ultimoModulo ni se genera
-                // aquí el certificado final (eso ahora ocurre en Gestión Documental).
+                // 2. Notificar al contenedor principal para que avance al siguiente
+                // módulo (Control Interno). Se usa el helper compartido porque manda
+                // AMBOS mensajes que necesitan los dos posibles contenedores padre:
+                // induccion-curso.html (autoavanza con MODULO_INDUCCION_COMPLETADO) y
+                // funcionario/dashboard.html (necesita además CARGAR_SIGUIENTE_MODULO).
+                // Planeación YA NO es el último módulo, así que no genera aquí el
+                // certificado final (eso ahora ocurre en Gestión Documental).
                 if (window.parent !== window) {
-                    window.parent.postMessage({
-                        type: 'MODULO_INDUCCION_COMPLETADO',
-                        data: {
-                            moduleId: 'planeacion',
-                            moduleName: 'planeacion_estrategica',
-                            aprobado: true,
-                            ultimoModulo: false,
-                            fecha: new Date().toISOString()
-                        }
-                    }, '*');
+                    if (window.SupabaseProgress && window.SupabaseProgress.notifyModuleCompleted) {
+                        window.SupabaseProgress.notifyModuleCompleted('planeacion_estrategica', true, 1, 1);
+                    } else {
+                        window.parent.postMessage({
+                            type: 'MODULO_INDUCCION_COMPLETADO',
+                            data: { moduleId: 'planeacion', moduleName: 'planeacion_estrategica', aprobado: true, ultimoModulo: false }
+                        }, '*');
+                    }
                 } else {
                     window.location.href = '../funcionario/dashboard.html';
                 }
@@ -1051,10 +1058,14 @@
                 console.error('Error general al finalizar:', error);
                 alert('Tu progreso ha sido registrado. Redirigiendo...');
                 if (window.parent !== window) {
-                    window.parent.postMessage({
-                        type: 'MODULO_INDUCCION_COMPLETADO',
-                        data: { moduleId: 'planeacion', moduleName: 'planeacion_estrategica', aprobado: true, ultimoModulo: false }
-                    }, '*');
+                    if (window.SupabaseProgress && window.SupabaseProgress.notifyModuleCompleted) {
+                        window.SupabaseProgress.notifyModuleCompleted('planeacion_estrategica', true, 1, 1);
+                    } else {
+                        window.parent.postMessage({
+                            type: 'MODULO_INDUCCION_COMPLETADO',
+                            data: { moduleId: 'planeacion', moduleName: 'planeacion_estrategica', aprobado: true, ultimoModulo: false }
+                        }, '*');
+                    }
                 } else {
                     window.location.href = '../funcionario/dashboard.html';
                 }

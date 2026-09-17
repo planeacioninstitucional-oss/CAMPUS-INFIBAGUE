@@ -420,6 +420,30 @@
         let INDUCTION_MODULES = PERIODOS_INDUCCION[periodoActual].modulos;
 
         // Estado Global
+        // Traduce entre el module_name completo que usa Supabase/supabase-progress.js
+        // (p.ej. "gestion_ambiental", "control_interno") y el id corto que usa el
+        // sidebar de este dashboard (p.ej. "ambiental"). Única fuente de verdad -
+        // usarlo en cualquier lugar que reciba un module_name desde postMessage o
+        // desde user_module_progress.
+        const MODULE_NAME_TO_SHORT_ID = {
+            'atencion_ciudadano': 'atencion',
+            'gestion_humana': 'humana',
+            'gestion_ambiental': 'ambiental',
+            'sst': 'sst',
+            'planeacion_estrategica': 'planeacion',
+            'control_interno': 'control_interno',
+            'gestion_documental': 'documental'
+        };
+        const SHORT_ID_TO_MODULE_NAME = {
+            'atencion': 'atencion_ciudadano',
+            'humana': 'gestion_humana',
+            'ambiental': 'gestion_ambiental',
+            'sst': 'sst',
+            'planeacion': 'planeacion_estrategica',
+            'control_interno': 'control_interno',
+            'documental': 'gestion_documental'
+        };
+
         let userProgress = []; // IDs de módulos completados
         let currentUser = null;
         let activeModuleIndex = -1;
@@ -1187,8 +1211,14 @@
         // ==========================================
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'MODULO_INDUCCION_COMPLETADO') {
-                const { aprobado, moduleId } = event.data.data;
-                const finalModuleId = moduleId || (activeModuleIndex !== -1 ? INDUCTION_MODULES[activeModuleIndex].id : null);
+                const { aprobado, moduleId, moduleName } = event.data.data;
+                // moduleId/moduleName puede venir como nombre completo
+                // ("gestion_documental") o ya como id corto ("documental") según
+                // qué módulo lo mande - probamos ambas traducciones.
+                const raw = moduleId || moduleName;
+                const finalModuleId = MODULE_NAME_TO_SHORT_ID[raw]
+                    || (INDUCTION_MODULES.some(m => m.id === raw) ? raw : null)
+                    || (activeModuleIndex !== -1 ? INDUCTION_MODULES[activeModuleIndex].id : null);
 
                 if (aprobado && finalModuleId) {
                     markModuleComplete(finalModuleId); // Handles saving and UI update
@@ -1213,8 +1243,17 @@
             if (event.data && event.data.type === 'CARGAR_SIGUIENTE_MODULO') {
                 const { siguienteModulo } = event.data.data;
 
-                // Find the index of the next module
-                const nextIndex = INDUCTION_MODULES.findIndex(m => m.id === siguienteModulo);
+                // Los módulos mandan su nombre completo (p.ej. "control_interno",
+                // "planeacion_estrategica") pero INDUCTION_MODULES usa ids cortos
+                // ("control_interno", "planeacion"...) que no siempre coinciden.
+                // Como el curso es estrictamente secuencial, si no encontramos el
+                // id exacto simplemente avanzamos al siguiente módulo de la lista
+                // en vez de cerrar el reproductor sin avanzar.
+                const traducido = MODULE_NAME_TO_SHORT_ID[siguienteModulo] || siguienteModulo;
+                let nextIndex = INDUCTION_MODULES.findIndex(m => m.id === traducido);
+                if (nextIndex === -1 && activeModuleIndex !== -1 && activeModuleIndex < INDUCTION_MODULES.length - 1) {
+                    nextIndex = activeModuleIndex + 1;
+                }
 
                 if (nextIndex !== -1) {
                     // Load the next module directly
