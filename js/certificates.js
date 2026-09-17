@@ -534,7 +534,10 @@ async function descargarCertificado(inscripcionId, nombreArchivo = 'Certificado_
                 }, 100);
             }
             console.log('✅ Certificado generado exitosamente');
-            subirCertificadoStorage(doc, 'induccion_completa', usuario, nombreArchivo);
+            // Esperar la subida a Storage - si el llamador navega a otra página
+            // justo después (como pasa al terminar el curso), un fetch en curso
+            // sin esperar se cancela a medias con "Failed to fetch".
+            await subirCertificadoStorage(doc, 'induccion_completa', usuario, nombreArchivo);
             if (typeof mostrarNotificacion === 'function') {
                 mostrarNotificacion('Certificado descargado exitosamente', 'success');
             }
@@ -1064,7 +1067,9 @@ async function descargarCertificadoSST(datos = null) {
             }, 100);
         }
 
-        subirCertificadoStorage(doc, 'sst', usuario, fileName);
+        // Esperar la subida a Storage - si el llamador navega justo después,
+        // un fetch en curso sin esperar se cancela a medias.
+        await subirCertificadoStorage(doc, 'sst', usuario, fileName);
 
         return { success: true };
 
