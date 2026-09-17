@@ -368,16 +368,28 @@
             const btn = document.querySelector('#slide-4 .nav-btn');
             if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
 
+            // Con timeout: si Supabase se cuelga (red lenta, RLS, etc.) el módulo
+            // debe avanzar igual y no dejar al usuario atascado en "Guardando...".
+            const conTimeout = (promesa, ms = 6000) => Promise.race([
+                promesa,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout guardando progreso')), ms))
+            ]);
+
             try {
                 if (window.SupabaseProgress) {
                     // Módulo informativo: se aprueba al completar la lectura (100/100)
-                    await window.SupabaseProgress.approveModule('control_interno', 100, 100);
-                }
-                if (window.guardarProgreso) {
-                    await window.guardarProgreso('control_interno', 100, true);
+                    await conTimeout(window.SupabaseProgress.approveModule('control_interno', 100, 100));
                 }
             } catch (e) {
-                console.warn('Error guardando progreso de control interno:', e);
+                console.warn('Error guardando progreso de control interno (SupabaseProgress):', e);
+            }
+
+            try {
+                if (window.guardarProgreso) {
+                    await conTimeout(window.guardarProgreso('control_interno', 100, true));
+                }
+            } catch (e) {
+                console.warn('Error guardando progreso de control interno (legacy):', e);
             }
 
             // Si estamos embebidos en induccion-curso.html, avisar al padre para que

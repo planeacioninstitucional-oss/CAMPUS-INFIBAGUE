@@ -514,15 +514,27 @@
             const btn = document.querySelector('#q-end .nav-btn');
             if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
 
+            // Con timeout: si Supabase se cuelga (red lenta, RLS, etc.) el módulo
+            // debe seguir su curso y no dejar al usuario atascado en "Guardando...".
+            const conTimeout = (promesa, ms = 6000) => Promise.race([
+                promesa,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout guardando progreso')), ms))
+            ]);
+
             try {
                 if (window.SupabaseProgress) {
-                    await window.SupabaseProgress.approveModule('gestion_documental', correctas, TOTAL_PREGUNTAS);
-                }
-                if (window.guardarProgreso) {
-                    await window.guardarProgreso('gestion_documental', Math.round((correctas / TOTAL_PREGUNTAS) * 100), aprobado);
+                    await conTimeout(window.SupabaseProgress.approveModule('gestion_documental', correctas, TOTAL_PREGUNTAS));
                 }
             } catch (e) {
-                console.warn('Error guardando progreso de gestión documental:', e);
+                console.warn('Error guardando progreso de gestión documental (SupabaseProgress):', e);
+            }
+
+            try {
+                if (window.guardarProgreso) {
+                    await conTimeout(window.guardarProgreso('gestion_documental', Math.round((correctas / TOTAL_PREGUNTAS) * 100), aprobado));
+                }
+            } catch (e) {
+                console.warn('Error guardando progreso de gestión documental (legacy):', e);
             }
 
             if (!aprobado) {
